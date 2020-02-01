@@ -9,7 +9,7 @@
 ## Joshua D. Rhodes, PhD
 ## 2019-04-30
 
-setwd('/scripts')
+#setwd('/scripts')
 
 ## the inputs from the website website API URL GET (I have not idea) call will be:
 ## 1) Region considered (between 1 and 13, inclusive)
@@ -115,7 +115,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   ## "natural_gas_percent" to solveGEN.r.
   RegionNumber = region_id  ## Specify the region number to calculate (there are 13 defined U.S. regions)
   if ( (RegionNumber >= 1) & (RegionNumber <= 13)){
-    solveGEN_output <- solveGEN(RegionNumber,year,coal_percent, PV_percent, CSP_percent, wind_percent, nuclear_percent, hydro_percent, biomass_percent, geothermal_percent, petroleum_percent, ev_charging_profile)
+    solveGEN_output <- solveGEN(RegionNumber,year,coal_percent, PV_percent, CSP_percent, wind_percent, nuclear_percent, hydro_percent, biomass_percent, geothermal_percent, petroleum_percent)#, ev_charging_profile)
   } else {
     stop("You have not selected a valid RegionNumber to call solveGEN.r.")
   } 
