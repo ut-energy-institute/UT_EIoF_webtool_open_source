@@ -25,7 +25,7 @@ run containers: docker run -p 8000:8000 -it test
 
 rebuild containers: docker build --tag=dev .
 
-run containers: docker run -p 8005:8000 -it test
+run containers: docker run -p 8005:8000 -it dev
 
 
 # Local call to app:
