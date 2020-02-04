@@ -2,3 +2,8 @@
 !/.gitignore
 
 R/
+.Rproj.user
+
+.Rproj
+.RData
+.Rhistory
