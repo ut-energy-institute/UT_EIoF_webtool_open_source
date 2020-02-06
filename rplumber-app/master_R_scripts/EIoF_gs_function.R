@@ -20,7 +20,7 @@ EIoF_gs_function <- function(Coal = 0.2157, Nuclear =  0.1176,	Natural_Gas =  0.
 #  gs_edit_cells(ss = eiof, ws = 3, input = elec_gen_fuels, anchor = "B49", byrow = F, verbose = F)
   
   # get values from the sheet after input has been changed
-  output <- gs_read(ss = eiof, ws = 5, range = "A1:AZ42", col_names = T, verbose = F)
+  output <- gs_read(ss = eiof, ws = 5, range = "A1:BB42", col_names = T, verbose = F)
   
   #output <- as.numeric(gsub(',', '', gs_read(ss = eiof, ws = 6, range = "U15:BA15", col_names = F, verbose = F)))
   

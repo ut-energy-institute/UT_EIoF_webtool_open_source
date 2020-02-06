@@ -93,7 +93,7 @@
 ## 
 ## ++++++++++++++++++++++
 
-solveGEN <- function(RegionNumber,year, coal_percent, PV_percent, CSP_percent, wind_percent, nuclear_percent, hydro_percent, biomass_percent, geothermal_percent, petroleum_percent, ev_charging_profile){
+solveGEN <- function(RegionNumber,year, coal_percent, PV_percent, CSP_percent, wind_percent, nuclear_percent, hydro_percent, biomass_percent, geothermal_percent, petroleum_percent){
   
   coal_percent = coal_percent / 100
   PV_percent = PV_percent / 100
@@ -104,35 +104,52 @@ solveGEN <- function(RegionNumber,year, coal_percent, PV_percent, CSP_percent, w
   petroleum_percent = petroleum_percent / 100
   nuclear_percent = nuclear_percent / 100
   geothermal_percent = geothermal_percent / 100
-#  ng_percent = ng_percent / 100
-  
   
 ## +++++++++
-## Read data
+## Read data and set initial parameters
 ## +++++++++
+## Hourly data
 wind_8760=read.csv(paste0("solveGen_data/Wind_Profiles_",year,".csv"))  ## Data must be input as "MW output per hour per installed MW of capacity"
 PV_8760=read.csv(paste0("solveGen_data/PV_Profiles_",year,".csv"))      ## Data must be input as "MW output per hour per installed MW of capacity"
 CSP_8760=read.csv(paste0("solveGen_data/CSP_Profiles_",year,".csv"))    ## Data must be input as "MW output per hour per installed MW of capacity"
 load_8760=read.csv(paste0("solveGen_data/Load_Profiles_",year,".csv"))  ## Data must be input as "average MW of load for each hour"
-data=data.frame(load_8760[,1],load_8760[,(RegionNumber+2)],wind_8760[,(RegionNumber+2)],PV_8760[,(RegionNumber+2)],CSP_8760[,(RegionNumber+2)])
-names(data)=c(names(load_8760)[1],"Load_MW","Wind_MW","SolarPV_MW","SolarCSP_MW")
-#data = read.csv("UserEnergy_to_Capacity_LoadWind_PV_CSP_8760_TXR06_NoNegative.csv") ## ultimately this needs to have MW output (per hour) per MW installed
-assign('data',data,envir=.GlobalEnv)
-MW_data_PV <- 1    ## [this is a guess] MW of installed solar PV associated with the input 8760 MW output of the solar PV profile
-MW_data_Wind <- 1 ## [this is a guess] MW of installed wind associated with the input 8760 MW output of the wind profile
-MW_data_CSP <- 1    ## [this is a guess] MW of installed solar CSP associated with the input 8760 MW output of the solar CSP profile
-NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN.csv")
+Tranfer_RegionFromTo_CSP=read.csv("solveGen_data/FractionFromRegionToRegion_Matrix_CSP.csv")   ## An input-output matrix: For all of the user's desired CSP electricity TO region on the COLUMN, what fraction comes FROM the region of the ROW
+Tranfer_RegionFromTo_PV=read.csv("solveGen_data/FractionFromRegionToRegion_Matrix_PV.csv")     ## An input-output matrix: For all of the user's desired PV electricity TO region on the COLUMN, what fraction comes FROM the region of the ROW
+Tranfer_RegionFromTo_Wind=read.csv("solveGen_data/FractionFromRegionToRegion_Matrix_Wind.csv") ## An input-output matrix: For all of the user's desired (onshore) Wind electricity TO region on the COLUMN, what fraction comes FROM the region of the ROW
+rownames(Tranfer_RegionFromTo_CSP) <- Tranfer_RegionFromTo_CSP[,1]
+Tranfer_RegionFromTo_CSP <- Tranfer_RegionFromTo_CSP[,-1]
+rownames(Tranfer_RegionFromTo_PV) <- Tranfer_RegionFromTo_PV[,1]
+Tranfer_RegionFromTo_PV <- Tranfer_RegionFromTo_PV[,-1]
+rownames(Tranfer_RegionFromTo_Wind) <- Tranfer_RegionFromTo_Wind[,1]
+Tranfer_RegionFromTo_Wind <- Tranfer_RegionFromTo_Wind[,-1]
+
+## Initial guesses for optimization
+MW_data_PV <- 1     ## [this is a needed initial input for internal optimization] MW of installed solar PV associated with the input 8760 MW output of the solar PV profile
+MW_data_Wind <- 1   ## [this is a needed initial input for internal optimization] MW of installed wind associated with the input 8760 MW output of the wind profile
+MW_data_CSP <- 1    ## [this is a needed initial input for internal optimization] MW of installed solar CSP associated with the input 8760 MW output of the solar CSP profile
+
+## Cost data (that mostly set up names for internal data frames)
+NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN.csv")  ## A proxy set of cost input data for newly installed power plants
 NewPPcost <- NewPPcost[order(NewPPcost$X),]
 assign('NewPPcost',NewPPcost,envir=.GlobalEnv)
-StorageCost = read.csv("solveGen_data/StorageTechnologyCosts_solveGEN.csv")
+StorageCost = read.csv("solveGen_data/StorageTechnologyCosts_solveGEN.csv") ## A proxy set of cost for electricity storage technologies
 assign('StorageCost',StorageCost,envir=.GlobalEnv)
 
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#* JOSH ADDITIONS #*#*#*#*#*#*#*#*#*#*#*#*#*#*#* 
-
-# add ev charging profiel to load NEED TO ADJUST FOR TIMEZONE!!!!!
-data$Load_MW <- data$Load_MW + ev_charging_profile
-
-
+## +++++++++
+## Create the main "data" data frame that has the region-specific 8760 profile for
+## 1. generation needed from all generators (called "load" for legacy reasons, but this includes generation needed to overcome transmission and distribution losses)
+## 2. 
+## +++++++++
+wind_profiles_multiplier<-matrix(rep(Tranfer_RegionFromTo_Wind[,RegionNumber],each=8760),nrow=8760)
+wind_8760_profile <- wind_profiles_multiplier*wind_8760[,3:15]
+PV_profiles_multiplier<-matrix(rep(Tranfer_RegionFromTo_PV[,RegionNumber],each=8760),nrow=8760)
+PV_8760_profile <- PV_profiles_multiplier*PV_8760[,3:15]
+CSP_profiles_multiplier<-matrix(rep(Tranfer_RegionFromTo_CSP[,RegionNumber],each=8760),nrow=8760)
+CSP_8760_profile <- CSP_profiles_multiplier*CSP_8760[,3:15]
+data=data.frame(load_8760[,1],load_8760[,(RegionNumber+2)],rowSums(wind_8760_profile[,]),rowSums(PV_8760_profile[,]),rowSums(CSP_8760_profile[,]))
+##data=data.frame(load_8760[,1],load_8760[,(RegionNumber+2)],wind_8760[,(RegionNumber+2)],PV_8760[,(RegionNumber+2)],CSP_8760[,(RegionNumber+2)])
+names(data)=c(names(load_8760)[1],"Load_MW","Wind_MW","SolarPV_MW","SolarCSP_MW")
+assign('data',data,envir=.GlobalEnv)
 
 
 ## +++++++++
@@ -158,10 +175,10 @@ Frac_MWhDesired_dispatchable[,c(2)] <- 0
 ## Sort Frac_MWhDesired alphabetically by technology name (A-->Z)
 Frac_MWhDesired_dispatchable <- Frac_MWhDesired_dispatchable[order(Frac_MWhDesired_dispatchable$Technology),]
 Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("Coal"))] <- coal_percent  ## Coal
-Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("NGCC"))] <- 0.0  ## NGCC
-Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("NGCT"))] <- 0.0  ## NGCT
-Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("UserTech1"))] <- 0.0  ## UserTech1
-Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("UserTech2"))] <- 0.0  ## UserTech2
+Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("NGCC"))] <- 0  ## NGCC
+Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("NGCT"))] <- 0  ## NGCT
+Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("UserTech1"))] <- 0  ## UserTech1
+Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("UserTech2"))] <- 0  ## UserTech2
 #Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("HydroDispatch"))] <- 0.0  ## Dispatchable portion of hydro power
 Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("PetroleumCC"))] <- petroleum_percent  ## Petroleum fired power
 Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("Biomass"))] <- biomass_percent  ## Biomass
@@ -190,8 +207,11 @@ Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondis
 Frac_MWhDesired_NG_total <- 1 - sum(Frac_MWhDesired_dispatchable[,2]) - sum(Frac_MWhDesired_Nondispatchable[,2]) + Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("NGCC"))] + Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("NGCT"))]
 assign('Frac_MWhDesired_dispatchable',Frac_MWhDesired_dispatchable,envir=.GlobalEnv)
 assign('Frac_MWhDesired_Nondispatchable',Frac_MWhDesired_Nondispatchable,envir=.GlobalEnv)
+
+print(Frac_MWhDesired_NG_total)
+
 if (Frac_MWhDesired_NG_total<0) {
-#  print("You have specified desired percentages of generation > 100%. Ensure the sum of each type of generation = 100%.")
+  print("You have specified desired percentages of generation > 100%. Ensure the sum of each type of generation = 100%.")
   break
 }
 
@@ -1114,6 +1134,9 @@ curtailed_PV[is.na(curtailed_PV)==TRUE] <- 0      ## ensure there are no NA from
 curtailed_CSP[is.na(curtailed_CSP)==TRUE] <- 0    ## ensure there are no NA from dividing by zero
 
 
+## ++++++++++++++++
+## Sequence of loops to solve for HydroDispatch (NO ANNUAL ELECTRICITY STORAGE) - BEGIN
+## ++++++++++++++++
 ## ++++++++++++
 ## Solving for DispatchableHydro JUST BEFORE solving for NG power plants but AFTER solving for 
 ## output from all power plants .
@@ -1291,7 +1314,7 @@ if (NotEnoughHydro == 0) {
   }
 } ## if (NotEnoughHydro == 0) { 
 ## ++++++++++++++++
-## Sequence of loops to solve for HydroDispatch - END
+## Sequence of loops to solve for HydroDispatch (NO ANNUAL ELECTRICITY STORAGE) - END
 ## ++++++++++++++++
 
 
@@ -1485,7 +1508,7 @@ curtailed_WindSolar_WithAnnualStorage[curtailed_WindSolar_WithAnnualStorage>0]=0
 curtailed_WindSolar_WithAnnualStorage <- -curtailed_WindSolar_WithAnnualStorage
 MW_capacity_AnnualStorage <- max(curtailed_WindSolar_WithAnnualStorage)  ## The MW capacity of the storage system is assumed = that require to store the maxim MW of curtailed Wind+PV+CSP
 StoredWindSolar_AnnualStorage <- curtailed_WindSolar_WithAnnualStorage*efficiency_OneWay_DailyStorage^2                ## First, assume all curtailed wind and solar is stored, subtracting MWh due to efficiency loss
-StoredWindSolar_AnnualStorage[StoredWindSolar_AnnualStorage>MW_capacity_AnnualStorage] <- MW_capacity_AnnualStorage  ## Next, this says I can't store energy faster in any given hour, due to power constraint, than the MW power capacity of the storage system
+StoredWindSolar_AnnualStorage[StoredWindSolar_AnnualStorage>MW_capacity_AnnualStorage] <- MW_capacity_AnnualStorage  ## Next, this says I can't store energy faster in any given hour, due to power constraint, than the MW power capacity of the storage system which is set by the highest MW (in all hours of the year) of all curtailed renewables needed to be stored.
 
 noncurtailed_WindSolar_WithAnnualStorage <- data$Wind_MW_WithAnnualStorage_total+data$PV_MW_WithAnnualStorage_total+data$CSP_MW_WithAnnualStorage_total
 wind_fraction_WithAnnualStorage = data$Wind_MW_WithAnnualStorage_total/noncurtailed_WindSolar_WithAnnualStorage
@@ -1609,17 +1632,13 @@ for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NG
 
 
 
-
-## ++++++++++++
-## FOR NOW (4/1/19) I AM NOT YET CALCULATING "HydroDispatch" for the case
-## of considering ANNUAL ELECTRICITY STORAGE ... because I am debugging the
-## solution of the annual storage algorithm.
-## ++++++++++++
+## +++++++++++++++++
+## Solving for data$HydroDispatch_AnnualStorage_MW -- BEGIN
+## +++++++++++++++++
 data$HydroDispatch_AnnualStorage_MW <- 0*data$HydroDispatch_MW
 cat("CODE NEEDS TO BE INSERTED: SOLVING FOR `HYDRODISPATCH' WITH ANNUAL ELECTRICITY STORAGE.",sep="\n")
-## TO BE INSERTED: SOLVING FOR "HYDRODISPATCH" WITH ANNUAL ELECTRICITY STORAGE
-## TO BE INSERTED: SOLVING FOR "HYDRODISPATCH" WITH ANNUAL ELECTRICITY STORAGE
-## TO BE INSERTED: SOLVING FOR "HYDRODISPATCH" WITH ANNUAL ELECTRICITY STORAGE
+cat("REALLY? IT SEEMS THAT HYDRODISPATCH' WITH ANNUAL ELECTRICITY STORAGE WORKS (6/24/19).",sep="\n")
+cat("NOTE THAT data$HydroDispatch_AnnualStorage_MW = data$HydroDispatch_MW, as it is only based on NUCLEAR and water availability.",sep="\n")
 ## ++++++++++++
 ## Solving for DispatchableHydro JUST BEFORE solving for NG power plants but AFTER solving for 
 ## output from all power plants .
@@ -1766,7 +1785,10 @@ if (NotEnoughHydro == 0) {
     data$HydroDispatch_AnnualStorage_MW <- data_hydro_dispatch_temp$HydroDispatch_MW  ## put curtailed HydroDispatch_MW into data$HydroDispatch_MW
   }
 } ## if (NotEnoughHydro == 0) { 
-cat("NEED TO ADD MORE HYDRO DISPATCH WITH STORAGE PROGRAMMING HERE ...",sep="\n")
+cat("NEED TO ADD MORE HYDRO DISPATCH WITH STORAGE PROGRAMMING HERE ... BUT as of 6/24/19 I DON'T RECALL WHY THIS NOTE. WHAT IS MISSING?",sep="\n")
+## +++++++++++++++++
+## Solving for data$HydroDispatch_AnnualStorage_MW -- END
+## +++++++++++++++++
 
 
 ## +++++++++++++++++
@@ -1894,73 +1916,6 @@ PP_MWneeded_AnnualStorage$Fraction_MWhActual[which(PP_MWneeded_AnnualStorage$Tec
 
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
-## PLOTTING - BEGIN
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-
-## +++++++++++++++
-## Stacked Area Chart of MW generation each hour -- NO ANNUAL STORAGE CONSIDERED
-## +++++++++++++++
-library(ggplot2)
-start.hour <- 3500 ## minimum is 1, maximum is 8760
-end.hour <- start.hour+24*7   ## minimum is 1, maximum is 8760
-num_PPtech <- dim(PP_MWneeded)[1]-1-dim(PP_MWneeded_temp)[1]  ##  Total number of Power Plant technologies. Subract 1 (for 2 types of hydro plotted as one). Subtract those associated with plotting Annual Storage information
-Hour <- rep(data$Hour.ending[start.hour:end.hour],each=(num_PPtech))  ## 
-Generation_MW <- rep(0,(end.hour-start.hour+1)*(num_PPtech))
-for (i in 1:(end.hour-start.hour+1)) {
-  # Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[i],(data$Wind_MW_total[i]-curtailed_Wind[i]),(data$PV_MW_total[i]-curtailed_PV[i]),(data$CSP_MW_total[i]-curtailed_CSP[i]),data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i],data$Biomass_MW[i],data$Geothermal_MW[i],data$PetroleumCC_MW[i],data$HydroDispatch_MW[i])
-  Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[start.hour+i],(data$Wind_MW_total[start.hour+i]-curtailed_Wind[start.hour+i]),(data$PV_MW_total[start.hour+i]-curtailed_PV[start.hour+i]),(data$CSP_MW_total[start.hour+i]-curtailed_CSP[start.hour+i]),data$Coal_MW[start.hour+i],data$NGCC_MW[start.hour+i],data$NGCT_MW[start.hour+i],data$UserTech1_MW[start.hour+i],data$UserTech2_MW[start.hour+i],data$Biomass_MW[start.hour+i],data$Geothermal_MW[start.hour+i],data$PetroleumCC_MW[start.hour+i],(data$HydroDispatch_MW[start.hour+i]+data$HydroNonDispatch_MW[start.hour+i]))
-}
-##Generator1 <- factor(rep(c("Nuclear","Wind","PV","Coal","NGCC","NGCT","UserTech1","UserTech2"),times=(end.hour-start.hour+1)))
-##Generator1 = factor(Generator1,levels=levels(Generator1)[c(7,6,3,2,1,8,5,4)]) #reorder
-Generator1 <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro"),times=(end.hour-start.hour+1)))
-Generator1 = factor(Generator1,levels=levels(Generator1)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
-data_stacked_area1 <- data.frame(Generation_MW,Hour,Generator1)
-p1<-ggplot(data_stacked_area1, aes(x=Hour, y=Generation_MW, fill=Generator1)) +     geom_area() +
-  labs(x = "Hour") + labs(y = "Generation (MW)") + guides(fill=guide_legend(title="Generator"))
-print(p1)
-
-## +++++++++++++++
-## Stacked Area Chart of MW generation each hour -- WITH ANNUAL STORAGE CONSIDERED
-## +++++++++++++++
-start.hour <- start.hour#3500 ## minimum is 1, maximum is 8760
-end.hour <- start.hour+24*7   ## minimum is 1, maximum is 8760
-num_PPtech1a <- dim(PP_MWneeded)[1]-1-dim(PP_MWneeded_temp)[1]+1  ##  Total number of Power Plant technologies. Subract 1 (for 2 types of hydro plotted as one). Subtract those associated with plotting Annual Storage information + 1 to add back storage
-Hour <- rep(data$Hour.ending[start.hour:end.hour],each=(num_PPtech1a))  ## 
-Generation_MW <- rep(0,(end.hour-start.hour+1)*(num_PPtech1a))
-for (i in 1:(end.hour-start.hour+1)) {
-  # Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[i],(data$Wind_MW_total[i]-curtailed_Wind[i]),(data$PV_MW_total[i]-curtailed_PV[i]),(data$CSP_MW_total[i]-curtailed_CSP[i]),data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i],data$Biomass_MW[i],data$Geothermal_MW[i],data$PetroleumCC_MW[i],data$HydroDispatch_MW[i])
-  Generation_MW[((num_PPtech1a)*(i-1)+1):((num_PPtech1a)*i)] <- c(data$Nuclear_MW[start.hour+i],(data$Wind_MW_DirectToGrid_AnnualStorage[start.hour+i]),(data$PV_MW_DirectToGrid_AnnualStorage[start.hour+i]),(data$CSP_MW_DirectToGrid_AnnualStorage[start.hour+i]),data$Coal_AnnualStorage_MW[start.hour+i],data$NGCC_AnnualStorage_MW[start.hour+i],data$NGCT_AnnualStorage_MW[start.hour+i],data$UserTech1_AnnualStorage_MW[start.hour+i],data$UserTech2_AnnualStorage_MW[start.hour+i],data$Biomass_AnnualStorage_MW[start.hour+i],data$Geothermal_AnnualStorage_MW[start.hour+i],data$PetroleumCC_AnnualStorage_MW[start.hour+i],(data$HydroDispatch_AnnualStorage_MW[start.hour+i]+data$HydroNonDispatch_MW[start.hour+i]),data$Dispatched_StoredWindSolar_MW[start.hour+i])
-}
-Generator1a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
-#Generator1a = factor(Generator1,levels=levels(Generator1)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
-Generator1a = factor(Generator1a,levels=levels(Generator1a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
-data_stacked_area1a <- data.frame(Generation_MW,Hour,Generator1a)
-p1a<-ggplot(data_stacked_area1a, aes(x=Hour, y=Generation_MW, fill=Generator1a)) +     geom_area() +
-  labs(x = "Hour") + labs(y = "Generation (MW)") + guides(fill=guide_legend(title="Generator"))
-print(p1a)
-
-
-######## BEGIN JDR edit to send Carey data back to main function
-
-library(jsonlite)
-
-carey_json <- toJSON(data_stacked_area1a)
-
-
-#print(head(carey_json))
-
-######## END JDR edit to send Carey data back to main function
-
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-## PLOTTING - END
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-
-
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
 ## CALCULATE SYSTEM COSTS - BEGIN
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
@@ -2075,51 +2030,107 @@ data$Grid_Cost_8760_VariableOnly_AnnualStorage <- Cost_VariableOnly_8760_AnnualS
   Cost_VariableOnly_8760_AnnualStorage$Petroleum +
   Cost_VariableOnly_8760_AnnualStorage$AnnualStorage
 
-## +++++++++++++++
-## Stacked Area Chart of Variable Cost each Hour ($/MWh) (NO ELECTRICITY STORAGE OF ANY KIND)
-## +++++++++++++++
-Generator_Cost <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro"),times=(end.hour-start.hour+1)))
-Generator_Cost = factor(Generator_Cost,levels=levels(Generator_Cost)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
-Hour_Cost <- rep(data$Hour.ending[start.hour:end.hour],each=num_PPtech)
-Cost_Variable <- rep(0,(end.hour-start.hour+1)*num_PPtech)
-for (i in 1:(end.hour-start.hour+1)) {
-  ## Plot method 1
-  Cost_Variable[(num_PPtech*(i-1)+1):(num_PPtech*i)] <- c(Cost_VariableOnly_8760$Nuclear[start.hour+i],Cost_VariableOnly_8760$Wind[start.hour+i],Cost_VariableOnly_8760$PV[start.hour+i],Cost_VariableOnly_8760$CSP[start.hour+i],Cost_VariableOnly_8760$Coal[start.hour+i],Cost_VariableOnly_8760$NGCC[start.hour+i],Cost_VariableOnly_8760$NGCT[start.hour+i],Cost_VariableOnly_8760$UserTech1[start.hour+i],Cost_VariableOnly_8760$UserTech2[start.hour+i],Cost_VariableOnly_8760$Biomass[start.hour+i],Cost_VariableOnly_8760$Geothermal[start.hour+i],Cost_VariableOnly_8760$Petroleum[start.hour+i],Cost_VariableOnly_8760$Hydro[start.hour+i])*1000/data$Load_MW[start.hour+i]
-  ## Plot method 2
-  #### Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i],Cost_VariableOnly_8760$Wind[i],Cost_VariableOnly_8760$PV[i],Cost_VariableOnly_8760$Coal[i],Cost_VariableOnly_8760$NGCC[i],Cost_VariableOnly_8760$NGCT[i],Cost_VariableOnly_8760$UserTech1[i],Cost_VariableOnly_8760$UserTech2[i])*1000
-  #### Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i]/data$Nuclear_MW[i],Cost_VariableOnly_8760$Wind[i]/data$Wind_MW_total[i],Cost_VariableOnly_8760$PV[i]/data$PV_MW_total[i],Cost_VariableOnly_8760$Coal[i]/data$Coal_MW[i],Cost_VariableOnly_8760$NGCC[i]/data$NGCC_MW[i],Cost_VariableOnly_8760$NGCT[i]/data$NGCT_MW[i],Cost_VariableOnly_8760$UserTech1[i]/data$UserTech1_MW[i],Cost_VariableOnly_8760$UserTech2[i]/data$UserTech2_MW[i])*1000
-  ## Plot method 3
-  #Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i],Cost_VariableOnly_8760$Wind[i],Cost_VariableOnly_8760$PV[i],Cost_VariableOnly_8760$Coal[i],Cost_VariableOnly_8760$NGCC[i],Cost_VariableOnly_8760$NGCT[i],Cost_VariableOnly_8760$UserTech1[i],Cost_VariableOnly_8760$UserTech2[i])*1000
-  #Cost_Variable[(8*(i-1)+1):(8*i)] <- Cost_Variable[(8*(i-1)+1):(8*i)]/c(data$Nuclear_MW[i],data$Wind_MW_total[i],data$PV_MW_total[i],data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i])
-}
-Cost_Variable[is.infinite(Cost_Variable)=="TRUE"]=0
-Cost_Variable[is.na(Cost_Variable)=="TRUE"]=0
-data_stacked_area2 <- data.frame(Cost_Variable,Hour_Cost,Generator_Cost)
-p2<-ggplot(data_stacked_area2, aes(x=Hour_Cost, y=Cost_Variable, fill=Generator_Cost)) +     geom_area() +
-  labs(x = "Hour") + labs(y = "Variable Cost ($/MWh)") + guides(fill=guide_legend(title="Generator"))
-print(p2)
-
-
-## +++++++++++++++
-## Stacked Area Chart of Variable Cost each Hour ($/MWh) (WITH ANNUAL ELECTRICITY STORAGE)
-## +++++++++++++++
-Generator_Cost2a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
-Generator_Cost2a = factor(Generator_Cost2a,levels=levels(Generator_Cost2a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
-Hour_Cost <- rep(data$Hour.ending[start.hour:end.hour],each=num_PPtech1a)
-Cost_Variable2a <- rep(0,(end.hour-start.hour+1)*num_PPtech1a)
-for (i in 1:(end.hour-start.hour+1)) {
-  ## Plot method 1
-  Cost_Variable2a[(num_PPtech1a*(i-1)+1):(num_PPtech1a*i)] <- c(Cost_VariableOnly_8760_AnnualStorage$Nuclear[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Wind[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$PV[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$CSP[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Coal[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$NGCC[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$NGCT[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$UserTech1[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$UserTech2[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Biomass[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Geothermal[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Petroleum[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Hydro[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$AnnualStorage[start.hour+i])*1000/data$Load_MW[start.hour+i]
-}
+## ++++++++++++++++++++++++++++
+## ++++++++++++++++++++++++++++
+## PLOTTING - BEGIN
+## ++++++++++++++++++++++++++++
+## ++++++++++++++++++++++++++++
+# library(ggplot2)
+# start.hour <- 4350 ## minimum is 1, maximum is 8760
+# end.hour <- start.hour+24*5   ## minimum is 1, maximum is 8760
+# num_PPtech <- dim(PP_MWneeded)[1]-1-dim(PP_MWneeded_temp)[1]  ##  Total number of Power Plant technologies. Subract 1 (for 2 types of hydro plotted as one). Subtract those associated with plotting Annual Storage information
+# 
+# ## +++++++++++++++
+# ## Stacked Area Chart of Variable Cost each Hour ($/MWh) (NO ELECTRICITY STORAGE OF ANY KIND)
+# ## +++++++++++++++
+# Generator_Cost <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro"),times=(end.hour-start.hour+1)))
+# Generator_Cost = factor(Generator_Cost,levels=levels(Generator_Cost)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
+# Hour_Cost <- rep(data$Hour.ending[start.hour:end.hour],each=num_PPtech)
+# Cost_Variable <- rep(0,(end.hour-start.hour+1)*num_PPtech)
+# for (i in 1:(end.hour-start.hour+1)) {
+#   ## Plot method 1
+#   Cost_Variable[(num_PPtech*(i-1)+1):(num_PPtech*i)] <- c(Cost_VariableOnly_8760$Nuclear[start.hour+i],Cost_VariableOnly_8760$Wind[start.hour+i],Cost_VariableOnly_8760$PV[start.hour+i],Cost_VariableOnly_8760$CSP[start.hour+i],Cost_VariableOnly_8760$Coal[start.hour+i],Cost_VariableOnly_8760$NGCC[start.hour+i],Cost_VariableOnly_8760$NGCT[start.hour+i],Cost_VariableOnly_8760$UserTech1[start.hour+i],Cost_VariableOnly_8760$UserTech2[start.hour+i],Cost_VariableOnly_8760$Biomass[start.hour+i],Cost_VariableOnly_8760$Geothermal[start.hour+i],Cost_VariableOnly_8760$Petroleum[start.hour+i],Cost_VariableOnly_8760$Hydro[start.hour+i])*1000/data$Load_MW[start.hour+i]
+#   ## Plot method 2
+#   #### Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i],Cost_VariableOnly_8760$Wind[i],Cost_VariableOnly_8760$PV[i],Cost_VariableOnly_8760$Coal[i],Cost_VariableOnly_8760$NGCC[i],Cost_VariableOnly_8760$NGCT[i],Cost_VariableOnly_8760$UserTech1[i],Cost_VariableOnly_8760$UserTech2[i])*1000
+#   #### Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i]/data$Nuclear_MW[i],Cost_VariableOnly_8760$Wind[i]/data$Wind_MW_total[i],Cost_VariableOnly_8760$PV[i]/data$PV_MW_total[i],Cost_VariableOnly_8760$Coal[i]/data$Coal_MW[i],Cost_VariableOnly_8760$NGCC[i]/data$NGCC_MW[i],Cost_VariableOnly_8760$NGCT[i]/data$NGCT_MW[i],Cost_VariableOnly_8760$UserTech1[i]/data$UserTech1_MW[i],Cost_VariableOnly_8760$UserTech2[i]/data$UserTech2_MW[i])*1000
+#   ## Plot method 3
+#   #Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i],Cost_VariableOnly_8760$Wind[i],Cost_VariableOnly_8760$PV[i],Cost_VariableOnly_8760$Coal[i],Cost_VariableOnly_8760$NGCC[i],Cost_VariableOnly_8760$NGCT[i],Cost_VariableOnly_8760$UserTech1[i],Cost_VariableOnly_8760$UserTech2[i])*1000
+#   #Cost_Variable[(8*(i-1)+1):(8*i)] <- Cost_Variable[(8*(i-1)+1):(8*i)]/c(data$Nuclear_MW[i],data$Wind_MW_total[i],data$PV_MW_total[i],data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i])
+# }
+# Cost_Variable[is.infinite(Cost_Variable)=="TRUE"]=0
+# Cost_Variable[is.na(Cost_Variable)=="TRUE"]=0
+# data_stacked_area2 <- data.frame(Cost_Variable,Hour_Cost,Generator_Cost)
+# p2<-ggplot(data_stacked_area2, aes(x=Hour_Cost, y=Cost_Variable, fill=Generator_Cost)) +     geom_area() +
+#   labs(x = "Hour") + labs(y = "Variable Cost ($/MWh)") + guides(fill=guide_legend(title="Generator"))
+# print(p2)
+# 
+# 
+# ## +++++++++++++++
+# ## Stacked Area Chart of Variable Cost each Hour ($/MWh) (WITH ANNUAL ELECTRICITY STORAGE)
+# ## +++++++++++++++
+# Generator_Cost2a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
+# Generator_Cost2a = factor(Generator_Cost2a,levels=levels(Generator_Cost2a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
+# num_PPtech1a <- dim(PP_MWneeded)[1]-1-dim(PP_MWneeded_temp)[1]+1  ##  Total number of Power Plant technologies. Subract 1 (for 2 types of hydro plotted as one). Subtract those associated with plotting Annual Storage information + 1 to add back storage
+# Hour_Cost <- rep(data$Hour.ending[start.hour:end.hour],each=num_PPtech1a)
+# Cost_Variable2a <- rep(0,(end.hour-start.hour+1)*num_PPtech1a)
+# for (i in 1:(end.hour-start.hour+1)) {
+#   ## Plot method 1
+#   Cost_Variable2a[(num_PPtech1a*(i-1)+1):(num_PPtech1a*i)] <- c(Cost_VariableOnly_8760_AnnualStorage$Nuclear[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Wind[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$PV[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$CSP[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Coal[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$NGCC[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$NGCT[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$UserTech1[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$UserTech2[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Biomass[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Geothermal[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Petroleum[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Hydro[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$AnnualStorage[start.hour+i])*1000/data$Load_MW[start.hour+i]
+# }
+# # Generator1a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
+# # Generator1a = factor(Generator1a,levels=levels(Generator1a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
+# # data_stacked_area1a <- data.frame(Generation_MW,Hour,Generator1a)
+# Cost_Variable2a[is.infinite(Cost_Variable)=="TRUE"]=0
+# Cost_Variable2a[is.na(Cost_Variable)=="TRUE"]=0
+# data_stacked_area2a <- data.frame(Cost_Variable2a,Hour_Cost,Generator_Cost2a)
+# p2a<-ggplot(data_stacked_area2a, aes(x=Hour_Cost, y=Cost_Variable2a, fill=Generator_Cost2a)) +     geom_area() +
+#   labs(x = "Hour") + labs(y = "Variable Cost ($/MWh)") + guides(fill=guide_legend(title="Generator"))
+# print(p2a)
+# 
+# 
+# ## +++++++++++++++
+# ## Stacked Area Chart of MW generation each hour -- NO ANNUAL STORAGE CONSIDERED
+# ## +++++++++++++++
+# #library(ggplot2)
+# Hour <- rep(data$Hour.ending[start.hour:end.hour],each=(num_PPtech))  ## 
+# Generation_MW <- rep(0,(end.hour-start.hour+1)*(num_PPtech))
+# for (i in 1:(end.hour-start.hour+1)) {
+#   # Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[i],(data$Wind_MW_total[i]-curtailed_Wind[i]),(data$PV_MW_total[i]-curtailed_PV[i]),(data$CSP_MW_total[i]-curtailed_CSP[i]),data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i],data$Biomass_MW[i],data$Geothermal_MW[i],data$PetroleumCC_MW[i],data$HydroDispatch_MW[i])
+#   Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[start.hour+i],(data$Wind_MW_total[start.hour+i]-curtailed_Wind[start.hour+i]),(data$PV_MW_total[start.hour+i]-curtailed_PV[start.hour+i]),(data$CSP_MW_total[start.hour+i]-curtailed_CSP[start.hour+i]),data$Coal_MW[start.hour+i],data$NGCC_MW[start.hour+i],data$NGCT_MW[start.hour+i],data$UserTech1_MW[start.hour+i],data$UserTech2_MW[start.hour+i],data$Biomass_MW[start.hour+i],data$Geothermal_MW[start.hour+i],data$PetroleumCC_MW[start.hour+i],(data$HydroDispatch_MW[start.hour+i]+data$HydroNonDispatch_MW[start.hour+i]))
+# }
+# ##Generator1 <- factor(rep(c("Nuclear","Wind","PV","Coal","NGCC","NGCT","UserTech1","UserTech2"),times=(end.hour-start.hour+1)))
+# ##Generator1 = factor(Generator1,levels=levels(Generator1)[c(7,6,3,2,1,8,5,4)]) #reorder
+# Generator1 <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro"),times=(end.hour-start.hour+1)))
+# Generator1 = factor(Generator1,levels=levels(Generator1)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
+# data_stacked_area1 <- data.frame(Generation_MW,Hour,Generator1)
+# p1<-ggplot(data_stacked_area1, aes(x=Hour, y=Generation_MW, fill=Generator1)) +     geom_area() +
+#   labs(x = "Hour") + labs(y = "Generation (MW)") + guides(fill=guide_legend(title="Generator"))
+# print(p1)
+# 
+# ## +++++++++++++++
+# ## Stacked Area Chart of MW generation each hour -- WITH ANNUAL STORAGE CONSIDERED
+# ## +++++++++++++++
+# #start.hour <- start.hour#3500 ## minimum is 1, maximum is 8760
+# #end.hour <- start.hour+24*7   ## minimum is 1, maximum is 8760
+# Hour <- rep(data$Hour.ending[start.hour:end.hour],each=(num_PPtech1a))  ## 
+# Generation_MW <- rep(0,(end.hour-start.hour+1)*(num_PPtech1a))
+# for (i in 1:(end.hour-start.hour+1)) {
+#   # Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[i],(data$Wind_MW_total[i]-curtailed_Wind[i]),(data$PV_MW_total[i]-curtailed_PV[i]),(data$CSP_MW_total[i]-curtailed_CSP[i]),data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i],data$Biomass_MW[i],data$Geothermal_MW[i],data$PetroleumCC_MW[i],data$HydroDispatch_MW[i])
+#   Generation_MW[((num_PPtech1a)*(i-1)+1):((num_PPtech1a)*i)] <- c(data$Nuclear_MW[start.hour+i],(data$Wind_MW_DirectToGrid_AnnualStorage[start.hour+i]),(data$PV_MW_DirectToGrid_AnnualStorage[start.hour+i]),(data$CSP_MW_DirectToGrid_AnnualStorage[start.hour+i]),data$Coal_AnnualStorage_MW[start.hour+i],data$NGCC_AnnualStorage_MW[start.hour+i],data$NGCT_AnnualStorage_MW[start.hour+i],data$UserTech1_AnnualStorage_MW[start.hour+i],data$UserTech2_AnnualStorage_MW[start.hour+i],data$Biomass_AnnualStorage_MW[start.hour+i],data$Geothermal_AnnualStorage_MW[start.hour+i],data$PetroleumCC_AnnualStorage_MW[start.hour+i],(data$HydroDispatch_AnnualStorage_MW[start.hour+i]+data$HydroNonDispatch_MW[start.hour+i]),data$Dispatched_StoredWindSolar_MW[start.hour+i])
+# }
 # Generator1a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
+# #Generator1a = factor(Generator1,levels=levels(Generator1)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
 # Generator1a = factor(Generator1a,levels=levels(Generator1a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
 # data_stacked_area1a <- data.frame(Generation_MW,Hour,Generator1a)
-Cost_Variable2a[is.infinite(Cost_Variable)=="TRUE"]=0
-Cost_Variable2a[is.na(Cost_Variable)=="TRUE"]=0
-data_stacked_area2a <- data.frame(Cost_Variable2a,Hour_Cost,Generator_Cost2a)
-p2a<-ggplot(data_stacked_area2a, aes(x=Hour_Cost, y=Cost_Variable2a, fill=Generator_Cost2a)) +     geom_area() +
-  labs(x = "Hour") + labs(y = "Variable Cost ($/MWh)") + guides(fill=guide_legend(title="Generator"))
-print(p2a)
+# p1a<-ggplot(data_stacked_area1a, aes(x=Hour, y=Generation_MW, fill=Generator1a)) +     geom_area() +
+#   labs(x = "Hour") + labs(y = "Generation (MW)") + guides(fill=guide_legend(title="Generator"))
+# print(p1a)
+## ++++++++++++++++++++++++++++
+## ++++++++++++++++++++++++++++
+## PLOTTING - END
+## ++++++++++++++++++++++++++++
+## ++++++++++++++++++++++++++++
+
 
 ## +++++++++++++++++
 ## Calculate start-up (and shut-down?) costs for dispatchable generators.
@@ -2199,14 +2210,21 @@ AnnualGridCost_Total_MWh_AnnualStorage <- AnnualGridCost_Total_AnnualStorage*100
 ## PRINT SUMMARY RESULTS
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
-cat(paste0("NO STORAGE --> Total cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_Total_MWh),", Variable cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_variable_MWh),sep="\n"))
-cat(paste0("NO STORAGE --> % Wind: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Wind")]*100),", % PV: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="PV")]*100),", % CSP: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="CSP")]*100)),sep="\n")
-cat(paste0("NO STORAGE --> MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]), 0), nsmall=0, big.mark=","),", MW NGCC: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
+cat(paste0("  "),sep="\n")
+cat(paste0("NO STORAGE:"),sep="\n")
+cat(paste0("Total cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_Total_MWh),", Variable cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_variable_MWh),sep="\n"))
+cat(paste0("% Wind: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Wind")]*100),", % PV: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="PV")]*100),", % CSP: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="CSP")]*100)),sep="\n")
+cat(paste0("% Coal: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Coal")]*100),", % Nuke: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Nuclear")]*100),", % NG: ",sprintf("%.2f", (PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="NGCC")]*100+PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="NGCT")]*100))),sep="\n")
+cat(paste0("MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]), 0), nsmall=0, big.mark=","),", MW NGCC: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
+cat(paste0("  "),sep="\n")
 
-cat(paste0("WITH ANNUAL STORAGE --> Total cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_Total_MWh_AnnualStorage),", Variable cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_variable_MWh_AnnualStorage),sep="\n"))
-cat(paste0("WITH ANNUAL STORAGE --> MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW NGCC: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
-cat(paste0("WITH ANNUAL STORAGE --> % Wind: ",sprintf("%.2f", frac.wind_WithAnnualStorage*100),", % PV: ",sprintf("%.2f", frac.PV_WithAnnualStorage*100),", % CSP: ",sprintf("%.2f", frac.CSP_WithAnnualStorage*100)),sep="\n")
-cat(paste0("WITH ANNUAL STORAGE --> MW Storage Capacity: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="AnnualStorage_Total")]), 0), nsmall=0, big.mark=","),", TWh Storage Capacity: ",format(round(as.numeric(PP_MWneeded$MWh_Needed_StorageCapacity[which(PP_MWneeded$Technology=="AnnualStorage_Total")]/1e6), 1), nsmall=0, big.mark=",")),sep="\n")
+cat(paste0("WITH ANNUAL STORAGE:"),sep="\n")
+#cat(paste0("WITH ANNUAL STORAGE --> MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW NGCC: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
+cat(paste0("Total cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_Total_MWh_AnnualStorage),", Variable cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_variable_MWh_AnnualStorage),sep="\n"))
+cat(paste0("MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=",") ),sep="\n")
+cat(paste0("MW NGCC: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
+cat(paste0("% Wind: ",sprintf("%.2f", frac.wind_WithAnnualStorage*100),", % PV: ",sprintf("%.2f", frac.PV_WithAnnualStorage*100),", % CSP: ",sprintf("%.2f", frac.CSP_WithAnnualStorage*100)),sep="\n")
+cat(paste0("MW Storage Capacity: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="AnnualStorage_Total")]), 0), nsmall=0, big.mark=","),", TWh Storage Capacity: ",format(round(as.numeric(PP_MWneeded$MWh_Needed_StorageCapacity[which(PP_MWneeded$Technology=="AnnualStorage_Total")]/1e6), 1), nsmall=0, big.mark=",")),sep="\n")
 
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
@@ -2221,10 +2239,10 @@ data$Wind_MW_NetToGrid_NoStorage <- data$Wind_MW_total-curtailed_Wind
 data$PV_MW_NetToGrid_NoStorage <- data$PV_MW_total-curtailed_PV
 data$CSP_MW_NetToGrid_NoStorage <- data$CSP_MW_total-curtailed_CSP
 data$Hydro_MW <- data$HydroDispatch_MW+data$HydroNonDispatch_MW
-hourly_MWOutput_NoStorage <- data.frame(data$Load_MW,data$Wind_MW_NetToGrid_NoStorage,data$PV_MW_NetToGrid_NoStorage,data$CSP_MW_NetToGrid_NoStorage,
+hourly_MWOutput_NoStorage <- data.frame(data$Hour.ending,data$Load_MW,data$Wind_MW_NetToGrid_NoStorage,data$PV_MW_NetToGrid_NoStorage,data$CSP_MW_NetToGrid_NoStorage,
                                              data$Biomass_MW,data$Coal_MW,data$Geothermal_MW,data$Hydro_MW,data$NGCC_MW,data$NGCT_MW,data$Nuclear_MW,data$PetroleumCC_MW,
                                              curtailed_Wind,curtailed_PV,curtailed_CSP)
-names(hourly_MWOutput_NoStorage) = c("Load","Wind_DirectToGrid","PV_DirectToGrid","CSP_DirectToGrid",
+names(hourly_MWOutput_NoStorage) = c("Hour_ending","Load","Wind_DirectToGrid","PV_DirectToGrid","CSP_DirectToGrid",
                                           "Biomass","Coal","Geothermal","Hydro","NGCC","NGCT","Nuclear","Petroleum",
                                           "Wind_curtailed","PV_curtailed","CSP_curtailed")
 ## Power Plant and capacity
@@ -2247,10 +2265,10 @@ PPdata_NoStorage <- PPdata_NoStorage[-which(PPdata_NoStorage$Technology=="Annual
 ## +++++
 ## 8760 hourly DATA - With "annual" storage
 data$Hydro_AnnualStorage_MW <- data$HydroDispatch_AnnualStorage_MW + data$HydroNonDispatch_MW
-hourly_MWOutput_AnnualStorage <- data.frame(data$Load_MW,data$Wind_MW_DirectToGrid_AnnualStorage,data$PV_MW_DirectToGrid_AnnualStorage,data$CSP_MW_DirectToGrid_AnnualStorage,
+hourly_MWOutput_AnnualStorage <- data.frame(data$Hour.ending,data$Load_MW,data$Wind_MW_DirectToGrid_AnnualStorage,data$PV_MW_DirectToGrid_AnnualStorage,data$CSP_MW_DirectToGrid_AnnualStorage,
                                              data$Biomass_AnnualStorage_MW,data$Coal_AnnualStorage_MW,data$Geothermal_AnnualStorage_MW,data$Hydro_AnnualStorage_MW,data$NGCC_AnnualStorage_MW,data$NGCT_AnnualStorage_MW,data$Nuclear_MW,data$PetroleumCC_AnnualStorage_MW,
                                              data$Dispatched_StoredWindSolar_MW)
-names(hourly_MWOutput_AnnualStorage) = c("Load","Wind_DirectToGrid","PV_DirectToGrid","CSP_DirectToGrid",
+names(hourly_MWOutput_AnnualStorage) = c("Hour_ending","Load","Wind_DirectToGrid","PV_DirectToGrid","CSP_DirectToGrid",
                                           "Biomass","Coal","Geothermal","Hydro","NGCC","NGCT","Nuclear","Petroleum",
                                           "WindSolar_Stored_then_Dispatched")
 ## Power Plant and capacity
@@ -2271,11 +2289,102 @@ PPdata_AnnualStorage <- PPdata_AnnualStorage[-which(PP_MWneeded$Technology=="CSP
 PPdata_AnnualStorage <- PPdata_AnnualStorage[,!(names(PPdata_AnnualStorage) %in% c("Cost_Variable"))]
 PPdata_AnnualStorage <- PPdata_AnnualStorage[,!(names(PPdata_AnnualStorage) %in% c("Fraction_MWhDesired"))]
 
+cat(paste0("Need to save data for (1) total TWh from each type of generator."),sep="\n")
+cat(paste0("Need to save data for (2) total TWh of generation for the region."),sep="\n")
+
+## specify the hours of data to write in the "solveGEN_output" list
+hour_winter_start = 500
+hour_winter_end = hour_winter_start+24*7-1
+hour_spring_start = hour_winter_start + 8760/4
+hour_spring_end = hour_spring_start+24*7-1
+hour_summer_start =  hour_spring_start + 8760/4
+hour_summer_end = hour_summer_start+24*7-1
+hour_fall_start =  hour_summer_start + 8760/4
+hour_fall_end = hour_fall_start+24*7-1
+hrs <- c(seq(hour_winter_start,hour_winter_end),seq(hour_spring_start,hour_spring_end),seq(hour_summer_start,hour_summer_end),seq(hour_fall_start,hour_fall_end))
+
+## Write new output data frames that are in a consistent format for creating JSON output from the R codes 
+## on the server to the website and Google Sheet with the cash flow calculations.
+## FIRST: No Storage
+PPdata_NoStorage_solveGen_output <- PPdata_NoStorage
+# Add a "DUMMY" column of data that represents the "MWh_Needed_StorageCapacity" in the "AnnualStorage" calculation, and here is just zeros to keep the same output data format
+PPdata_NoStorage_solveGen_output$MWh_Needed_StorageCapacity <- rep(0,dim(PPdata_NoStorage_solveGen_output)[1])
+# Add a "DUMMY" row of data that represents the "AnnualStorage_Total" in the "AnnualStorage" calculation, and here is just zeros to keep the same output data format
+temp_df <- PPdata_NoStorage_solveGen_output[1,]
+temp_df$Technology <- c("AnnualStorage_Total")
+temp_df[1,(2:dim(temp_df)[2])] <- temp_df[1,(2:dim(temp_df)[2])]*0
+PPdata_NoStorage_solveGen_output <- rbind(PPdata_NoStorage_solveGen_output, temp_df)
+# Add a column of data that is the total TWh of generation from each source
+PPdata_NoStorage_solveGen_output$TWhGeneration <- PPdata_NoStorage_solveGen_output$Fraction_MWhActual*sum(data$Load_MW)/1e6
+# Add the two rows of "TWhGeneration" for hydro (dispatch and non-dispatch)
+PPdata_NoStorage_solveGen_output$TWhGeneration[which(PPdata_NoStorage_solveGen_output$Technology=="HydroDispatch")] <- 
+  PPdata_NoStorage_solveGen_output$TWhGeneration[which(PPdata_NoStorage_solveGen_output$Technology=="HydroDispatch")] + 
+  PPdata_NoStorage_solveGen_output$TWhGeneration[which(PPdata_NoStorage_solveGen_output$Technology=="HydroNonDispatch")]
+# Add the two rows of "Fraction_MWhActual" for hydro (dispatch and non-dispatch)
+PPdata_NoStorage_solveGen_output$Fraction_MWhActual[which(PPdata_NoStorage_solveGen_output$Technology=="HydroDispatch")] <- 
+  PPdata_NoStorage_solveGen_output$Fraction_MWhActual[which(PPdata_NoStorage_solveGen_output$Technology=="HydroDispatch")] + 
+  PPdata_NoStorage_solveGen_output$Fraction_MWhActual[which(PPdata_NoStorage_solveGen_output$Technology=="HydroNonDispatch")]
+## Erase the "duplicate rows" Hydro data 
+PPdata_NoStorage_solveGen_output <- PPdata_NoStorage_solveGen_output[-which(PPdata_NoStorage_solveGen_output$Technology=="HydroNonDispatch"),]
+## Erase "UserTech1" and "UserTech2"
+PPdata_NoStorage_solveGen_output <- PPdata_NoStorage_solveGen_output[-which(PPdata_NoStorage_solveGen_output$Technology=="UserTech1"),]
+PPdata_NoStorage_solveGen_output <- PPdata_NoStorage_solveGen_output[-which(PPdata_NoStorage_solveGen_output$Technology=="UserTech2"),]
+## Sort them alphabetically
+PPdata_NoStorage_solveGen_output <- PPdata_NoStorage_solveGen_output[order(PPdata_NoStorage_solveGen_output$Technology),]
+
+
+## SECOND: With ANnual Storage
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage
+# Add a column of data that is the total TWh of generation from each source
+PPdata_AnnualStorage_solveGen_output$TWhGeneration <- PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual*sum(data$Load_MW)/1e6
+# Add the two rows of "TWhGeneration" for CSP, Wind, and PV and hydro (dispatch and non-dispatch)
+PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_DirectToGrid_WithAnnualStorage")] <- 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_DirectToGrid_WithAnnualStorage")] + 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_StoredToGrid_WithAnnualStorage")]
+PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_DirectToGrid_WithAnnualStorage")] <- 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_DirectToGrid_WithAnnualStorage")] + 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_StoredToGrid_WithAnnualStorage")]
+PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_DirectToGrid_WithAnnualStorage")] <- 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_DirectToGrid_WithAnnualStorage")] + 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_StoredToGrid_WithAnnualStorage")]
+PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroDispatch")] <- 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroDispatch")] + 
+  PPdata_AnnualStorage_solveGen_output$TWhGeneration[which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroNonDispatch")]
+# Add the two rows of ""Fraction_MWhActual" for CSP, Wind, and PV and hydro (dispatch and non-dispatch)
+PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_DirectToGrid_WithAnnualStorage")] <- 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_DirectToGrid_WithAnnualStorage")] + 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_StoredToGrid_WithAnnualStorage")]
+PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_DirectToGrid_WithAnnualStorage")] <- 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_DirectToGrid_WithAnnualStorage")] + 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_StoredToGrid_WithAnnualStorage")]
+PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_DirectToGrid_WithAnnualStorage")] <- 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_DirectToGrid_WithAnnualStorage")] + 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_StoredToGrid_WithAnnualStorage")]
+PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroDispatch")] <- 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroDispatch")] + 
+  PPdata_AnnualStorage_solveGen_output$Fraction_MWhActual[which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroNonDispatch")]
+## Erase the "duplicate rows" of CSP, Wind, and PV and Hydro data that account for how much was stored before going onto the grid 
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[-which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_StoredToGrid_WithAnnualStorage"),]
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[-which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_StoredToGrid_WithAnnualStorage"),]
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[-which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_StoredToGrid_WithAnnualStorage"),]
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[-which(PPdata_AnnualStorage_solveGen_output$Technology=="HydroNonDispatch"),]
+## Erase "UserTech1" and "UserTech2"
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[-which(PPdata_AnnualStorage_solveGen_output$Technology=="UserTech1"),]
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[-which(PPdata_AnnualStorage_solveGen_output$Technology=="UserTech2"),]
+## rename the Technologies to be simnple to understand in "solveGEN_output"
+PPdata_AnnualStorage_solveGen_output$Technology[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind_DirectToGrid_WithAnnualStorage")] <- c("Wind")
+PPdata_AnnualStorage_solveGen_output$Technology[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV_DirectToGrid_WithAnnualStorage")] <- c("PV")
+PPdata_AnnualStorage_solveGen_output$Technology[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP_DirectToGrid_WithAnnualStorage")] <- c("CSP")
+## Sort them alphabetically
+PPdata_AnnualStorage_solveGen_output <- PPdata_AnnualStorage_solveGen_output[order(PPdata_AnnualStorage_solveGen_output$Technology),]
+
+
+
 ## Final output list from this function
-output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage,
-                    "Hourly_MW_AnnualStorage"=hourly_MWOutput_AnnualStorage,
-                    "PPdata_NoStorage"=PPdata_NoStorage,
-                    "PPdata_AnnualStorage"=PPdata_AnnualStorage)
+output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage[hrs,],
+                        "Hourly_MW_AnnualStorage"=hourly_MWOutput_AnnualStorage[hrs,],
+                        "PPdata_NoStorage"=PPdata_NoStorage_solveGen_output,
+                        "PPdata_AnnualStorage"=PPdata_AnnualStorage_solveGen_output)
 return(output_list)
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++

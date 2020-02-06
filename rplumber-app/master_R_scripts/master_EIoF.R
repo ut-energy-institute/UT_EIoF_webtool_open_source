@@ -115,7 +115,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   ## "natural_gas_percent" to solveGEN.r.
   RegionNumber = region_id  ## Specify the region number to calculate (there are 13 defined U.S. regions)
   if ( (RegionNumber >= 1) & (RegionNumber <= 13)){
-    solveGEN_output <- solveGEN(RegionNumber,year,coal_percent, PV_percent, CSP_percent, wind_percent, nuclear_percent, hydro_percent, biomass_percent, geothermal_percent, petroleum_percent, ev_charging_profile)
+    solveGEN_output <- solveGEN(RegionNumber,year,coal_percent, PV_percent, CSP_percent, wind_percent, nuclear_percent, hydro_percent, biomass_percent, geothermal_percent, petroleum_percent)#, ev_charging_profile)
   } else {
     stop("You have not selected a valid RegionNumber to call solveGEN.r.")
   } 
@@ -137,6 +137,11 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   ## inputs are the same % inputs as to Carey's solveGEN above
   
   gg_out <- EIoF_gs_function(Coal = coal_percent, Nuclear =  nuclear_percent,	Natural_Gas =  ng_percent,	Hydro =  hydro_percent, Solar =  PV_percent, Wind =  wind_percent, Geothermal =  geothermal_percent, MSW =  biomass_percent/2, Other_biomass =  biomass_percent/2,	Other =  0, Petroleum =  petroleum_percent)
+  
+  gg_out <- as.data.frame(gg_out[,-1])
+  
+  gg_out2 <- lapply(split(gg_out, gg_out$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
+  
 
  # print(paste('New 2050 CAPEX is: ', gg_out, sep = ''))
   
@@ -160,7 +165,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   
   
   
-  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out, inputs)
+  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out2, inputs)
 #  EIOF_no_timeseries <- list(sankey_json_out$links, sankey_json_out$nodes, gg_out)
 #  EIOF_timeseries <- list(solveGEN_output$Hourly_MW_AnnualStorage)
   
