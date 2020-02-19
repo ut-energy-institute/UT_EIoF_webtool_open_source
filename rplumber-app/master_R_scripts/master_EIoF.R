@@ -19,7 +19,21 @@ setwd('/scripts')
 ## 3) Percent electricity generation from primary fuels
 
 master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_percent = 0, wind_percent = 25, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50){
-  
+
+  # to make testing easier
+  # region_id = 1
+  # coal_percent = 20
+  # PV_percent = 35
+  # CSP_percent = 0
+  # wind_percent = 25
+  # biomass_percent = 0
+  # hydro_percent = 0
+  # petroleum_percent = 0
+  # nuclear_percent = 10
+  # geothermal_percent = 0
+  # ng_percent = 0
+  # ldv_e = 50
+  # r_sh_e = 50
   
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
@@ -134,9 +148,14 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   
   source('EIoF_gs_function.R')
   
-  ## inputs are the same % inputs as to Carey's solveGEN above
+  ## massage outputs from solveGEN to go into the googlesheets code
+  SG_out <- solveGEN_output$PPdata_AnnualStorage[c('Technology', 'MW_needed', 'TWhGeneration')]
+  target <- c("Coal", "Nuclear", "NGCC", "NGCT", "HydroDispatch", "PV", "Wind", "Geothermal", "Biomass", "Other", "PetroleumCC", "AnnualStorage_Total")
+  SG_out <- SG_out[match(target, SG_out$Technology),]
+  SG_out$Technology <- target
+  SG_out[is.na(SG_out)] <- 0
   
-  gg_out <- EIoF_gs_function(Coal = coal_percent, Nuclear =  nuclear_percent,	Natural_Gas =  ng_percent,	Hydro =  hydro_percent, Solar =  PV_percent, Wind =  wind_percent, Geothermal =  geothermal_percent, MSW =  biomass_percent/2, Other_biomass =  biomass_percent/2,	Other =  0, Petroleum =  petroleum_percent)
+  gg_out <- EIoF_gs_function(SG_out = SG_out)
   
   gg_out <- as.data.frame(gg_out[,-1])
   
