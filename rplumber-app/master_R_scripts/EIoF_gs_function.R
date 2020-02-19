@@ -6,8 +6,6 @@
 
 EIoF_gs_function <- function(SG_out){
   
-  print(SG_out)
-  
   library(googlesheets)
   suppressMessages(library(dplyr))
   gs_auth(token = "googlesheets_token.rds")
