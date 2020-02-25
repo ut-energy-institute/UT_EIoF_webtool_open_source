@@ -35,9 +35,8 @@ The current work flow of changing the code on the server is as follows:
 8. Rebuild new codes (see below)
 9. Launch new codes (see below)
 
-
 ### Pull down existing codes from GitHub
-
+Edits from the website.
 
 ### Sending new code to GitHub  
 
