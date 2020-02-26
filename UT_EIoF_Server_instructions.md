@@ -27,6 +27,7 @@ There are multiple ways of doing this, below is a simple method that allows each
 
 The current work flow of changing the code on the server is as follows:
 
+0. Clone the repository to your computer. (only have to do this the first time)
 1. Use R Studio to pull down the codes to make sure that you have the most up-to-date version to work from. (see below)
 2. Make edits and test to make sure codes are running locally.
 3. Close and restart RStudio and rerun codes to make sure that you have all of the right packages installed in the codes themselves.
@@ -37,8 +38,16 @@ The current work flow of changing the code on the server is as follows:
 8. Rebuild new codes (see below)
 9. Launch new codes (see below)
 
+### Clone the repository to your computer.
+*You only do this step once at the beginning.* 
+This <a href="https://happygitwithr.com/rstudio-git-github.html" target="_blank">tutorial</a> walks you through how to connect your local computer to a repository on GitHub through RStudio. Go through the dummy example first and then create one off of the <a href="https://github.com/joshdr83/UT_EIoF_webtool" target="_blank">repository</a> that I have setup for the project.
+
+*@Carey -- if you want to set up an EI GitHub for the project, just let me know and we can move it off my personal GitHub page.*
+
 ### Pull down existing codes from GitHub
-The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper righthand corner of the default RStudio layout.
+The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper righthand corner of the default RStudio layout. 
+
+![The Rstudio git pull arrow](workflow_instructions_media/rstudio_git_pull_arrow.png)
 
 
 ### Sending new code to GitHub  
