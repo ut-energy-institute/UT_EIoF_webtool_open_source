@@ -23,6 +23,8 @@ Be careful when editing the codes as the login gives the user sudo (root or admi
 *Note: the location of the codes will change at some point to move off of UT's network to a third-party server service such as Amazon Web Services*
 
 ## Current code editing work flow
+There are multiple ways of doing this, below is a simple method that allows each of us to make changes to the master code set. If this were a large project with many collaborators, there would be one person in control of the master code and others would <a href="https://gist.github.com/Chaser324/ce0505fbed06b947d962" target="_blank">fork</a> (create their own versions of) the code and then push them to the master code and have them approved by the administrator.  
+
 The current work flow of changing the code on the server is as follows:
 
 1. Use R Studio to pull down the codes to make sure that you have the most up-to-date version to work from. (see below)
@@ -36,7 +38,8 @@ The current work flow of changing the code on the server is as follows:
 9. Launch new codes (see below)
 
 ### Pull down existing codes from GitHub
-Edits from the website.
+The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, 
+
 
 ### Sending new code to GitHub  
 
