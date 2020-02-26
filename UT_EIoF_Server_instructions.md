@@ -38,7 +38,7 @@ The current work flow of changing the code on the server is as follows:
 9. Launch new codes (see below)
 
 ### Pull down existing codes from GitHub
-The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, 
+The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper righthand corner of the default RStudio layout.
 
 
 ### Sending new code to GitHub  
