@@ -63,6 +63,16 @@ Doing so will let you know if there are any things that will be changed. In the 
 
 ### Sending new code to GitHub  
 
+![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
+
+![Step 2 in commiting changes](workflow_instructions_media/git_commit_2.png)
+
+![Step 3 in commiting changes](workflow_instructions_media/git_commit_3.png)
+
+![Step 4 in commiting changes](workflow_instructions_media/git_commit_4.png)
+
+![Step 5 in commiting changes](workflow_instructions_media/git_commit_5.png)
+
 
 ### Getting new code to server  
 
