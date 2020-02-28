@@ -63,6 +63,11 @@ Doing so will let you know if there are any things that will be changed. In the 
 
 ### Sending new code to GitHub  
 
+Once you have made edit to code that you woudl like to push to the server, you should follow these steps:
+
+1. Commit changes
+2. Leave a message...
+
 ![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
 
 ![Step 2 in commiting changes](workflow_instructions_media/git_commit_2.png)
