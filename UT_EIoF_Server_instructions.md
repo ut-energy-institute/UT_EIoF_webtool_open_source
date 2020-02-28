@@ -67,8 +67,8 @@ Once you have made edit to code that you woudl like to push to the server, you s
 
 1. Commit changes
 2. Leave a message...
-3. Carey's edits
-4. Josh's response
+3. Carey's test edit 2/28/2020 135 pm central
+
 
 ![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
 
