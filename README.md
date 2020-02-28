@@ -15,6 +15,12 @@ list containers: docker container ls
 
 kill containers: docker kill $(docker ps -q) 95c29847d25d
 
+(Carey to Josh): I played with the "dev" version and could not use the command above. I think to kill a container you just need this:
+
+docker kill container_name
+
+... where "container_name" is the weird assigned names like "loving_torvalds". I guess you can do it by "CONTAINER ID" which is per the above command (I think), but I couldn't get it to work.
+
 ## production version:
 
 rebuild containers: docker build --tag=test .
