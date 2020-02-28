@@ -67,6 +67,7 @@ Once you have made edit to code that you woudl like to push to the server, you s
 
 1. Commit changes
 2. Leave a message...
+3. Carey's edits
 
 ![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
 
