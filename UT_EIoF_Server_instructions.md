@@ -44,13 +44,13 @@ The current work flow of changing the code on the server is as follows:
 8. Rebuild new codes (see below)
 9. Launch new codes (see below)
 
-### Clone the repository to your computer.
+### 0. Clone the repository to your computer.
 *You only do this step once at the beginning.* 
 This <a href="https://happygitwithr.com/rstudio-git-github.html" target="_blank">tutorial</a> walks you through how to connect your local computer to a repository on GitHub through RStudio. Go through the dummy example first and then create one off of the <a href="https://github.com/joshdr83/UT_EIoF_webtool" target="_blank">repository</a> that I have setup for the project.
 
 *@Carey -- if you want to set up an EI GitHub for the project, just let me know and we can move it off my personal GitHub page.*
 
-### Pull down existing codes from GitHub
+### 1. Pull down existing codes from GitHub
 The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper righthand corner of the default RStudio layout. 
 
 ![The Rstudio git pull arrow.](workflow_instructions_media/rstudio_git_pull_arrow.png)
@@ -61,14 +61,14 @@ Doing so will let you know if there are any things that will be changed. In the 
 
 *Warning!* Doing this update changes the `UT_EIoF_Server_Instructions.md` on my computer. 
 
-### Sending new code to GitHub  
+### 4. Sending new code to GitHub  
 
 Once you have made edit to code that you woudl like to push to the server, you should follow these steps:
 
 1. Commit changes
 2. Leave a message...
-3. Carey's edits
-4. Josh's response
+3. Carey's test edit 2/28/2020 135 pm central
+
 
 ![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
 
@@ -81,6 +81,25 @@ Once you have made edit to code that you woudl like to push to the server, you s
 ![Step 5 in commiting changes](workflow_instructions_media/git_commit_5.png)
 
 
-### Getting new code to server  
+### 5. Login to server
+(see other private documentation on logging into Rodeo at TACC).
 
+### 6. Kill running codes on server
+to kill containers, type: docker kill $(docker ps -q) 95c29847d25d
+
+### 7. Getting new code to server  
+TBD ...
+
+### 8. Rebuild new codes on server
+TBD ...
+
+### 9. Launch new codes on server 
+Two steps.  
+For production version:
+Step 1 (rebuild containers): docker build --tag=test .
+Step 2 (run containers): docker run -p 8000:8000 -it test
+
+For development version:
+Step 1 (rebuild containers): docker build --tag=dev .
+Step 2 (run containers): docker run -p 8005:8000 -it dev
 
