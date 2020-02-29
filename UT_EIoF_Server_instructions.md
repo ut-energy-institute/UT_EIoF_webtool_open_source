@@ -88,7 +88,7 @@ Once you have made edit to code that you woudl like to push to the server, you s
 to kill containers, type: docker kill $(docker ps -q) 95c29847d25d
 
 ### 7. Getting new code to server  
-TBD ...
+After logging into the server, simply using the command `git pull origin master` will move the new codes from the GitHub site to the server. It is likley best to kill any running containers whose data you are updating.
 
 ### 8. Rebuild new codes on server
 TBD ...
