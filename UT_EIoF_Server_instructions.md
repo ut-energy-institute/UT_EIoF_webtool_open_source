@@ -51,7 +51,7 @@ This <a href="https://happygitwithr.com/rstudio-git-github.html" target="_blank"
 *@Carey -- if you want to set up an EI GitHub for the project, just let me know and we can move it off my personal GitHub page.*
 
 ### 1. Pull down existing codes from GitHub
-The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper righthand corner of the default RStudio layout. 
+The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper right hand corner of the default RStudio layout. 
 
 ![The Rstudio git pull arrow.](workflow_instructions_media/rstudio_git_pull_arrow.png)
 
@@ -61,9 +61,21 @@ Doing so will let you know if there are any things that will be changed. In the 
 
 *Warning!* Doing this update changes the `UT_EIoF_Server_Instructions.md` on my computer. 
 
+### 2. Make you local edits to the codes and make sure that they run
+
+This is the normal process that you would follow when making changes to your code. Make sure they run first! 
+
+*If you find that you have to use a new R package that is not in the list that have already been installed on the server, first, try to do it a different way, because we will have to make changes to the container codes themselves. See updating container codes.*
+
+### 3. Restart RStudio and run your code from scratch.
+
+Sometimes you can have a variable or data frame defined in your local universal environment that lets your code run, but you forgot to define it in the codes you are working on themselves. Restarting RStudio and running your codes right away will find these errors.
+
 ### 4. Sending new code to GitHub  
 
-Once you have made edit to code that you woudl like to push to the server, you should follow these steps:
+Note: DO NOT PUSH UNFINISHED OR NON-WORKING CODES TO THE GITHUB REPO!! WAIT UNTIL YOU HAVE SOMETHING THAT WORKS.
+
+Once you have made edit to code that you would like to push to the server, you should follow these steps:
 
 1. Commit changes
 2. Leave a message...
@@ -88,7 +100,7 @@ Once you have made edit to code that you woudl like to push to the server, you s
 to kill containers, type: docker kill $(docker ps -q) 95c29847d25d
 
 ### 7. Getting new code to server  
-After logging into the server, simply using the command `git pull origin master` will move the new codes from the GitHub site to the server. It is likley best to kill any running containers whose data you are updating.
+After logging into the server, simply using the command `git pull origin master` will move the new codes from the GitHub site to the server. It is likely best to kill any running containers whose data you are updating.
 
 ![Step 7 in commiting changes](workflow_instructions_media/server_git_pull_screen.png)
 
