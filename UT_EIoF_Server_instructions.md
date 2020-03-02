@@ -79,16 +79,26 @@ Once you have made edit to code that you would like to push to the server, you s
 
 1. Commit changes
 2. Leave a message...
-3. Carey's test edit 2/28/2020 135 pm central
+3. Push changes to GitHub
 
+
+When you make a change to a file (and save it) in the directory where you keep the codes (and it is not in the .gitignore file), it will whow up in the upper right hand corner of the RStudio window under the Git tab. If you want to send that changed file to GitHub and the server, you must first stage and commit those changes. You can stage the changes by checking the box next to the file in the Git pane.
 
 ![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
 
+One you have checked all the files you wish to send to GitHub, you must commit them. It is best practive to leave a short message that explains the changes you made. Keep it short, do not put code in here. If you highlight one of the files you are sending, it will show you the changes you have made. Red = deletions, green = additions:
+
 ![Step 2 in commiting changes](workflow_instructions_media/git_commit_2.png)
+
+Once have typed the message, click the `Commit` button below the message.
 
 ![Step 3 in commiting changes](workflow_instructions_media/git_commit_3.png)
 
+At this point, you probably think that you are done and your shiny new codes are on the world wide webs, but you are wrong, they are not. There are more (easy to forget steps). The below image shows a hard-to-see message on the top left that says *Your branch is ahead of 'origin/master' by 1 commit*. We must fix that. You must now *Push* the changes by clicking on the green up arrow on the top right of this window pane.
+
 ![Step 4 in commiting changes](workflow_instructions_media/git_commit_4.png)
+
+Once you do that, your shiny new codes now really are on the world wide webs (GitHub) and can then be pulled down to the remote server!
 
 ![Step 5 in commiting changes](workflow_instructions_media/git_commit_5.png)
 
