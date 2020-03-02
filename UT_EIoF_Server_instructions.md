@@ -119,7 +119,7 @@ After logging into the server, simply using the command `git pull origin master`
 
 ![Step 7 in commiting changes](workflow_instructions_media/server_git_pull_screen.png)
 
-### 8. Rebuild new codes on server
+### 8. Rebuild new codes on server 
 TBD ...
 
 ### 9. Launch new codes on server 
