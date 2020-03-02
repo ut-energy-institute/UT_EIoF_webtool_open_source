@@ -107,7 +107,12 @@ Once you do that, your shiny new codes now really are on the world wide webs (Gi
 (see other private documentation on logging into Rodeo at TACC).
 
 ### 6. Kill running codes on server
-to kill containers, type: docker kill $(docker ps -q) 95c29847d25d
+
+When you are ready to update codes on the server, you will first need to kill any running instances of that code first. You can see what all codes are running by the command `docker container ls`. Usually the code that is running the production version will be called `test` and the development code will be called `dev`.
+
+![See what containers are running.](workflow_instructions_media/get_running_docker_images.png)
+
+To kill a running container, just type: `docker kill container_name`
 
 ### 7. Getting new code to server  
 After logging into the server, simply using the command `git pull origin master` will move the new codes from the GitHub site to the server. It is likely best to kill any running containers whose data you are updating.
