@@ -114,21 +114,32 @@ When you are ready to update codes on the server, you will first need to kill an
 
 To kill a running container, just type: `docker kill container_name`
 
+![Kill a container, softly.](workflow_instructions_media/server_kill_container.png)
+
 ### 7. Getting new code to server  
 After logging into the server, simply using the command `git pull origin master` will move the new codes from the GitHub site to the server. It is likely best to kill any running containers whose data you are updating.
 
 ![Step 7 in commiting changes](workflow_instructions_media/server_git_pull_screen.png)
 
 ### 8. Rebuild new codes on server 
-TBD ...
+Once you have new codes on the server, you can rebuild the containers (make sure you have killed the running one first). *If you have added any new R packages to the codes that you have uplodaed, you must also update the containers themselves. See Updating_containter_codes.md*
+
+To rebuild the containers, navigate to the directory with the code you want to run (for the `dev` codes, `/home/rodeo/rplumber-app-dev`), and type the following: 
+
+`docker build --tag=dev .` 
+
+where `dev` is what you want to call the new deployed code -- you will need to use this same name when you deploy or launch the new codes to be accessiable to the FTS website. For now, we are calling the development code `dev` and the production code `test`: (`docker build --tag=test .`)  
+
+![Step 8 in commiting changes](workflow_instructions_media/server_rebuild_codes.png)
 
 ### 9. Launch new codes on server 
-Two steps.  
-For production version:
-Step 1 (rebuild containers): docker build --tag=test .
-Step 2 (run containers): docker run -p 8000:8000 -it test
+After the new codes have been built, they will need to be launched. This can be done immediantly after rebuilding them. For the produciton version, (tagged `test`):
 
-For development version:
-Step 1 (rebuild containers): docker build --tag=dev .
-Step 2 (run containers): docker run -p 8005:8000 -it dev
+`docker run -p 8000:8000 -it test`
+
+Will launch the production codes on port 8000 (this matters for how the code it reached by the outside world).
+
+And to launch the developmet code on port 8005: `docker run -p 8005:8000 -it dev`
+
+![Step 9 in commiting changes](workflow_instructions_media/server_launch_codes.png)
 
