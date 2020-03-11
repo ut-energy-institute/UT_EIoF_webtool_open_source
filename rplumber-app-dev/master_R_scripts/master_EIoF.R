@@ -9,7 +9,11 @@
 ## Carey W. King, PhD
 ## 2020-03-11
 
+<<<<<<< HEAD
 #setwd('/scripts')
+=======
+ setwd('/scripts')
+>>>>>>> a2174f089880fac6f956b1009beb930ad5ce9ec1
 
 ## the inputs from the website website API URL GET (I have not idea) call will be:
 ## 1) Region considered (between 1 and 13, inclusive)

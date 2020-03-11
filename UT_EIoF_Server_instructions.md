@@ -51,7 +51,7 @@ This <a href="https://happygitwithr.com/rstudio-git-github.html" target="_blank"
 *@Carey -- if you want to set up an EI GitHub for the project, just let me know and we can move it off my personal GitHub page.*
 
 ### 1. Pull down existing codes from GitHub
-The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper righthand corner of the default RStudio layout. 
+The first step when editing the codes is to pull down the most recent version from GitHub. In RStudio, you start by clicking the blue down arrow under the *Git* tab in the upper right hand corner of the default RStudio layout. 
 
 ![The Rstudio git pull arrow.](workflow_instructions_media/rstudio_git_pull_arrow.png)
 
@@ -61,22 +61,44 @@ Doing so will let you know if there are any things that will be changed. In the 
 
 *Warning!* Doing this update changes the `UT_EIoF_Server_Instructions.md` on my computer. 
 
+### 2. Make you local edits to the codes and make sure that they run
+
+This is the normal process that you would follow when making changes to your code. Make sure they run first! 
+
+*If you find that you have to use a new R package that is not in the list that have already been installed on the server, first, try to do it a different way, because we will have to make changes to the container codes themselves. See updating container codes.*
+
+### 3. Restart RStudio and run your code from scratch.
+
+Sometimes you can have a variable or data frame defined in your local universal environment that lets your code run, but you forgot to define it in the codes you are working on themselves. Restarting RStudio and running your codes right away will find these errors.
+
 ### 4. Sending new code to GitHub  
 
-Once you have made edit to code that you woudl like to push to the server, you should follow these steps:
+Note: DO NOT PUSH UNFINISHED OR NON-WORKING CODES TO THE GITHUB REPO!! WAIT UNTIL YOU HAVE SOMETHING THAT WORKS.
+
+Once you have made edit to code that you would like to push to the server, you should follow these steps:
 
 1. Commit changes
 2. Leave a message...
-3. Carey's test edit 2/28/2020 135 pm central
+3. Push changes to GitHub
 
+
+When you make a change to a file (and save it) in the directory where you keep the codes (and it is not in the .gitignore file), it will whow up in the upper right hand corner of the RStudio window under the Git tab. If you want to send that changed file to GitHub and the server, you must first stage and commit those changes. You can stage the changes by checking the box next to the file in the Git pane.
 
 ![Step 1 in commiting changes](workflow_instructions_media/git_commit_1.png)
 
+One you have checked all the files you wish to send to GitHub, you must commit them. It is best practive to leave a short message that explains the changes you made. Keep it short, do not put code in here. If you highlight one of the files you are sending, it will show you the changes you have made. Red = deletions, green = additions:
+
 ![Step 2 in commiting changes](workflow_instructions_media/git_commit_2.png)
+
+Once have typed the message, click the `Commit` button below the message.
 
 ![Step 3 in commiting changes](workflow_instructions_media/git_commit_3.png)
 
+At this point, you probably think that you are done and your shiny new codes are on the world wide webs, but you are wrong, they are not. There are more (easy to forget steps). The below image shows a hard-to-see message on the top left that says *Your branch is ahead of 'origin/master' by 1 commit*. We must fix that. You must now *Push* the changes by clicking on the green up arrow on the top right of this window pane.
+
 ![Step 4 in commiting changes](workflow_instructions_media/git_commit_4.png)
+
+Once you do that, your shiny new codes now really are on the world wide webs (GitHub) and can then be pulled down to the remote server!
 
 ![Step 5 in commiting changes](workflow_instructions_media/git_commit_5.png)
 
@@ -85,21 +107,39 @@ Once you have made edit to code that you woudl like to push to the server, you s
 (see other private documentation on logging into Rodeo at TACC).
 
 ### 6. Kill running codes on server
-to kill containers, type: docker kill $(docker ps -q) 95c29847d25d
+
+When you are ready to update codes on the server, you will first need to kill any running instances of that code first. You can see what all codes are running by the command `docker container ls`. Usually the code that is running the production version will be called `test` and the development code will be called `dev`.
+
+![See what containers are running.](workflow_instructions_media/get_running_docker_images.png)
+
+To kill a running container, just type: `docker kill container_name`
+
+![Kill a container, softly.](workflow_instructions_media/server_kill_container.png)
 
 ### 7. Getting new code to server  
-TBD ...
+After logging into the server, simply using the command `git pull origin master` will move the new codes from the GitHub site to the server. It is likely best to kill any running containers whose data you are updating.
 
-### 8. Rebuild new codes on server
-TBD ...
+![Step 7 in commiting changes](workflow_instructions_media/server_git_pull_screen.png)
+
+### 8. Rebuild new codes on server 
+Once you have new codes on the server, you can rebuild the containers (make sure you have killed the running one first). *If you have added any new R packages to the codes that you have uplodaed, you must also update the containers themselves. See Updating_containter_codes.md*
+
+To rebuild the containers, navigate to the directory with the code you want to run (for the `dev` codes, `/home/rodeo/rplumber-app-dev`), and type the following: 
+
+`docker build --tag=dev .` 
+
+where `dev` is what you want to call the new deployed code -- you will need to use this same name when you deploy or launch the new codes to be accessiable to the FTS website. For now, we are calling the development code `dev` and the production code `test`: (`docker build --tag=test .`)  
+
+![Step 8 in commiting changes](workflow_instructions_media/server_rebuild_codes.png)
 
 ### 9. Launch new codes on server 
-Two steps.  
-For production version:
-Step 1 (rebuild containers): docker build --tag=test .
-Step 2 (run containers): docker run -p 8000:8000 -it test
+After the new codes have been built, they will need to be launched. This can be done immediantly after rebuilding them. For the produciton version, (tagged `test`):
 
-For development version:
-Step 1 (rebuild containers): docker build --tag=dev .
-Step 2 (run containers): docker run -p 8005:8000 -it dev
+`docker run -p 8000:8000 -it test`
+
+Will launch the production codes on port 8000 (this matters for how the code it reached by the outside world).
+
+And to launch the developmet code on port 8005: `docker run -p 8005:8000 -it dev`
+
+![Step 9 in commiting changes](workflow_instructions_media/server_launch_codes.png)
 
