@@ -51,7 +51,7 @@ function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_percent = 0, wind
   ng_percent <- as.integer(as.numeric(ng_percent))
   ldv_e <- as.integer(as.numeric(ldv_e))
   r_sh_e <- as.integer(as.numeric(r_sh_e))
-  r_sh_ng <- as.integer(as.numeric(r_sh_e))
+  r_sh_ng <- as.integer(as.numeric(r_sh_ng))
   
   source("/scripts/master_EIoF.R")  
 
