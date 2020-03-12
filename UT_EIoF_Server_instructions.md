@@ -143,3 +143,5 @@ And to launch the developmet code on port 8005: `docker run -p 8005:8000 -it dev
 
 ![Step 9 in commiting changes](workflow_instructions_media/server_launch_codes.png)
 
+
+Once you start the container, you will be viewing the terminal as if you are watching the R code (e.g., when you call the code from teh website, you will see the comments embedded in the underlying R code).  If you want to leave the container operating, but perform more commands in UNIX, type ctrl+p and ctrl+q after each other, and you will go back to a prompt.
