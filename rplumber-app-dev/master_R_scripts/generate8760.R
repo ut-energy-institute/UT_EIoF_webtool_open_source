@@ -84,6 +84,8 @@ EIoF_8760MW_GenerationTransportation_2050[names(EIoF_8760MW_GenerationTransporta
 # Base.Fraction.HeatPump = Baseline_ResStock_Fraction_HeatingTypes_byEIoF$FracHeatPump[RegionNumber]
 # Base.Fraction.NG = Baseline_ResStock_Fraction_HeatingTypes_byEIoF$FracNG[RegionNumber]
 Base.Fraction.other = 1 - Base.Fraction.HeatPump - Base.Fraction.NG  ## Heating that occurs via technologies that are NOT (1) electric heat pumps or (2) NG furnaces
+cat(paste0("Base.Fraction.other=",Base.Fraction.other,", Base.Fraction.HeatPump=",Base.Fraction.HeatPump,", Base.Fraction.NG=",Base.Fraction.NG),sep="\n")
+cat(paste0("UserFraction.HeatPump=",UserFraction.HeatPump,", UserFraction.NG=",UserFraction.NG),sep="\n")
 if ((UserFraction.HeatPump + UserFraction.NG) < (Base.Fraction.HeatPump+Base.Fraction.NG)) {
   stop("Error: the user is not allowed to specify heating methods such that the fracton of homes using (1) natural gas and (2) heat pumps for heating is lower than in the baseline assumed housing stock.")
 }
