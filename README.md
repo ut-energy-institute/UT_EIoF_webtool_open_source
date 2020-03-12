@@ -38,6 +38,10 @@ run containers: docker run -p 8005:8000 -it dev
 
 curl -X GET "http://129.114.6.122:8000/eiof?region_id=2&r_sh_e=.5&ldv_e=50&ng_percent=0&geothermal_percent=10&nuclear_percent=10&petroleum_percent=0&hydro_percent=10&biomass_percent=10&wind_percent=20&CSP_percent=0&PV_percent=20&coal_percent=10" -H "accept: application/json"
 
+For "test" (confirmed) website, as of March 12, 2020 it includes "r_sh_ng" as an input:
+
+curl -X GET "http://129.114.6.122:8000/eiof?region_id=6&r_sh_e=50&r_sh_ng=50&ldv_e=50&ng_percent=49&geothermal_percent=0&nuclear_percent=0&petroleum_percent=0&hydro_percent=0&biomass_percent=0&wind_percent=0&CSP_percent=0&PV_percent=0&coal_percent=50" -H "accept: application/json"
+
 
 For "development" website
 
