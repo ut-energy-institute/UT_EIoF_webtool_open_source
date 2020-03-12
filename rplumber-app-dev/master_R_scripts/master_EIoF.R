@@ -105,7 +105,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   region_names <- c("R1_NW","R2_CA", "R3_MN", "R4_SW", "R5_CE", "R6_TX", "R7_MW", "R8_AL", "R9_MA", "R10_SE", "R11_FL", "R12_NY", "R13_NE")  ## specify the region names as they appear as the column names of the "8760" input profiles
   names(LDVmiles_per_region_2050) <- c(region_names)
   
-  source("generate8760.r")
+  source("generate8760.R")
   #generate8760_output <- generate8760(RegionNumber,year,percent_ResidentialHeatPump,percent_ResidentialNG,percent_ElectricLDV)
   generate8760_output <- generate8760(RegionNumber,year,percent_ResidentialHeatPump,percent_ResidentialNG,percent_ElectricLDV,LDVmiles_per_region_2050[RegionNumber])
 
@@ -162,7 +162,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   ##                    "U_AnnualStorage_2050_CurrentRegion"=U_AnnualStorage,
   ##                    "V_AnnualStorage_2050_CurrentRegion"=V_AnnualStorage)
   
-  source("generate_FinalUVY_2050.r")
+  source("generate_FinalUVY_2050.R")
   #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG)
   #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, PPdata_NoStorage,PPdata_AnnualStorage,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage)
   generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_per_region_2050[RegionNumber],Total_AnnualMWh_LDV_EVs)

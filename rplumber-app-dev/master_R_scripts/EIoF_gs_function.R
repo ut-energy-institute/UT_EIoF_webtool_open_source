@@ -4,7 +4,8 @@
 ## Joshua D. Rhodes, PhD
 ## 2019-05-06
 
-EIoF_gs_function <- function(Coal = 0.2157, Nuclear =  0.1176,	Natural_Gas =  0.3544,	Hydro =  0.0550, Solar =  0.1442, Wind =  0.0824, Geothermal =  0.0120, MSW =  0.0050, Other_biomass =  0.0070,	Other =  0.0040, Petroleum =  0.0020){
+EIoF_gs_function <- function(SG_out){
+#EIoF_gs_function <- function(Coal = 0.2157, Nuclear =  0.1176,	Natural_Gas =  0.3544,	Hydro =  0.0550, Solar =  0.1442, Wind =  0.0824, Geothermal =  0.0120, MSW =  0.0050, Other_biomass =  0.0070,	Other =  0.0040, Petroleum =  0.0020){
   
   library(googlesheets)
   suppressMessages(library(dplyr))

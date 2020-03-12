@@ -43,9 +43,9 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     # U <- read.csv(paste0("U", 1, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
     # V <- read.csv(paste0("V", 1, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Industries") %>% setcoltype("Products")
     # Y <- read.csv(paste0("Y", 1, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
-    # U <- U %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
-    # V <- V %>% as.matrix() %>% setrowtype("Industries") %>% setcoltype("Products")
-    # Y <- Y %>%  as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
+    U <- U %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
+    V <- V %>% as.matrix() %>% setrowtype("Industries") %>% setcoltype("Products")
+    Y <- Y %>%  as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
     U <- U/1e15 # convert to QUADS
     V <- V/1e15 # convert to QUADS
     Y <- Y/1e15 # convert to QUADS
