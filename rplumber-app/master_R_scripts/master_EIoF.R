@@ -9,7 +9,7 @@
 ## Joshua D. Rhodes, PhD
 ## 2019-04-30
 
-#setwd('/scripts')
+setwd('/scripts')
 
 ## the inputs from the website website API URL GET (I have not idea) call will be:
 ## 1) Region considered (between 1 and 13, inclusive)
@@ -18,7 +18,7 @@
 ##    - light-duty vehicle energy use (petroleum vs. electricity)
 ## 3) Percent electricity generation from primary fuels
 
-master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_percent = 0, wind_percent = 25, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50){
+master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_percent = 0, wind_percent = 25, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   # to make testing easier
   # region_id = 1
@@ -34,6 +34,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   # ng_percent = 0
   # ldv_e = 50
   # r_sh_e = 50
+  # r_sh_ng = 50
   
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
@@ -48,7 +49,8 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   'geothermal_percent' = geothermal_percent,
   'ng_percent' = ng_percent,
   'ldv_e' = ldv_e,
-  'r_sh_e' = r_sh_e
+  'r_sh_e' = r_sh_e,
+  'r_sh_ng' = r_sh_ng
   )))
   names(inputs) <- 'web_inputs'
   
@@ -81,8 +83,8 @@ master_EIoF <- function(region_id = 1, coal_percent = 0, PV_percent = 35, CSP_pe
   ########################### BEGIN Jianwei Sankey Code ###########################
   
   source('Sankey_Function_JDR.R')
-  
-  sankey_json_out <- sankey_json(region_id = region_id, p_solar = PV_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = 100, r_wh_e = 100, r_ck_e = 100, c_sh_e = 100, c_wh_e = 100, c_ck_e = 100, ldv_elec = 50, ldv_petrol = 30, ldv_ethanol = 20, trans_other_petrol = 40, trans_other_ng = 10, trans_other_other = 50)
+  solar_percent = PV_percent + CSP_percent
+  sankey_json_out <- sankey_json(region_id = region_id, p_solar = solar_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = 100, r_wh_e = 100, r_ck_e = 100, c_sh_e = 100, c_wh_e = 100, c_ck_e = 100, ldv_elec = 50, ldv_petrol = 30, ldv_ethanol = 20, trans_other_petrol = 40, trans_other_ng = 10, trans_other_other = 50)
   
 
   ########################### END Jianwei Sankey Code ###########################
