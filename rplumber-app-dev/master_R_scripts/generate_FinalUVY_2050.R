@@ -289,8 +289,9 @@ U_NoStorage['Electricity_Flow', 'Resident_SpaceHeating_Elec']=HH_heating_elec
 #   }
 #   rm(U2016_baseline)
 # }
+## I previously saved "HH_petroleum_fraction_for_heating_2016_baseline" for loading, but don't use it so don't need to load it.
 # save(HH_petroleum_fraction_for_heating_2016_baseline, file = "generate_FinalUVY_2050_data/HH_petroleum_fraction_for_heating_2016_baseline.RData")
-load("generate_FinalUVY_2050_data/HH_petroleum_fraction_for_heating_2016_baseline.Rdata")
+#load("generate_FinalUVY_2050_data/HH_petroleum_fraction_for_heating_2016_baseline.Rdata")
 ## +++
 ## +++
 
