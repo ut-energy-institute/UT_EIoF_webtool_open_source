@@ -21,20 +21,20 @@ setwd('/scripts')
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   # to make testing easier
-  # region_id = 1
-  # coal_percent = 20
-  # PV_percent = 10
-  # CSP_percent = 0
-  # wind_percent = 15
-  # biomass_percent = 0
-  # hydro_percent = 0
-  # petroleum_percent = 0
-  # nuclear_percent = 10
-  # geothermal_percent = 0
-  # ng_percent = 0
-  # ldv_e = 50
-  # r_sh_e = 50
-  # r_sh_ng = 50
+  region_id = 6
+  coal_percent = 25
+  PV_percent = 10
+  CSP_percent = 10
+  wind_percent = 10
+  biomass_percent = 0
+  hydro_percent = 0
+  petroleum_percent = 0
+  nuclear_percent = 10
+  geothermal_percent = 0
+  ng_percent = 0
+  ldv_e = 50
+  r_sh_e = 0
+  r_sh_ng = 100
   
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
@@ -273,19 +273,28 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   source('EIoF_gs_function.R')
   
-  ## massage outputs from solveGEN to go into the googlesheets code
-  SG_out <- solveGEN_output$PPdata_AnnualStorage[c('Technology', 'MW_needed', 'TWhGeneration')]
-  #SG_out <- solveGEN_output$PPdata_NoStorage[c('Technology', 'MW_needed', 'TWhGeneration')]
+  ## massage outputs from solveGEN to go into the googlesheets code for "Annual Storage" solvGEN outputs
+  SG_out_AnnualStorage <- solveGEN_output$PPdata_AnnualStorage[c('Technology', 'MW_needed', 'TWhGeneration')]
   target <- c("Coal", "Nuclear", "NGCC", "NGCT", "HydroDispatch", "PV", "Wind", "Geothermal", "Biomass", "Other", "PetroleumCC", "AnnualStorage_Total")
-  SG_out <- SG_out[match(target, SG_out$Technology),]
-  SG_out$Technology <- target
-  SG_out[is.na(SG_out)] <- 0
+  SG_out_AnnualStorage <- SG_out_AnnualStorage[match(target, SG_out_AnnualStorage$Technology),]
+  SG_out_AnnualStorage$Technology <- target
+  SG_out_AnnualStorage[is.na(SG_out_AnnualStorage)] <- 0
+  gg_out_AnnualStorage <- EIoF_gs_function(SG_out = SG_out_AnnualStorage)
+  gg_out_AnnualStorage <- as.data.frame(gg_out_AnnualStorage[,-1])
   
-  gg_out <- EIoF_gs_function(SG_out = SG_out)
-
-  gg_out <- as.data.frame(gg_out[,-1])
+  ## massage outputs from solveGEN to go into the googlesheets code for "No Storage" solvGEN outputs
+  SG_out_NoStorage <- solveGEN_output$PPdata_NoStorage[c('Technology', 'MW_needed', 'TWhGeneration')]
+  target <- c("Coal", "Nuclear", "NGCC", "NGCT", "HydroDispatch", "PV", "Wind", "Geothermal", "Biomass", "Other", "PetroleumCC", "AnnualStorage_Total")
+  SG_out_NoStorage <- SG_out_NoStorage[match(target, SG_out_NoStorage$Technology),]
+  SG_out_NoStorage$Technology <- target
+  SG_out_NoStorage[is.na(SG_out_NoStorage)] <- 0
+  gg_out_NoStorage <- EIoF_gs_function(SG_out = SG_out_NoStorage)
+  gg_out_NoStorage <- as.data.frame(gg_out_NoStorage[,-1])
   
-  gg_out2 <- lapply(split(gg_out, gg_out$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
+  
+  ## Rearrange Google Sheet output data
+  gg_out2 <- lapply(split(gg_out_AnnualStorage, gg_out_AnnualStorage$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
+  gg_out3 <- lapply(split(gg_out_NoStorage, gg_out_NoStorage$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
   # print(paste('New 2050 CAPEX is: ', gg_out, sep = ''))
 
   ## call (Josh's?) code to ping GG's Googlesheets to get information about capital and cash flow
@@ -304,13 +313,12 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   ########################### END JOSH GOGGLESHEET ACCESS ###########################
   
   
+  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out2, gg_out3,inputs)
+  #  EIOF_no_timeseries <- list(sankey_json_out$links, sankey_json_out$nodes, gg_out)
+  #  EIOF_timeseries <- list(solveGEN_output$Hourly_MW_AnnualStorage)
   
-  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out2, inputs)
-#  EIOF_no_timeseries <- list(sankey_json_out$links, sankey_json_out$nodes, gg_out)
-#  EIOF_timeseries <- list(solveGEN_output$Hourly_MW_AnnualStorage)
+  names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs')
   
-  names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output', 'website_inputs')
-   
 #  write_lines(toJSON(all), 'all_EIOF_data.json')
 #  write_lines(toJSON(EIOF_no_timeseries), 'EIOF_no_timeseries_data.json')
 #  write_lines(toJSON(EIOF_timeseries), 'EIOF_timeseries_data.json')
