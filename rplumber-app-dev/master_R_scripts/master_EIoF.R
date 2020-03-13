@@ -21,20 +21,20 @@ setwd('/scripts')
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   # to make testing easier
-  region_id = 6
-  coal_percent = 25
-  PV_percent = 10
-  CSP_percent = 10
-  wind_percent = 10
-  biomass_percent = 0
-  hydro_percent = 0
-  petroleum_percent = 0
-  nuclear_percent = 10
-  geothermal_percent = 0
-  ng_percent = 0
-  ldv_e = 50
-  r_sh_e = 0
-  r_sh_ng = 100
+  # region_id = 6
+  # coal_percent = 25
+  # PV_percent = 10
+  # CSP_percent = 10
+  # wind_percent = 10
+  # biomass_percent = 0
+  # hydro_percent = 0
+  # petroleum_percent = 0
+  # nuclear_percent = 10
+  # geothermal_percent = 0
+  # ng_percent = 0
+  # ldv_e = 50
+  # r_sh_e = 0
+  # r_sh_ng = 100
   
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
