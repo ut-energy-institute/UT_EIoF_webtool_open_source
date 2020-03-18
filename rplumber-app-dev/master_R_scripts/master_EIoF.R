@@ -300,7 +300,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   
   ## Rearrange Google Sheet output data
-  gs_auth(token = "googlesheets_token.rds") ## Authorize acess to the Google Sheet
+  #gs_auth(token = "googlesheets_token.rds") ## Authorize acess to the Google Sheet
   gg_out2 <- lapply(split(gg_out_AnnualStorage, gg_out_AnnualStorage$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
   gg_out3 <- lapply(split(gg_out_NoStorage, gg_out_NoStorage$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
   # print(paste('New 2050 CAPEX is: ', gg_out, sep = ''))

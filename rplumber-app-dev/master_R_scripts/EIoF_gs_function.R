@@ -9,7 +9,7 @@ EIoF_gs_function <- function(SG_out){
   
   library(googlesheets)
   suppressMessages(library(dplyr))
-  #gs_auth(token = "googlesheets_token.rds")
+  gs_auth(token = "googlesheets_token.rds")
   
   # name the sheet to access
 #  eiof <- gs_title("EIoF_gsheets_v1_beta", verbose = F) 
