@@ -18,24 +18,31 @@ setwd('/scripts')
 ##    - light-duty vehicle energy use (petroleum vs. electricity)
 ## 3) Percent electricity generation from primary fuels
 
+## Use this to call the function after it is sourced as a function:
+# start_time <- Sys.time()  ## This is just to know how long it took to run the code
+# eiof_out <- master_EIoF(region_id = 6, coal_percent = 10, PV_percent = 10, CSP_percent = 0, wind_percent = 10, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 20, r_sh_e = 0, r_sh_ng = 100)
+# end_time <- Sys.time()
+# code_time=end_time - start_time
+# print(code_time)
+  
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   # to make testing easier
   # region_id = 6
-  # coal_percent = 25
-  # PV_percent = 10
-  # CSP_percent = 10
+  # coal_percent = 20
+  # PV_percent = 0
+  # CSP_percent = 0
   # wind_percent = 10
   # biomass_percent = 0
   # hydro_percent = 0
   # petroleum_percent = 0
-  # nuclear_percent = 10
+  # nuclear_percent = 0
   # geothermal_percent = 0
   # ng_percent = 0
   # ldv_e = 50
   # r_sh_e = 0
   # r_sh_ng = 100
-  
+
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
   'coal_percent' = coal_percent,
@@ -293,6 +300,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   
   ## Rearrange Google Sheet output data
+  gs_auth(token = "googlesheets_token.rds") ## Authorize acess to the Google Sheet
   gg_out2 <- lapply(split(gg_out_AnnualStorage, gg_out_AnnualStorage$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
   gg_out3 <- lapply(split(gg_out_NoStorage, gg_out_NoStorage$type, drop = TRUE), function(x) split(x, x[['value']], drop = TRUE))
   # print(paste('New 2050 CAPEX is: ', gg_out, sep = ''))

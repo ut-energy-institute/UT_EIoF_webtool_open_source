@@ -9,7 +9,7 @@ EIoF_gs_function <- function(SG_out){
   
   library(googlesheets)
   suppressMessages(library(dplyr))
-  gs_auth(token = "googlesheets_token.rds")
+  #gs_auth(token = "googlesheets_token.rds")
   
   # name the sheet to access
 #  eiof <- gs_title("EIoF_gsheets_v1_beta", verbose = F) 
@@ -19,6 +19,11 @@ EIoF_gs_function <- function(SG_out){
   
   # change a value (or range of values in the above sheet)
 #  gs_edit_cells(ss = eiof, ws = 3, input = elec_gen_fuels, anchor = "B49", byrow = F, verbose = F)
+  # change a value (or range of values in the above sheet)
+  gs_input<-matrix(c(SG_out$MW_needed,SG_out$TWhGeneration),ncol=2)
+  gs_edit_cells(ss = eiof, ws = 3, input = gs_input, anchor = "H3", byrow = F, verbose = F)
+  #gs_edit_cells(ss = eiof, ws = 3, input = SG_out$MW_needed, anchor = "H3", byrow = F, verbose = F)
+  #gs_edit_cells(ss = eiof, ws = 3, input = SG_out$TWhGeneration, anchor = "I3", byrow = F, verbose = F)
   
   # get values from the sheet after input has been changed
   output <- gs_read(ss = eiof, ws = 5, range = "A1:BB42", col_names = T, verbose = F)
