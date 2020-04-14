@@ -154,13 +154,18 @@ MW_data_CSP <- 1    ## [this is a needed initial input for internal optimization
 ## Cost data (that mostly set up names for internal data frames)
 ## Cost data do not influence the calculations of this code (except to confirm NG is )
 ## ++++++
-# NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN.csv")  ## A proxy set of cost input data for newly installed power plants
-# NewPPcost <- NewPPcost[order(NewPPcost$X),]
-# assign('NewPPcost',NewPPcost,envir=.GlobalEnv)
+# ###NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN.csv")  ## A proxy set of cost input data for newly installed power plants
+# ###NewPPcost <- NewPPcost[order(NewPPcost$X),]
+# ###assign('NewPPcost',NewPPcost,envir=.GlobalEnv)
+# ###assign('StorageCost',StorageCost,envir=.GlobalEnv)
+# ###save(NewPPcost,StorageCost,file="solveGen_data/PowerPlantCosts.Rdata")
+# ###load("solveGen_data/PowerPlantCosts.Rdata")
+# regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
+# df.tech_generic <- read.csv("solveGen_data/Technology_DataFrame_Generic.csv")
+# NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN_AllRegions.csv")  ## A proxy set of cost input data for newly installed power plants
 # StorageCost = read.csv("solveGen_data/StorageTechnologyCosts_solveGEN.csv") ## A proxy set of cost for electricity storage technologies
-# assign('StorageCost',StorageCost,envir=.GlobalEnv)
-# save(NewPPcost,StorageCost,file="solveGen_data/PowerPlantCosts.Rdata")
-load("solveGen_data/PowerPlantCosts.Rdata")
+#save(NewPPcost,StorageCost,regions,df.tech_generic,file="solveGen_data/PowerPlantCosts_20200413.Rdata")
+load("solveGen_data/PowerPlantCosts_20200413.Rdata")
 
 ## +++++++++
 ## Create the main "data" data frame that has the region-specific 8760 profile for
@@ -196,7 +201,10 @@ names(data)=c("Hour.ending","Load_MW","Wind_MW","SolarPV_MW","SolarCSP_MW")
 ## +++++++++++++++
 #cat(paste0("User input goes into Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired for `HydroNonDispatch'."),sep="\n")
 #cat(paste0("Then any remaining MWh for total hydro is later assigned to Frac_MWhDesired_dispatchable$Fraction_MWhDesired for `HydroDispatch'."),sep="\n")
-Frac_MWhDesired_dispatchable <- NewPPcost
+
+#Frac_MWhDesired_dispatchable <- NewPPcost
+#Frac_MWhDesired_dispatchable <- Frac_MWhDesired_dispatchable[,-c(3:dim(Frac_MWhDesired_dispatchable)[2])]
+Frac_MWhDesired_dispatchable <- df.tech_generic
 Frac_MWhDesired_dispatchable <- Frac_MWhDesired_dispatchable[,-c(3:dim(Frac_MWhDesired_dispatchable)[2])]
 colnames(Frac_MWhDesired_dispatchable) <- c("Technology","Fraction_MWhDesired")
 Frac_MWhDesired_dispatchable <- Frac_MWhDesired_dispatchable[-which(Frac_MWhDesired_dispatchable$Technology==c("Wind")),]
@@ -218,7 +226,9 @@ Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatcha
 Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("Geothermal"))] <- geothermal_fraction  ## Geothermal
 
 # Initialize "Frac_MWhDesired" for non-dispatchable technologies
-Frac_MWhDesired_Nondispatchable <- NewPPcost
+#Frac_MWhDesired_Nondispatchable <- NewPPcost
+#Frac_MWhDesired_Nondispatchable <- Frac_MWhDesired_Nondispatchable[,-c(3:dim(Frac_MWhDesired_Nondispatchable)[2])]
+Frac_MWhDesired_Nondispatchable <- df.tech_generic
 Frac_MWhDesired_Nondispatchable <- Frac_MWhDesired_Nondispatchable[,-c(3:dim(Frac_MWhDesired_Nondispatchable)[2])]
 colnames(Frac_MWhDesired_Nondispatchable) <- c("Technology","Fraction_MWhDesired")
 Frac_MWhDesired_Nondispatchable[,c(2)] <- 0
@@ -253,16 +263,17 @@ PPcost_Variable <- rbind(Frac_MWhDesired_dispatchable,Frac_MWhDesired_Nondispatc
 PPcost_Variable <- PPcost_Variable[order(PPcost_Variable$Technology),]
 PPcost_Variable[,2] <- 0
 names(PPcost_Variable) <- c("Technology","Cost_Variable")
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Coal"))] <-  (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("Coal"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("Coal"))])  ## Coal
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Nuclear"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("Nuclear"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("Nuclear"))])  ## Nuclear
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("NGCC"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("NGCC"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("NGCC"))])  ## NGCC
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("NGCT"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("NGCT"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("NGCT"))])  ## NGCT
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("UserTech1"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("UserTech1"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("UserTech1"))])  ## UserTech1
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("UserTech2"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("UserTech2"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("UserTech2"))])  ## UserTech2
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Biomass"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("Biomass"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("Biomass"))])  ## Biomass
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("HydroDispatch"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("HydroDispatch"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("HydroDispatch"))])  ## Dispatchable Hydropower
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("PetroleumCC"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("PetroleumCC"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("PetroleumCC"))])  ## Petroleum CombinedCycle
-PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Geothermal"))] <- (NewPPcost$VariableOMCost_..MWh[which(PPcost_Variable$Technology==c("Geothermal"))]+NewPPcost$VariableFuelCost_..MWh[which(PPcost_Variable$Technology==c("Geothermal"))])  ## Geothermal
+PPCost_US <- NewPPcost[which(NewPPcost$EIoF_region=="US"),]
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Coal"))] <-  (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("Coal"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("Coal"))])  ## Coal
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Nuclear"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("Nuclear"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("Nuclear"))])  ## Nuclear
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("NGCC"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("NGCC"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("NGCC"))])  ## NGCC
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("NGCT"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("NGCT"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("NGCT"))])  ## NGCT
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("UserTech1"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("UserTech1"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("UserTech1"))])  ## UserTech1
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("UserTech2"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("UserTech2"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("UserTech2"))])  ## UserTech2
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Biomass"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("Biomass"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("Biomass"))])  ## Biomass
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("HydroDispatch"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("HydroDispatch"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("HydroDispatch"))])  ## Dispatchable Hydropower
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("PetroleumCC"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("PetroleumCC"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("PetroleumCC"))])  ## Petroleum CombinedCycle
+PPcost_Variable$Cost_Variable[which(PPcost_Variable$Technology==c("Geothermal"))] <- (PPCost_US$VariableOMCost_..MWh[which(PPCost_US$Technology==c("Geothermal"))]+PPCost_US$VariableFuelCost_..MWh[which(PPCost_US$Technology==c("Geothermal"))])  ## Geothermal
 ## Determine the capacity for dispatchable generators, that ARE NOT NATURAL GAS,
 ## needed to meet the user-specified % of MWh for each.
 ## Find the order of dispatchable generators from lowest to highest cost if operating at 100% capacity factor (i.e., at PPcost$hours_operating=8760)
@@ -283,10 +294,11 @@ PPcost_Variable <-PPcost_Variable[order(PPcost_Variable$Cost_Variable),]
 ## +++++++++++++++
 PP_MWneeded <- rbind(Frac_MWhDesired_dispatchable,Frac_MWhDesired_Nondispatchable)  ## Inclulde the Nondispatchable Power Plants now so we can add their needed capacity value later
 PP_MWneeded <- merge(PP_MWneeded,PPcost_Variable,by="Technology")
-PP_MWneeded <- cbind(PP_MWneeded,PPcost_Variable)  ## Just add 2 more columns to have as empty data
-names(PP_MWneeded)[4]<-c("MW_needed")
-PP_MWneeded <- PP_MWneeded[,-c(5)]
-PP_MWneeded[,c(4)] <- 0
+#PP_MWneeded <- cbind(PP_MWneeded,PPcost_Variable)  ## Just add 2 more columns to have as empty data
+PP_MWneeded$MW_needed <- rep(0,dim(PP_MWneeded)[1])
+# names(PP_MWneeded)[4]<-c("MW_needed")
+# PP_MWneeded <- PP_MWneeded[,-c(5)]
+# PP_MWneeded[,c(4)] <- 0
 PP_MWneeded <- PP_MWneeded[order(PP_MWneeded$Cost_Variable),]
 
 ## Add data columns for the hourly MW generation from each type of generator
@@ -295,18 +307,20 @@ zeros <- rep(0,8760)
 data <- cbind(data,matrix(zeros , length(zeros) , (dim(Frac_MWhDesired_dispatchable)[1]+1) ))  ## add a column for generation each hour from each disptachable generator PLUS a column for nuclear generation
 
 ## ++++++++++++
-## Determine Nuclear Capacity as running at a constant capacity each hour.
+## Determine Nuclear Capacity as running at a constant capacity each hour, but with 
+## capacity ONLY up to the minimum load (minimum of data$Load_MW)
 ## ++++++++++++
 PPindex <- num_cols_now+1  ## This is the column in data.frame "data" to add the hourly generation for the current power plant type
 names(data)[PPindex] <- paste0("Nuclear_MW")
 PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
 data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
-if (max(data$Nuclear_MW) > min(data$Load_MW)) {
+if (max(data$Nuclear_MW) > min(data$Load_MW)) {  ## Then nuclear capacitiy is larger than the minimum load and the EIoF tool assumes this is not allowed
   Nuclear.MaxPct <- min(data$Load_MW)*8760/sum(data$Load_MW)
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- min(data$Load_MW)*.999
+  data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
   cat(paste0("Your choice leads to ",sprintf("%.1f", max(data$Nuclear_MW))," MW of nuclear.",sep="\n"))
   cat(paste0("The maximum allowed capacity for nuclear is ",sprintf("%.1f", min(data$Load_MW))," MW to achieve up to ",sprintf("%.1f", Nuclear.MaxPct*100)," % of generation.",sep="\n"))
   cat(paste0("Reduce your desired % of MWh from nuclear."))
-  break
 }
 
 ## ++++++++++++
@@ -344,7 +358,10 @@ if (max(data$Nuclear_MW) > min(data$Load_MW)) {
 cat("Hydro programming does not allow ADDING hydro capacity (MW) and energy (MWh).",sep="\n")
 
 ##  First check if user wants more total hydro than allowed by existing energy budget.
-if ( (sum(NewPPcost[which(NewPPcost$X=="HydroNonDispatch"),9:13])+sum(NewPPcost[which(NewPPcost$X=="HydroDispatch"),9:13]))/sum(data$Load_MW) < (Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("HydroDispatch"))] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("HydroNonDispatch"))] ) ) {
+PPCost_CurrentRegion <- NewPPcost[which(NewPPcost$EIoF_region==regions[RegionNumber]),]
+Hydro_MaxTotalAnnualMWh <- sum(PPCost_CurrentRegion$MWh_max_WinterJanFeb,na.rm = TRUE) + sum(PPCost_CurrentRegion$MWh_max_Spring,na.rm = TRUE) + sum(PPCost_CurrentRegion$MWh_max_Summer,na.rm = TRUE) + sum(PPCost_CurrentRegion$MWh_max_Fall,na.rm = TRUE) + sum(PPCost_CurrentRegion$MWh_max_WinterNovDec,na.rm = TRUE)
+#if ( (sum(NewPPcost[which(NewPPcost$X=="HydroNonDispatch"),9:13])+sum(NewPPcost[which(NewPPcost$X=="HydroDispatch"),9:13]))/sum(data$Load_MW) < (Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("HydroDispatch"))] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("HydroNonDispatch"))] ) ) {
+if ( Hydro_MaxTotalAnnualMWh/sum(data$Load_MW) < (Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("HydroDispatch"))] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("HydroNonDispatch"))] ) ) {
   NotEnoughHydro <- 1  ## Yes, there is not enough hydro energy budget to reach user's target. So use all of energy budget for hydro later in code.
 } else {
   NotEnoughHydro <- 0  ## No, there is more hydro energy budget that can be used beyond the user's target for hydro. So need to solve for how much energy budget is actually used.
@@ -360,11 +377,12 @@ names(data)[PPindex] <- paste0("HydroNonDispatch_MW")
 hour_per_season <- c(((31+28)*24),2208,2208,1464,((30+31)*24))  ## In the NREL ReEDS model, Winter (Nov/Dec/Jan/Feb) = 2880 hours, Spring (Mar/Apr/May) = 2208 hours, Summer (June/July/Aug) = 2208 hours, Fall (Sept/Oct) = 1464 hours
 assign('hour_per_season',hour_per_season,envir=.GlobalEnv)
 HydroNonDispatch_hourly_max <- rep(0,5)
-HydroNonDispatch_hourly_max[1] <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]/(hour_per_season[1])  ## This is Winter for Jan/Feb ONLY
-HydroNonDispatch_hourly_max[2] <- NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]/hour_per_season[2]
-HydroNonDispatch_hourly_max[3] <- NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]/hour_per_season[3]
-HydroNonDispatch_hourly_max[4] <- NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]/hour_per_season[4]
-HydroNonDispatch_hourly_max[5] <- NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]/(hour_per_season[5])  ## This is Winter for Nov/Dec ONLY
+# Note: "PPCost_CurrentRegion$MWh_max_..." and NewPPcost$MWh_max_..." represents the total MWh available (from ReEDS), in the season, and there is a value for both NonDispatchable Hydro, and Dispatchable Hydro
+HydroNonDispatch_hourly_max[1] <- PPCost_CurrentRegion$MWh_max_WinterJanFeb[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]/(hour_per_season[1])  ## This is Winter for Jan/Feb ONLY
+HydroNonDispatch_hourly_max[2] <- PPCost_CurrentRegion$MWh_max_Spring[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]/hour_per_season[2]
+HydroNonDispatch_hourly_max[3] <- PPCost_CurrentRegion$MWh_max_Summer[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]/hour_per_season[3]
+HydroNonDispatch_hourly_max[4] <- PPCost_CurrentRegion$MWh_max_Fall[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]/hour_per_season[4]
+HydroNonDispatch_hourly_max[5] <- PPCost_CurrentRegion$MWh_max_WinterNovDec[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]/(hour_per_season[5])  ## This is Winter for Nov/Dec ONLY
 start.ind <- 1
 for (i in 1:5) {
   end.ind <- start.ind + hour_per_season[i] - 1
@@ -379,8 +397,10 @@ for (i in 1:5) {
 # CFmax_HydroDispatch <- c(NewPPcost$MWh_max_WinterJanFeb[index.temp],NewPPcost$MWh_max_Spring[index.temp],NewPPcost$MWh_max_Summer[index.temp],NewPPcost$MWh_max_Fall[index.temp],NewPPcost$MWh_max_WinterNovDec[index.temp])/NewPPcost$MW_existing[index.temp]/hour_per_season
 # data$CFmax_HydroDispatch <- c(rep(CFmax_HydroDispatch[1],hour_per_season[1]),rep(CFmax_HydroDispatch[2],hour_per_season[2]),rep(CFmax_HydroDispatch[3],hour_per_season[3]),rep(CFmax_HydroDispatch[4],hour_per_season[4]),rep(CFmax_HydroDispatch[5],hour_per_season[5]))
 
-PP_MWneeded_HydroNonDispatch <- min(HydroNonDispatch_hourly_max,NewPPcost$MW_existing[which(NewPPcost$X=="HydroNonDispatch")])  ## maximum hourly MW output from HydroNonDispatch
-cat(paste0("Here still need to solve for whether hourly MW of HydroNonDispatch can increase with new capacity.",sep="\n"))
+#PP_MWneeded_HydroNonDispatch <- min(HydroNonDispatch_hourly_max,NewPPcost$MW_existing[which(NewPPcost$X=="HydroNonDispatch")])  ## maximum hourly MW output from HydroNonDispatch
+PP_MWneeded_HydroNonDispatch <- min(HydroNonDispatch_hourly_max,PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")])  ## maximum hourly MW output from HydroNonDispatch
+#cat(paste0("Here still need to solve for whether hourly MW of HydroNonDispatch can increase with new capacity.",sep="\n"))
+
 ## Account for any possible curtailment. Here, there is NO adjustment of hydro capacity if there is curtailment.
 ## There is only a reduction in the hourly output as needed to ensure "Nuclear + HydroNonDispatch" generation <= total load.
 data$Load_minus_Nuclear_MW <- data$Load_MW - data$Nuclear_MW
@@ -1036,8 +1056,6 @@ function_Wind_PV_CSP_annual_storage <- function(x){
 ## when assuming THERE IS SEASONAL STORAGE OF WIND AND SOLAR ELECTRICITY.
 ## ++++++++++++
 
-
-
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
 ## CALCULATIONS FOR GENERATION CAPACITY (not nuclear or non-dispatchable hydro)
@@ -1139,7 +1157,6 @@ for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NG
 ## This for loop solves for dispatchable generation when there is NO STORAGE of any kind.
 ## +++++++++++++++++
 
-
 ## +++++++++++++++++
 ## Input the MW of installed capacity needed for Wind and PV into "PP_MWneeded".
 ## Here this assumes there is no electricity storage of any kind.
@@ -1162,7 +1179,6 @@ curtailed_CSP  <- curtailed_WindSolar*(data$CSP_MW_total) /(noncurtailed_WindSol
 curtailed_Wind[is.na(curtailed_Wind)==TRUE] <- 0  ## ensure there are no NA from dividing by zero
 curtailed_PV[is.na(curtailed_PV)==TRUE] <- 0      ## ensure there are no NA from dividing by zero
 curtailed_CSP[is.na(curtailed_CSP)==TRUE] <- 0    ## ensure there are no NA from dividing by zero
-
 
 ## ++++++++++++++++
 ## Sequence of loops to solve for HydroDispatch (NO ANNUAL ELECTRICITY STORAGE) - BEGIN
@@ -1224,36 +1240,49 @@ net_load_duration_fall$HydroDispatch_MW <- rep(0,dim(net_load_duration_fall)[1])
 names(net_load_duration_fall) = c("MW","Hrs","HydroDispatch_MW")
 net_load_duration_fall <- net_load_duration_fall[order(-net_load_duration_fall$MW),]
 
+
 ## Third:  Go season by season and find the hours and quantity of dispatch to use up the entire energy budget
 ## Call function for determining disptach of hydro.
 ## Winter
-HydroDispatch_budget_winter <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroDispatch")]
-hr_max_winter <- ceiling(HydroDispatch_budget_winter/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+#HydroDispatch_budget_winter <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroDispatch")]
+#hr_max_winter <- ceiling(HydroDispatch_budget_winter/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+HydroDispatch_budget_winter <- PPCost_CurrentRegion$MWh_max_WinterJanFeb[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]+PPCost_CurrentRegion$MWh_max_WinterNovDec[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
+hr_max_winter <- ceiling(HydroDispatch_budget_winter/PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")])
 if (hr_max_winter>sum(hour_per_season[c(1,5)])) {
   hr_max_winter = sum(hour_per_season[c(1,5)]) - 1  ## Here we need to make the function "function_solve_hydro_dispatch" start at an hour that is lower than the maximum hour in the season
 }
-max_capacity_winter <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+#max_capacity_winter <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+max_capacity_winter <- PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
 ## Spring
-HydroDispatch_budget_spring <- NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroDispatch")]
-hr_max_spring <- ceiling(HydroDispatch_budget_spring/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+#HydroDispatch_budget_spring <- NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroDispatch")]
+#hr_max_spring <- ceiling(HydroDispatch_budget_spring/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+HydroDispatch_budget_spring <- PPCost_CurrentRegion$MWh_max_Spring[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
+hr_max_spring <- ceiling(HydroDispatch_budget_spring/PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")])
 if (hr_max_spring >sum(hour_per_season[c(2)])) {
   hr_max_spring  = sum(hour_per_season[c(2)]) - 1  ## Here we need to make the function "function_solve_hydro_dispatch" start at an hour that is lower than the maximum hour in the season
 }
-max_capacity_spring <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+#max_capacity_spring <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+max_capacity_spring <- PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
 ## Summer
-HydroDispatch_budget_summer <- NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroDispatch")]
-hr_max_summer <- ceiling(HydroDispatch_budget_summer/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+#HydroDispatch_budget_summer <- NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroDispatch")]
+#hr_max_summer <- ceiling(HydroDispatch_budget_summer/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+HydroDispatch_budget_summer <- PPCost_CurrentRegion$MWh_max_Summer[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
+hr_max_summer <- ceiling(HydroDispatch_budget_summer/PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")])
 if (hr_max_summer >sum(hour_per_season[c(3)])) {
   hr_max_summer  = sum(hour_per_season[c(3)]) - 1  ## Here we need to make the function "function_solve_hydro_dispatch" start at an hour that is lower than the maximum hour in the season
 }
-max_capacity_summer <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+#max_capacity_summer <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+max_capacity_summer <- PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
 ## Fall
-HydroDispatch_budget_fall <- NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroDispatch")]
-hr_max_fall <- ceiling(HydroDispatch_budget_fall/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+#HydroDispatch_budget_fall <- NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroDispatch")]
+#hr_max_fall <- ceiling(HydroDispatch_budget_fall/NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])
+HydroDispatch_budget_fall <- PPCost_CurrentRegion$MWh_max_Fall[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
+hr_max_fall <- ceiling(HydroDispatch_budget_fall/PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")])
 if (hr_max_fall >sum(hour_per_season[c(4)])) {
   hr_max_fall  = sum(hour_per_season[c(4)]) - 1  ## Here we need to make the function "function_solve_hydro_dispatch" start at an hour that is lower than the maximum hour in the season
 }
-max_capacity_fall <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+#max_capacity_fall <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
+max_capacity_fall <- PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
 
 #if (NotEnoughHydro == 1) { 
 ## NotEnoughHydro == 1.
@@ -1306,7 +1335,8 @@ if (NotEnoughHydro == 0) {
   ## then to meet the user's requirements, we subtract some amount of hydro generation from that already 
   ## solved as if the total amount of hydro energy (MWh) budget were used.
   user_hydro_budget <- sum(data$Load_MW)*(Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology=="HydroDispatch")] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="HydroNonDispatch")])
-  HydroNonDispatch_budget <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]
+  #HydroNonDispatch_budget <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]
+  HydroNonDispatch_budget <- PPCost_CurrentRegion$MWh_max_WinterJanFeb[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_WinterNovDec[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Spring[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Summer[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Fall[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]
   if (user_hydro_budget <= HydroNonDispatch_budget) {
     data$HydroDispatch_MW <- rep(0,dim(data)[1])  ## there is no HydroDispatch if the user wants less than the energy budget of HydroNonDispatch
     ## Reduce data$HydroNonDispatch_MW by the same fraction each hour so that the total MWh from HydroNonDispatch = user_hydro_budget
@@ -1363,12 +1393,18 @@ data$net_load_solveNG <- data$Load_MW - data$generation_non_NG
 net_load_duration_solveNG <- data$net_load_solveNG
 net_load_duration_solveNG <- net_load_duration_solveNG[order(-net_load_duration_solveNG)]
 ## find range of data$hour.ending when NGCC is lowest cost and/or NGCT is lowest cost.
-ind.NGCC <- which(NewPPcost$X==c("NGCC"))
-ind.NGCT <- which(NewPPcost$X==c("NGCT"))
-data$NGCC_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-data$NGCT_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+#ind.NGCC <- which(NewPPcost$X==c("NGCC"))
+#ind.NGCT <- which(NewPPcost$X==c("NGCT"))
+#data$NGCC_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+#data$NGCT_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+ind.NGCC <- which(PPCost_US$Technology==c("NGCC"))
+ind.NGCT <- which(PPCost_US$Technology==c("NGCT"))
+data$NGCC_Cost_8760 <- PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((PPCost_US$VariableOMCost_..MWh[ind.NGCC]+PPCost_US$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+data$NGCT_Cost_8760 <- PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((PPCost_US$VariableOMCost_..MWh[ind.NGCT]+PPCost_US$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 ind.lowest_cost_NGCC <- which(data$NGCC_Cost_8760<=data$NGCT_Cost_8760)
 ind.lowest_cost_NGCT <- which(data$NGCT_Cost_8760<data$NGCC_Cost_8760)
+
+cat("Program made it to here 1 ...",sep="\n")
 
 ## +++++++++++++++++
 ## Now solve for the MW capacity needed for NGCC and NGCT.
@@ -1777,7 +1813,8 @@ if (NotEnoughHydro == 0) {
   ## then to meet the user's requirements, we subtract some amount of hydro generation from that already 
   ## solved as if the total amount of hydro energy (MWh) budget were used.
   user_hydro_budget <- sum(data$Load_MW)*(Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology=="HydroDispatch")] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="HydroNonDispatch")])
-  HydroNonDispatch_budget <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]
+  #HydroNonDispatch_budget <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]
+  HydroNonDispatch_budget <- PPCost_CurrentRegion$MWh_max_WinterJanFeb[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_WinterNovDec[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Spring[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Summer[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Fall[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]
   if (user_hydro_budget <= HydroNonDispatch_budget) {
     data$HydroDispatch_AnnualStorage_MW <- rep(0,dim(data)[1])  ## there is no HydroDispatch if the user wants less than the energy budget of HydroNonDispatch
     ## Reduce data$HydroNonDispatch_MW by the same fraction each hour so that the total MWh from HydroNonDispatch = user_hydro_budget
@@ -1838,10 +1875,14 @@ data$net_load_solveNG_AnnualStorage <- data$Load_MW - data$generation_non_NG_Ann
 net_load_duration_solveNG_AnnualStorage <- data$net_load_solveNG_AnnualStorage
 net_load_duration_solveNG_AnnualStorage <- net_load_duration_solveNG_AnnualStorage[order(-net_load_duration_solveNG_AnnualStorage)]
 ## find range of data$hour.ending when NGCC is lowest cost and/or NGCT is lowest cost.
-ind.NGCC <- which(NewPPcost$X==c("NGCC"))
-ind.NGCT <- which(NewPPcost$X==c("NGCT"))
-data$NGCC_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-data$NGCT_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+#ind.NGCC <- which(NewPPcost$X==c("NGCC"))
+#ind.NGCT <- which(NewPPcost$X==c("NGCT"))
+#data$NGCC_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+#data$NGCT_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+ind.NGCC <- which(PPCost_US$Technology==c("NGCC"))
+ind.NGCT <- which(PPCost_US$Technology==c("NGCT"))
+data$NGCC_Cost_8760 <- PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((PPCost_US$VariableOMCost_..MWh[ind.NGCC]+PPCost_US$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
+data$NGCT_Cost_8760 <- PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((PPCost_US$VariableOMCost_..MWh[ind.NGCT]+PPCost_US$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 ind.lowest_cost_NGCC <- which(data$NGCC_Cost_8760<=data$NGCT_Cost_8760)
 ind.lowest_cost_NGCT <- which(data$NGCT_Cost_8760<data$NGCC_Cost_8760)
 
@@ -1961,18 +2002,30 @@ PP_MWneeded_AnnualStorage$Fraction_MWhActual[which(PP_MWneeded_AnnualStorage$Tec
 ## Example: data$Coal_Cost_8760 is the fixed plus variable cost to operate a coal plant for 0 to 8760 hours of the year.
 ## Here the costs are without any type of electricity storage.
 ## +++++++++++++++
-ind.Coal <- which(NewPPcost$X==c("Coal"))
-ind.Nuclear <- which(NewPPcost$X==c("Nuclear"))
-ind.UserTech1 <- which(NewPPcost$X==c("UserTech1"))
-ind.UserTech2 <- which(NewPPcost$X==c("UserTech2"))
-ind.Wind <- which(NewPPcost$X==c("Wind"))
-ind.PV <- which(NewPPcost$X==c("PV"))
-ind.CSP <- which(NewPPcost$X==c("CSP"))
-ind.Biomass <- which(NewPPcost$X==c("Biomass"))
-ind.Geothermal <- which(NewPPcost$X==c("Geothermal"))
-ind.Petroleum <- which(NewPPcost$X==c("PetroleumCC"))
-ind.HydroDispatch <- which(NewPPcost$X==c("HydroDispatch"))
-ind.HydroNonDispatch <- which(NewPPcost$X==c("HydroNonDispatch"))
+# ind.Coal <- which(NewPPcost$X==c("Coal"))
+# ind.Nuclear <- which(NewPPcost$X==c("Nuclear"))
+# ind.UserTech1 <- which(NewPPcost$X==c("UserTech1"))
+# ind.UserTech2 <- which(NewPPcost$X==c("UserTech2"))
+# ind.Wind <- which(NewPPcost$X==c("Wind"))
+# ind.PV <- which(NewPPcost$X==c("PV"))
+# ind.CSP <- which(NewPPcost$X==c("CSP"))
+# ind.Biomass <- which(NewPPcost$X==c("Biomass"))
+# ind.Geothermal <- which(NewPPcost$X==c("Geothermal"))
+# ind.Petroleum <- which(NewPPcost$X==c("PetroleumCC"))
+# ind.HydroDispatch <- which(NewPPcost$X==c("HydroDispatch"))
+# ind.HydroNonDispatch <- which(NewPPcost$X==c("HydroNonDispatch"))
+ind.Coal <- which(PPCost_US$Technology==c("Coal"))
+ind.Nuclear <- which(PPCost_US$Technology==c("Nuclear"))
+ind.UserTech1 <- which(PPCost_US$Technology==c("UserTech1"))
+ind.UserTech2 <- which(PPCost_US$Technology==c("UserTech2"))
+ind.Wind <- which(PPCost_US$Technology==c("Wind"))
+ind.PV <- which(PPCost_US$Technology==c("PV"))
+ind.CSP <- which(PPCost_US$Technology==c("CSP"))
+ind.Biomass <- which(PPCost_US$Technology==c("Biomass"))
+ind.Geothermal <- which(PPCost_US$Technology==c("Geothermal"))
+ind.Petroleum <- which(PPCost_US$Technology==c("PetroleumCC"))
+ind.HydroDispatch <- which(PPCost_US$Technology==c("HydroDispatch"))
+ind.HydroNonDispatch <- which(PPCost_US$Technology==c("HydroNonDispatch"))
 # data$Coal_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 # data$Nuclear_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 # data$UserTech1_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
@@ -1992,20 +2045,34 @@ ind.HydroNonDispatch <- which(NewPPcost$X==c("HydroNonDispatch"))
 ## +++++++++++++++++
 Cost_VariableOnly_8760 <- data.frame(rep(0,8760))
 names(Cost_VariableOnly_8760)=c("Coal")
-Cost_VariableOnly_8760$Coal <- data$Coal_MW*(NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$Nuclear <- data$Nuclear_MW*(NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$UserTech1 <- data$UserTech1_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$UserTech2 <- data$UserTech2_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$Wind <- data$Wind_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$PV <- data$PV_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$NGCC <- data$NGCC_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$NGCT <- data$NGCT_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$CSP <- data$CSP_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$Biomass <- data$Biomass_MW*(NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$Petroleum <- data$PetroleumCC_MW*(NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760$Hydro <- data$HydroDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
-  data$HydroNonDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
-Cost_VariableOnly_8760$Geothermal <- data$Geothermal_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$Coal <- data$Coal_MW*(NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$Nuclear <- data$Nuclear_MW*(NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$UserTech1 <- data$UserTech1_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$UserTech2 <- data$UserTech2_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$Wind <- data$Wind_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$PV <- data$PV_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$NGCC <- data$NGCC_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$NGCT <- data$NGCT_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$CSP <- data$CSP_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$Biomass <- data$Biomass_MW*(NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$Petroleum <- data$PetroleumCC_MW*(NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760$Hydro <- data$HydroDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
+#   data$HydroNonDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
+# Cost_VariableOnly_8760$Geothermal <- data$Geothermal_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$Coal <- data$Coal_MW*(PPCost_US$VariableOMCost_..MWh[ind.Coal]+PPCost_US$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$Nuclear <- data$Nuclear_MW*(PPCost_US$VariableOMCost_..MWh[ind.Nuclear]+PPCost_US$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$UserTech1 <- data$UserTech1_MW*(PPCost_US$VariableOMCost_..MWh[ind.UserTech1]+PPCost_US$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$UserTech2 <- data$UserTech2_MW*(PPCost_US$VariableOMCost_..MWh[ind.UserTech2]+PPCost_US$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$Wind <- data$Wind_MW_total*(PPCost_US$VariableOMCost_..MWh[ind.Wind]+PPCost_US$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$PV <- data$PV_MW_total*(PPCost_US$VariableOMCost_..MWh[ind.PV]+PPCost_US$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$NGCC <- data$NGCC_MW*(PPCost_US$VariableOMCost_..MWh[ind.NGCC]+PPCost_US$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$NGCT <- data$NGCT_MW*(PPCost_US$VariableOMCost_..MWh[ind.NGCT]+PPCost_US$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$CSP <- data$CSP_MW_total*(PPCost_US$VariableOMCost_..MWh[ind.CSP]+PPCost_US$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$Biomass <- data$Biomass_MW*(PPCost_US$VariableOMCost_..MWh[ind.Biomass]+PPCost_US$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$Petroleum <- data$PetroleumCC_MW*(PPCost_US$VariableOMCost_..MWh[ind.Petroleum]+PPCost_US$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760$Hydro <- data$HydroDispatch_MW*(PPCost_US$VariableOMCost_..MWh[ind.HydroDispatch]+PPCost_US$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
+  data$HydroNonDispatch_MW*(PPCost_US$VariableOMCost_..MWh[ind.HydroNonDispatch]+PPCost_US$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
+Cost_VariableOnly_8760$Geothermal <- data$Geothermal_MW*(PPCost_US$VariableOMCost_..MWh[ind.Geothermal]+PPCost_US$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 
 data$Grid_Cost_8760_VariableOnly <- data$Load_MW*0  ## initialize the cost to run most expensive power plant each hour
 data$Grid_Cost_8760_VariableOnly <- Cost_VariableOnly_8760$Coal +
@@ -2030,20 +2097,34 @@ data$Grid_Cost_8760_VariableOnly <- Cost_VariableOnly_8760$Coal +
 ## +++++++++++++++++
 Cost_VariableOnly_8760_AnnualStorage <- data.frame(rep(0,8760))
 names(Cost_VariableOnly_8760_AnnualStorage)=c("Coal")
-Cost_VariableOnly_8760_AnnualStorage$Coal <- data$Coal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$Nuclear <- data$Nuclear_MW*(NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$UserTech1 <- data$UserTech1_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$UserTech2 <- data$UserTech2_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$Wind <- data$Wind_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$PV <- data$PV_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$NGCC <- data$NGCC_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$NGCT <- data$NGCT_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$CSP <- data$CSP_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$Biomass <- data$Biomass_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$Petroleum <- data$PetroleumCC_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-Cost_VariableOnly_8760_AnnualStorage$Hydro <- data$HydroDispatch_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
-  data$HydroNonDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
-Cost_VariableOnly_8760_AnnualStorage$Geothermal <- data$Geothermal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$Coal <- data$Coal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$Nuclear <- data$Nuclear_MW*(NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$UserTech1 <- data$UserTech1_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$UserTech2 <- data$UserTech2_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$Wind <- data$Wind_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$PV <- data$PV_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$NGCC <- data$NGCC_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$NGCT <- data$NGCT_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$CSP <- data$CSP_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$Biomass <- data$Biomass_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$Petroleum <- data$PetroleumCC_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+# Cost_VariableOnly_8760_AnnualStorage$Hydro <- data$HydroDispatch_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
+#   data$HydroNonDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
+# Cost_VariableOnly_8760_AnnualStorage$Geothermal <- data$Geothermal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$Coal <- data$Coal_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.Coal]+PPCost_US$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$Nuclear <- data$Nuclear_MW*(PPCost_US$VariableOMCost_..MWh[ind.Nuclear]+PPCost_US$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$UserTech1 <- data$UserTech1_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.UserTech1]+PPCost_US$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$UserTech2 <- data$UserTech2_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.UserTech2]+PPCost_US$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$Wind <- data$Wind_MW_WithAnnualStorage_total*(PPCost_US$VariableOMCost_..MWh[ind.Wind]+PPCost_US$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$PV <- data$PV_MW_WithAnnualStorage_total*(PPCost_US$VariableOMCost_..MWh[ind.PV]+PPCost_US$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$NGCC <- data$NGCC_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.NGCC]+PPCost_US$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$NGCT <- data$NGCT_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.NGCT]+PPCost_US$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$CSP <- data$CSP_MW_WithAnnualStorage_total*(PPCost_US$VariableOMCost_..MWh[ind.CSP]+PPCost_US$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$Biomass <- data$Biomass_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.Biomass]+PPCost_US$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$Petroleum <- data$PetroleumCC_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.Petroleum]+PPCost_US$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
+Cost_VariableOnly_8760_AnnualStorage$Hydro <- data$HydroDispatch_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.HydroDispatch]+PPCost_US$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
+  data$HydroNonDispatch_MW*(PPCost_US$VariableOMCost_..MWh[ind.HydroNonDispatch]+PPCost_US$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
+Cost_VariableOnly_8760_AnnualStorage$Geothermal <- data$Geothermal_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.Geothermal]+PPCost_US$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 
 cat("Still need to calculate variable cost of Annual Storage. Based on charging and discharging?",sep="\n")
 Cost_VariableOnly_8760_AnnualStorage$AnnualStorage <- 0*Cost_VariableOnly_8760_AnnualStorage$Geothermal
@@ -2184,20 +2265,34 @@ data$Grid_Cost_8760_VariableOnly_AnnualStorage <- Cost_VariableOnly_8760_AnnualS
 ## +++++++++++++++++
 cat("Still need to assess capital and O&M cost for HydroDispatch & HydroNonDispatch to AnnualGridCost_fixed based on",sep="\n")
 cat("if adding new hydro or using existing hydro, since exsiting hydro likely has no annual capital cost.",sep="\n")
-AnnualGridCost_fixed = PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + NewPPcost$FixedOMCost_k..MWyear[ind.Geothermal])
+# AnnualGridCost_fixed = PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
+#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + NewPPcost$FixedOMCost_k..MWyear[ind.Geothermal])
+AnnualGridCost_fixed = PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Coal] + PPCost_US$FixedOMCost_k..MWyear[ind.Coal]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCT]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + PPCost_US$FixedOMCost_k..MWyear[ind.Nuclear]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.PV] + PPCost_US$FixedOMCost_k..MWyear[ind.PV]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Wind] + PPCost_US$FixedOMCost_k..MWyear[ind.Wind]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + PPCost_US$FixedOMCost_k..MWyear[ind.UserTech1]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + PPCost_US$FixedOMCost_k..MWyear[ind.UserTech2]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.CSP] + PPCost_US$FixedOMCost_k..MWyear[ind.CSP]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + PPCost_US$FixedOMCost_k..MWyear[ind.Biomass]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + PPCost_US$FixedOMCost_k..MWyear[ind.Petroleum]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + PPCost_US$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + PPCost_US$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + PPCost_US$FixedOMCost_k..MWyear[ind.Geothermal])
 
 ## Load PV, CSP, and Wind capacities needed when using Annual Storage technology
 PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Wind")] <- PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind_DirectToGrid_WithAnnualStorage")]
@@ -2207,20 +2302,35 @@ PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="CSP")] <- PP_
 AnnualStorage_AnnualizedCAPEX <- max(StorageCost$AnnualizedCapitalCost_k..MWyear[which(StorageCost$X=="AnnualStorage")]*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="AnnualStorage_Total")],
                                      StorageCost$AnnualizedCapitalCost_k..MWhyear[which(StorageCost$X=="AnnualStorage")]*PP_MWneeded$MWh_Needed_StorageCapacity[which(PP_MWneeded$Technology=="AnnualStorage_Total")])
 
-AnnualGridCost_fixed_AnnualStorage = PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PV")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
-  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + NewPPcost$FixedOMCost_k..MWyear[ind.Geothermal])+
+# AnnualGridCost_fixed_AnnualStorage = PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PV")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
+#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + NewPPcost$FixedOMCost_k..MWyear[ind.Geothermal])+
+#   AnnualStorage_AnnualizedCAPEX
+AnnualGridCost_fixed_AnnualStorage = PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Coal] + PPCost_US$FixedOMCost_k..MWyear[ind.Coal]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCT]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + PPCost_US$FixedOMCost_k..MWyear[ind.Nuclear]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PV")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.PV] + PPCost_US$FixedOMCost_k..MWyear[ind.PV]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Wind] + PPCost_US$FixedOMCost_k..MWyear[ind.Wind]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + PPCost_US$FixedOMCost_k..MWyear[ind.UserTech1]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + PPCost_US$FixedOMCost_k..MWyear[ind.UserTech2]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.CSP] + PPCost_US$FixedOMCost_k..MWyear[ind.CSP]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + PPCost_US$FixedOMCost_k..MWyear[ind.Biomass]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + PPCost_US$FixedOMCost_k..MWyear[ind.Petroleum]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + PPCost_US$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + PPCost_US$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
+  PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + PPCost_US$FixedOMCost_k..MWyear[ind.Geothermal])+
   AnnualStorage_AnnualizedCAPEX
 
 AnnualGridCost_variable <- sum(data$Grid_Cost_8760_VariableOnly)  ## 1000s of dollars per year

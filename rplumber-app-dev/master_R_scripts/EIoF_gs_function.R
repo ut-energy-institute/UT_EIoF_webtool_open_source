@@ -9,12 +9,32 @@ EIoF_gs_function <- function(SG_out){
   
   library(googlesheets)
   suppressMessages(library(dplyr))
+  
+  ## ++++++++++++++++
+  # ## Code to create a new Google Sheet Refresh Token
+  # token_TEMP <- gs_auth(cache = FALSE)
+  # gd_token()
+  # saveRDS(token_TEMP, file = "googlesheets_token_TEMP.rds")
+  # ## Code to load Google Sheet Refresh Token to read/write to Google Sheet
+  # gs_auth(token_TEMP = "googlesheets_token_TEMP.rds")  ## creates new token
+  # suppressMessages(gs_auth(token_TEMP = "googlesheets_token_TEMP.rds", verbose = FALSE))   ## if you want silence re: token loading, use this instead
+  ##
+  ##
+  ## Code to make GS token for transfer of Initial Google Sheet to EI Account
+  # gstoken_EIOF_google_sheets_model_20191215_EICopy <- gs_auth(cache = FALSE)
+  # gd_token()
+  # saveRDS(gstoken_EIOF_google_sheets_model_20191215_EICopy, file = "gstoken_EIOF_google_sheets_model_20191215_EICopy.rds")
+  # gs_auth(gstoken_EIOF_google_sheets_model_20191215_EICopy = "gstoken_EIOF_google_sheets_model_20191215_EICopy.rds")  ## creates new token
+  # suppressMessages(gs_auth(gstoken_EIOF_google_sheets_model_20191215_EICopy = "gstoken_EIOF_google_sheets_model_20191215_EICopy.rds", verbose = FALSE))   ## if you want silence re: token loading, use this instead
+  ## ++++++++++++++++
+  
+  ## Load current Google Sheet Access token to access the Google Sheet
   gs_auth(token = "googlesheets_token.rds")
   
   # name the sheet to access
-#  eiof <- gs_title("EIoF_gsheets_v1_beta", verbose = F) 
   eiof <- gs_title("EIOF_google_sheets_model_20191215", verbose = F)
-
+  
+  
 #  elec_gen_fuels <- c(Coal, Nuclear, Natural_Gas, Hydro, Solar, Wind, Geothermal, MSW, Other_biomass, Other, Petroleum)
   
   # change a value (or range of values in the above sheet)
