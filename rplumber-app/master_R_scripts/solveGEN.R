@@ -2274,6 +2274,9 @@ data$Wind_MW_NetToGrid_NoStorage <- data$Wind_MW_total-curtailed_Wind
 data$PV_MW_NetToGrid_NoStorage <- data$PV_MW_total-curtailed_PV
 data$CSP_MW_NetToGrid_NoStorage <- data$CSP_MW_total-curtailed_CSP
 data$Hydro_MW <- data$HydroDispatch_MW+data$HydroNonDispatch_MW
+## Some dispatch data (maybe only for NGCT or NGCC) might have slightly negative values, so assure that all hourly dispatch data are >= 0
+data$NGCC_MW[which(data$NGCC_MW<0)] <- 0  ## THis might have slightly negative values, so assure they are >=0 so that negative data do not induce negative data to show on plots on the website that adjusts y-axis limits automatically
+data$NGCT_MW[which(data$NGCT_MW<0)] <- 0  ## THis might have slightly negative values, so assure they are >=0 so that negative data do not induce negative data to show on plots on the website that adjusts y-axis limits automatically
 hourly_MWOutput_NoStorage <- data.frame(data$Hour.ending,data$Load_MW,data$Wind_MW_NetToGrid_NoStorage,data$PV_MW_NetToGrid_NoStorage,data$CSP_MW_NetToGrid_NoStorage,
                                              data$Biomass_MW,data$Coal_MW,data$Geothermal_MW,data$Hydro_MW,data$NGCC_MW,data$NGCT_MW,data$Nuclear_MW,data$PetroleumCC_MW,
                                              curtailed_Wind,curtailed_PV,curtailed_CSP)
@@ -2300,6 +2303,9 @@ PPdata_NoStorage <- PPdata_NoStorage[-which(PPdata_NoStorage$Technology=="Annual
 ## +++++
 ## 8760 hourly DATA - With "annual" storage
 data$Hydro_AnnualStorage_MW <- data$HydroDispatch_AnnualStorage_MW + data$HydroNonDispatch_MW
+## Some dispatch data (maybe only for NGCT or NGCC) might have slightly negative values, so assure that all hourly dispatch data are >= 0
+data$NGCC_AnnualStorage_MW[which(data$NGCC_AnnualStorage_MW<0)] <- 0  ## THis might have slightly negative values, so assure they are >=0 so that negative data do not induce negative data to show on plots on the website that adjusts y-axis limits automatically
+data$NGCT_AnnualStorage_MW[which(data$NGCT_AnnualStorage_MW<0)] <- 0  ## THis might have slightly negative values, so assure they are >=0 so that negative data do not induce negative data to show on plots on the website that adjusts y-axis limits automatically
 hourly_MWOutput_AnnualStorage <- data.frame(data$Hour.ending,data$Load_MW,data$Wind_MW_DirectToGrid_AnnualStorage,data$PV_MW_DirectToGrid_AnnualStorage,data$CSP_MW_DirectToGrid_AnnualStorage,
                                              data$Biomass_AnnualStorage_MW,data$Coal_AnnualStorage_MW,data$Geothermal_AnnualStorage_MW,data$Hydro_AnnualStorage_MW,data$NGCC_AnnualStorage_MW,data$NGCT_AnnualStorage_MW,data$Nuclear_MW,data$PetroleumCC_AnnualStorage_MW,
                                              data$Dispatched_StoredWindSolar_MW)
