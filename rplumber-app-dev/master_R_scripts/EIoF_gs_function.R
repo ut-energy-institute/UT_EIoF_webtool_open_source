@@ -7,6 +7,7 @@
 EIoF_gs_function <- function(SG_out){
 #EIoF_gs_function <- function(Coal = 0.2157, Nuclear =  0.1176,	Natural_Gas =  0.3544,	Hydro =  0.0550, Solar =  0.1442, Wind =  0.0824, Geothermal =  0.0120, MSW =  0.0050, Other_biomass =  0.0070,	Other =  0.0040, Petroleum =  0.0020){
   
+  library(googledrive)
   library(googlesheets)
   suppressMessages(library(dplyr))
   
@@ -28,14 +29,28 @@ EIoF_gs_function <- function(SG_out){
   # suppressMessages(gs_auth(gstoken_EIOF_google_sheets_model_20191215_EICopy = "gstoken_EIOF_google_sheets_model_20191215_EICopy.rds", verbose = FALSE))   ## if you want silence re: token loading, use this instead
   ## ++++++++++++++++
   
-  ## Load current Google Sheet Access token to access the Google Sheet
-  gs_auth(token = "googlesheets_token.rds")
-  
-  # name the sheet to access
-  eiof <- gs_title("EIOF_google_sheets_model_20191215", verbose = F)
-  
-  
-#  elec_gen_fuels <- c(Coal, Nuclear, Natural_Gas, Hydro, Solar, Wind, Geothermal, MSW, Other_biomass, Other, Petroleum)
+  ## +++++++++++++
+  ## Call or obtain access to Google Sheet (original owned by JDR)
+  ## +++++++++++++
+  ##Load current Google Sheet Access token to access the Google Sheet
+  # gs_auth(token = "googlesheets_token.rds")
+  ##name the sheet to access
+  ##Call Google Sheet on JDR account
+  # eiof <- gs_title("EIOF_google_sheets_model_20191215", verbose = F)  ## Call Google Sheet on JDR account
+
+  ## +++++++++++++
+  ## Call or obtain access to Google Sheet (owned by EI)
+  ## +++++++++++++
+  ## Call Google Sheet on EI account
+  client.id.gs <- "613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com"
+  client.secret.gs <- "f7BtdCT_maBHCrlngN_9bJdf"
+  token_eiof <- gs_auth(token = NULL,
+                        new_user = FALSE,
+                        key = client.id.gs,
+                        secret = client.secret.gs,
+                        cache = TRUE,
+                        verbose = TRUE)  ## I think this command only needs to be called when the the file is first run in a new R session, but not after ...
+  eiof <- gs_title("EIOF_google_sheets_model_20191215_EICopy", verbose = F)  ## Call Google Sheet on EI account
   
   # change a value (or range of values in the above sheet)
 #  gs_edit_cells(ss = eiof, ws = 3, input = elec_gen_fuels, anchor = "B49", byrow = F, verbose = F)
