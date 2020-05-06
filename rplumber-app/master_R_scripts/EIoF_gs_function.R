@@ -26,7 +26,7 @@ EIoF_gs_function <- function(SG_out){
   #gs_edit_cells(ss = eiof, ws = 3, input = SG_out$TWhGeneration, anchor = "I3", byrow = F, verbose = F)
   
   # get values from the sheet after input has been changed
-  output <- gs_read(ss = eiof, ws = "Aggregation", range = "A1:BB42", col_names = T, verbose = F)
+  output <- gs_read(ss = eiof, ws = "Aggregation", range = "A1:BB51", col_names = T, verbose = F)
   
   #output <- as.numeric(gsub(',', '', gs_read(ss = eiof, ws = 6, range = "U15:BA15", col_names = F, verbose = F)))
   

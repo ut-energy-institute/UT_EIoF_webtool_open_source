@@ -125,12 +125,17 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     # create k_prime matrix
     k_prime <- matrix(data = c(as.numeric(p_solar)/100, as.numeric(p_nuclear)/100, as.numeric(p_hydro)/100, as.numeric(p_wind)/100, as.numeric(p_geo)/100, as.numeric(p_ng)/100, as.numeric(p_coal)/100, as.numeric(p_bio)/100, as.numeric(p_petrol)/100), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
       setrowtype("Products") %>% setcoltype("Industries")
+    # k_prime <- matrix(data = c(as.integer(p_solar)/100, as.integer(p_nuclear)/100, as.integer(p_hydro)/100, as.integer(p_wind)/100, as.integer(p_geo)/100, as.integer(p_ng)/100, as.integer(p_coal)/100, as.integer(p_bio)/100, as.integer(p_petrol)/100), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
+    #   setrowtype("Products") %>% setcoltype("Industries")
     
     # 1st recalculation based on k_prime
     UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
     
     # update io_mats_prime
+    cat(paste0("k_prime in Sankey_Function.R = ",k_prime),sep="\n")
+    cat("got to here 1",sep="\n")
     io_mats_prime <- calc_io_mats(U = UV_k$U_prime, V = UV_k$V_prime, Y = Y, S_units = NULL)
+    cat("got to here 2",sep="\n")
     
     # 2nd recalculation based on Y_prime
     UV_Y <- new_Y(c(io_mats_prime, list(Y_prime = Y_prime)))

@@ -251,8 +251,9 @@ Frac_MWhDesired_NG_total <- 1 - sum(Frac_MWhDesired_dispatchable[,2]) - sum(Frac
 assign('Frac_MWhDesired_dispatchable',Frac_MWhDesired_dispatchable,envir=.GlobalEnv)
 assign('Frac_MWhDesired_Nondispatchable',Frac_MWhDesired_Nondispatchable,envir=.GlobalEnv)
 if (Frac_MWhDesired_NG_total<0) {
-  print("You have specified desired percentages of generation > 100%. Ensure the sum of each type of generation = 100%.")
-  break
+  print("The inputs have specified a desired percentage of NG generation < 0%. Setting NG generation to 0%. Ensure the sum of each type of generation = 100%.")
+  Frac_MWhDesired_NG_total=as.integer(0)
+  ##break
 }
 
 ## +++++++++++++++

@@ -44,6 +44,18 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   # r_sh_e = 0
   # r_sh_ng = 100
 
+  ## pre calcualtions from inputs
+  coal_percent = as.integer(coal_percent)
+  PV_percent = as.integer(PV_percent)
+  CSP_percent = as.integer(CSP_percent)
+  wind_percent = as.integer(wind_percent)
+  biomass_percent = as.integer(biomass_percent)
+  hydro_percent = as.integer(hydro_percent)
+  petroleum_percent = as.integer(petroleum_percent)
+  nuclear_percent = as.integer(nuclear_percent)
+  geothermal_percent = as.integer(geothermal_percent)
+  ng_percent = as.integer(100) - as.integer((coal_percent + PV_percent + CSP_percent + wind_percent + biomass_percent + hydro_percent + petroleum_percent + nuclear_percent + geothermal_percent))
+  
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
   'coal_percent' = coal_percent,
