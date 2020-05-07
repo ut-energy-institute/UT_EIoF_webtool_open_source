@@ -1038,19 +1038,19 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   frac.wind <- sum(multiplied.wind_DirectToGrid,Dispatched_StoredWind)/sum(data$Load_MW)
   frac.PV <- sum(multiplied.PV_DirectToGrid,Dispatched_StoredPV)/sum(data$Load_MW)
   frac.CSP <- sum(multiplied.CSP_DirectToGrid,Dispatched_StoredCSP)/sum(data$Load_MW)
-  if ( any(is.infinite(Dispatched_StoredWind))==TRUE | any(is.infinite(Dispatched_StoredPV))==TRUE | any(is.infinite(Dispatched_StoredCSP))==TRUE ) {
-    print("have is infinite")
-  }
-  if (Dispatched_StoredWind>0 | Dispatched_StoredPV>0 | Dispatched_StoredCSP>0) {
-    hey = 1
-  }
-  if (StoredWind_cumulative[last_yr]>0 | StoredPV_cumulative[last_yr]>0 | StoredCSP_cumulative[last_yr]>0) {
-    hey = 2
-  }
-  aa<- sum(1e7*( (frac.wind-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Wind")])^2 + (frac.PV-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="PV")])^2 + (frac.CSP-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="CSP")])^2 ) )
-  if (aa<1) {
-    hey=3
-  }
+  # if ( any(is.infinite(Dispatched_StoredWind))==TRUE | any(is.infinite(Dispatched_StoredPV))==TRUE | any(is.infinite(Dispatched_StoredCSP))==TRUE ) {
+  #   print("have is infinite")
+  # }
+  # if (Dispatched_StoredWind>0 | Dispatched_StoredPV>0 | Dispatched_StoredCSP>0) {
+  #   hey = 1
+  # }
+  # if (StoredWind_cumulative[last_yr]>0 | StoredPV_cumulative[last_yr]>0 | StoredCSP_cumulative[last_yr]>0) {
+  #   hey = 2
+  # }
+  # aa<- sum(1e7*( (frac.wind-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Wind")])^2 + (frac.PV-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="PV")])^2 + (frac.CSP-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="CSP")])^2 ) )
+  # if (aa<1) {
+  #   hey=3
+  # }
   ## Objective function with:
   ## (1) targeting desired fractions of wind, PV, Solar
   return(  sum(1e7*( (frac.wind-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Wind")])^2 + (frac.PV-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="PV")])^2 + (frac.CSP-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="CSP")])^2 ) ))
@@ -1511,9 +1511,7 @@ cat("As of 4/3/19 I think `function_Wind_PV_CSP_annual_storage' works properly i
 # ####wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 # wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 #wind_solar_AnnualStorage_multipliers <- optimr(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_AnnualStorage))
-cat("got to here solveGEN-1",sep="\n")
 wind_solar_AnnualStorage_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_AnnualStorage))
-cat("got to here solveGEN-2",sep="\n")
 multiplier_WithAnnualStorage.wind <- wind_solar_AnnualStorage_multipliers$par[1]
 multiplier_WithAnnualStorage.PV   <- wind_solar_AnnualStorage_multipliers$par[2]
 multiplier_WithAnnualStorage.CSP  <- wind_solar_AnnualStorage_multipliers$par[3] # make these zero if desired fraction is zero
