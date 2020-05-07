@@ -916,7 +916,7 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   ## then PV is 33% of the total and wind is 67% of total "wind + solar", and wind will be curtailed
   ## 1000MW*67% = 667 MW and PV will be curtailed 1000MW*33% = 333 MW.
   ## +++++++++++++++++
-  curtailed_WindSolar <- net_load
+  curtailed_WindSolar <- net_load  ## initialize
   curtailed_WindSolar[curtailed_WindSolar>0]=0
   curtailed_WindSolar <- -curtailed_WindSolar
   noncurtailed_WindSolar <- multiplied.wind+multiplied.PV+multiplied.CSP
@@ -926,9 +926,12 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   curtailed_Wind <- curtailed_WindSolar*wind_fraction
   curtailed_PV   <- curtailed_WindSolar*PV_fraction
   curtailed_CSP  <- curtailed_WindSolar*CSP_fraction
-  curtailed_Wind[is.na(curtailed_Wind)==TRUE] <- 0  ## ensure there are no NA from dividing by zero
-  curtailed_PV[is.na(curtailed_PV)==TRUE] <- 0      ## ensure there are no NA from dividing by zero
-  curtailed_CSP[is.na(curtailed_CSP)==TRUE] <- 0    ## ensure there are no NA from dividing by zero
+  curtailed_Wind[is.infinite(curtailed_Wind)==TRUE] <- 0  ## ensure there are no "inf" from dividing by zero
+  curtailed_PV[is.infinite(curtailed_PV)==TRUE] <- 0      ## ensure there are no "inf" from dividing by zero
+  curtailed_CSP[is.infinite(curtailed_CSP)==TRUE] <- 0    ## ensure there are no "inf" from dividing by zero
+  curtailed_Wind[is.na(curtailed_Wind)==TRUE] <- 0  ## ensure there are no NA values
+  curtailed_PV[is.na(curtailed_PV)==TRUE] <- 0      ## ensure there are no NA values
+  curtailed_CSP[is.na(curtailed_CSP)==TRUE] <- 0    ## ensure there are no NA values
   MW_capacity_AnnualStorage <- max(curtailed_WindSolar)  ## The MW capacity of the storage system is assumed = that require to store the maxim MW of curtailed Wind+PV+CSP
   
   ## Second: calculate how much wind and PV is put onto grid after removing curtailed MW from their non-curtailed MW generation
@@ -1023,6 +1026,9 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   Dispatched_StoredWind[is.nan(Dispatched_StoredWind)=="TRUE"]=0
   Dispatched_StoredPV[is.nan(Dispatched_StoredPV)=="TRUE"]=0
   Dispatched_StoredCSP[is.nan(Dispatched_StoredCSP)=="TRUE"]=0
+  Dispatched_StoredWind[is.infinite(Dispatched_StoredWind)=="TRUE"]=0
+  Dispatched_StoredPV[is.infinite(Dispatched_StoredPV)=="TRUE"]=0
+  Dispatched_StoredCSP[is.infinite(Dispatched_StoredCSP)=="TRUE"]=0
   
   ## +++++++++++++++++
   ## Calculate the fraction of total load served by wind and solar to use
@@ -1032,15 +1038,18 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   frac.wind <- sum(multiplied.wind_DirectToGrid,Dispatched_StoredWind)/sum(data$Load_MW)
   frac.PV <- sum(multiplied.PV_DirectToGrid,Dispatched_StoredPV)/sum(data$Load_MW)
   frac.CSP <- sum(multiplied.CSP_DirectToGrid,Dispatched_StoredCSP)/sum(data$Load_MW)
+  if ( any(is.infinite(Dispatched_StoredWind))==TRUE | any(is.infinite(Dispatched_StoredPV))==TRUE | any(is.infinite(Dispatched_StoredCSP))==TRUE ) {
+    print("have is infinite")
+  }
   if (Dispatched_StoredWind>0 | Dispatched_StoredPV>0 | Dispatched_StoredCSP>0) {
     hey = 1
   }
   if (StoredWind_cumulative[last_yr]>0 | StoredPV_cumulative[last_yr]>0 | StoredCSP_cumulative[last_yr]>0) {
-    hey = 1
+    hey = 2
   }
   aa<- sum(1e7*( (frac.wind-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Wind")])^2 + (frac.PV-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="PV")])^2 + (frac.CSP-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="CSP")])^2 ) )
   if (aa<1) {
-    hey=1
+    hey=3
   }
   ## Objective function with:
   ## (1) targeting desired fractions of wind, PV, Solar
@@ -1502,10 +1511,12 @@ cat("As of 4/3/19 I think `function_Wind_PV_CSP_annual_storage' works properly i
 # ####wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 # wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 #wind_solar_AnnualStorage_multipliers <- optimr(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_AnnualStorage))
+cat("got to here solveGEN-1",sep="\n")
 wind_solar_AnnualStorage_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_AnnualStorage))
+cat("got to here solveGEN-2",sep="\n")
 multiplier_WithAnnualStorage.wind <- wind_solar_AnnualStorage_multipliers$par[1]
 multiplier_WithAnnualStorage.PV   <- wind_solar_AnnualStorage_multipliers$par[2]
-multiplier_WithAnnualStorage.CSP  <- wind_solar_AnnualStorage_multipliers$par[3]
+multiplier_WithAnnualStorage.CSP  <- wind_solar_AnnualStorage_multipliers$par[3] # make these zero if desired fraction is zero
 # multiplier_WithAnnualStorage.wind <- 0  ## If you don't run annual grid storage algorithm
 # multiplier_WithAnnualStorage.PV <- 0  ## If you don't run annual grid storage algorithm
 # multiplier_WithAnnualStorage.CSP <- 0  ## If you don't run annual grid storage algorithm

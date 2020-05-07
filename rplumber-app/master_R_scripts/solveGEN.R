@@ -1008,6 +1008,9 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   Dispatched_StoredWind[is.nan(Dispatched_StoredWind)=="TRUE"]=0
   Dispatched_StoredPV[is.nan(Dispatched_StoredPV)=="TRUE"]=0
   Dispatched_StoredCSP[is.nan(Dispatched_StoredCSP)=="TRUE"]=0
+  Dispatched_StoredWind[is.infinite(Dispatched_StoredWind)=="TRUE"]=0
+  Dispatched_StoredPV[is.infinite(Dispatched_StoredPV)=="TRUE"]=0
+  Dispatched_StoredCSP[is.infinite(Dispatched_StoredCSP)=="TRUE"]=0
   
   ## +++++++++++++++++
   ## Calculate the fraction of total load served by wind and solar to use
