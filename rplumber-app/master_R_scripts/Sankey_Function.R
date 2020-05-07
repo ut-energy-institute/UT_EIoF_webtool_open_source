@@ -130,6 +130,9 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
     
     # update io_mats_prime
+    # sometimes small negative values appear due (likely) to computational approximations to zero, but negative values should not be in UV_k$V_prime and UV_k$U_prime as athey cause matrix inversion singularity
+    UV_k$U_prime[which(UV_k$U_prime<0)]=0 
+    UV_k$V_prime[which(UV_k$V_prime<0)]=0
     io_mats_prime <- calc_io_mats(U = UV_k$U_prime, V = UV_k$V_prime, Y = Y, S_units = NULL)
     
     # 2nd recalculation based on Y_prime
