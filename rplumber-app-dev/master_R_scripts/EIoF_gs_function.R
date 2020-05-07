@@ -44,19 +44,21 @@ EIoF_gs_function <- function(SG_out){
   ## Call Google Sheet on EI account
   client.id.gs <- "613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com"
   client.secret.gs <- "f7BtdCT_maBHCrlngN_9bJdf"
-  # token_eiof <- gs_auth(token = NULL,
-  #                       new_user = FALSE,
-  #                       key = client.id.gs,
-  #                       secret = client.secret.gs,
-  #                       cache = TRUE,
-  #                       verbose = TRUE)  ## I think this command only needs to be called when the the file is first run in a new R session, but not after ...
+  token_eiof <- gs_auth(token = NULL,
+                        new_user = FALSE,
+                        key = client.id.gs,
+                        secret = client.secret.gs,
+                        cache = TRUE,
+                        verbose = TRUE)  ## I think this command only needs to be called when the the file is first run in a new R session, but not after ...
   
   # test_eiof = drive_auth(email="utenergyinstitute@gmail.com",
   #                        scopes = "https://www.googleapis.com/auth/spreadsheets",
   #                        path = "client_secret_613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com.json")
-  drive_auth(email="utenergyinstitute@gmail.com",
-                         scopes = "https://www.googleapis.com/auth/spreadsheets",
-                         path = "client_secret_613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com.json")
+  # drive_auth(email="utenergyinstitute@gmail.com",
+  #                        scopes = "https://www.googleapis.com/auth/spreadsheets",
+  #                        path = "client_secret_613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com.json")
+  # drive_auth(email="utenergyinstitute@gmail.com",
+  #                        scopes = "https://www.googleapis.com/auth/spreadsheets")
   
   eiof <- gs_title("EIOF_google_sheets_model_20191215_EICopy", verbose = F)  ## Call Google Sheet on EI account
   
