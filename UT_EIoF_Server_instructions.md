@@ -132,6 +132,8 @@ where `dev` is what you want to call the new deployed code -- you will need to u
 
 ![Step 8 in commiting changes](workflow_instructions_media/server_rebuild_codes.png)
 
+If you end up with an error during build such as "thin pool has 152356 free data blocks which is less than required", then delete old docker images (you can view them by "docker image ls") using the command such as "docker rmi 4f02536de3d4" where 4f02536de3d4 is the Image ID.  You can also use "docker container prune" to "prune" old images not assocaited with any active containers. 
+
 ### 9. Launch new codes on server 
 After the new codes have been built, they will need to be launched. This can be done immediantly after rebuilding them. For the produciton version, (tagged `test`):
 
