@@ -50,7 +50,11 @@ EIoF_gs_function <- function(SG_out){
                         secret = client.secret.gs,
                         cache = TRUE,
                         verbose = TRUE)  ## I think this command only needs to be called when the the file is first run in a new R session, but not after ...
+  eiof <- gs_title("EIOF_google_sheets_model_20191215_EICopy", verbose = F)  ## Call Google Sheet on EI account
   
+  ## +++++++++++++
+  ## OTHER TESTING METHODS TO Call or obtain access to Google Sheet (owned by EI)
+  ## +++++++++++++
   # test_eiof = drive_auth(email="utenergyinstitute@gmail.com",
   #                        scopes = "https://www.googleapis.com/auth/spreadsheets",
   #                        path = "client_secret_613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com.json")
@@ -59,8 +63,16 @@ EIoF_gs_function <- function(SG_out){
   #                        path = "client_secret_613586152170-2bj9g0i5kmdcsuo2bu43nkua1011t4ho.apps.googleusercontent.com.json")
   # drive_auth(email="utenergyinstitute@gmail.com",
   #                        scopes = "https://www.googleapis.com/auth/spreadsheets")
+  # googlesheet_projectID = "ambient-segment-274318"
+  # googlesheet_fileID = "16jQuodzL_jBE6lOgbVvahovt7mqDq-9a47Ndt97KAA0"
+  # req <- request_generate(
+  #   "drive.files.get",
+  #   list(fileId = googlesheet_fileID),
+  #   token = drive_token()
+  # )
+  # req
+  # gs_auth(token = "EIToken_v2.rds")
   
-  eiof <- gs_title("EIOF_google_sheets_model_20191215_EICopy", verbose = F)  ## Call Google Sheet on EI account
   
   # change a value (or range of values in the above sheet)
 #  gs_edit_cells(ss = eiof, ws = 3, input = elec_gen_fuels, anchor = "B49", byrow = F, verbose = F)
