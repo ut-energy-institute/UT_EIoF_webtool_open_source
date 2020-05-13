@@ -144,6 +144,30 @@ if (year == 2016) {
 load("solveGen_data/Tranfer_RegionFromTo.Rdata")
 
 ## ++++++
+## Load data that houses the "capacity and cost ($/MW for spur line connection)" data from whcih we can obtain
+## the maximum amount of installed capacity per EIoF region per renewable technology.
+## ++++++
+load("solveGen_data/ReEDS_CapacityCostCurves_ByEIoFRegion.rdata")
+## Create data frame with the cumulative maximum installed capacity per technology
+regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
+MaxCapacity_perRegion_perTech_MW <- data.frame(rep(0,13),rep(0,13),rep(0,13),rep(0,13),rep(0,13))
+names(MaxCapacity_perRegion_perTech_MW) <- c("Wind_total","PV","CSP","Biomass","Geothermal")
+row.names(MaxCapacity_perRegion_perTech_MW) <- regions
+# MaxCapacity_perRegion_perTech_MW <- data.frame(regions,rep(0,13),rep(0,13),rep(0,13),rep(0,13),rep(0,13),rep(0,13))
+# names(MaxCapacity_perRegion_perTech_MW) <- c("EIoF_Region","Wind_onshore","Wind_offshore","PV","CSP","Biomass","Geothermal")
+for (i in 1:length(regions)) {
+  MaxCapacity_perRegion_perTech_MW$Wind_total[i] <- sum(wind_data_onshore_EIoF_List[[i]]$capacity_MW) + sum(wind_data_offshore_EIoF_List[[i]]$capacity_MW)
+  # MaxCapacity_perRegion_perTech_MW$Wind_onshore[i] <- sum(wind_data_onshore_EIoF_List[[i]]$capacity_MW)
+  # MaxCapacity_perRegion_perTech_MW$Wind_offshore[i] <- sum(wind_data_offshore_EIoF_List[[i]]$capacity_MW)
+  MaxCapacity_perRegion_perTech_MW$PV[i] <- sum(upv_data_all_EIoF_List[[i]]$capacity_MW)
+  if (i!=12 & i!=13) { ## Some EIoF reigons (Regions 12=NY and 13=NE) have 0 MW of capacity potential for CSP
+    MaxCapacity_perRegion_perTech_MW$CSP[i] <- sum(csp_data_all_EIoF_List[[i]]$capacity_MW)
+  } else {
+    MaxCapacity_perRegion_perTech_MW$CSP[i] = 0
+  }
+}
+
+## ++++++
 ## Initial guesses for optimization routines
 ## ++++++
 MW_data_PV <- 1     ## [this is a needed initial input for internal optimization] MW of installed solar PV associated with the input 8760 MW output of the solar PV profile
@@ -1092,6 +1116,62 @@ wind_solar_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP,lower=l
 multiplier.wind <- wind_solar_multipliers$par[1]
 multiplier.PV <- wind_solar_multipliers$par[2]
 multiplier.CSP <- wind_solar_multipliers$par[3]
+#browser()  ## Forces debugging to stop here
+
+## Calculate how much installed capacity is in each EIoF region given:
+## 1) this region's desired consumption from the user
+## 2) the data in "Tranfer_RegionFromTo.Rdata" that has been translate to the matrices of:
+##   a) Tranfer_RegionFromTo_Wind
+##   b) Tranfer_RegionFromTo_PV
+##   c) Tranfer_RegionFromTo_CSP
+MWNeeded_per_Region_NoStorage <- MaxCapacity_perRegion_perTech_MW ## copy data.frame format to which to compare values
+MWNeeded_per_Region_NoStorage[,] <- 0 ## overwrite/reset values to 0, but not the EIoF_region names
+MWNeeded_per_Region_NoStorage$Wind_total <- multiplier.wind*Tranfer_RegionFromTo_Wind[,RegionNumber]
+MWNeeded_per_Region_NoStorage$PV <- multiplier.PV*Tranfer_RegionFromTo_PV[,RegionNumber]
+MWNeeded_per_Region_NoStorage$CSP <- multiplier.CSP*Tranfer_RegionFromTo_CSP[,RegionNumber]
+## Calculate if more capacity is needed than is possibly available per region (only for technologies and regions that need >0 MW of capacity)
+## If any values in "MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage" are < 0, then the user as "unknowingly" asked for too much capacity.
+## The equation for this is: (Max Capacity of Region X) - (multiplier.YYY)*(fraction of generation from Region X) = -A (where A is a positive value, and YYY=some technology)
+## If the user has asked for too much capacity, then reduce the relevant "multiplier.YYY" accordingly:
+## We need (Max Capacity of Region X) - (multiplier.YYY)*(fraction of generation from Region X) = 0, at the limit, so the new "multiplier.YYY" is = (Max Capacity of Region X)/(fraction of generation from Region X)
+## Set the actual MW for Wind/PV/CSP to the minimum of 
+## (1) that solved for in "wind_solar_multipliers", distributed among regions with capacity serving the current RegionNumber and 
+## (2) the maximum capacity per region.
+MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage <- MWNeeded_per_Region_NoStorage
+MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage[] <- 0
+## Check for not enough wind Capacity
+indices.temp <- which(MWNeeded_per_Region_NoStorage$Wind_total>0)
+MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage$Wind_total[indices.temp] <- MaxCapacity_perRegion_perTech_MW$Wind_total[indices.temp] - MWNeeded_per_Region_NoStorage$Wind_total[indices.temp]
+indices.NotEnoughWind <- which(MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage$Wind_total<0)
+if (length(indices.NotEnoughWind)>0) {
+  multiplier_limit.wind <- MaxCapacity_perRegion_perTech_MW$Wind_total/Tranfer_RegionFromTo_Wind[,RegionNumber]
+  multiplier_limit.wind <- multiplier_limit.wind[-which(is.infinite(multiplier_limit.wind)==TRUE)] ## remove "inf" values where we have divided by zero
+  multiplier.wind <- min(multiplier.wind,multiplier_limit.wind)
+  cat("User asked for too much Wind.",sep="\n")
+}
+rm(indices.temp,indices.NotEnoughWind)
+## Check for not enough Utility PV Capacity
+indices.temp <- which(MWNeeded_per_Region_NoStorage$PV>0)
+MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage$PV[indices.temp] <- MaxCapacity_perRegion_perTech_MW$PV[indices.temp] - MWNeeded_per_Region_NoStorage$PV[indices.temp]
+indices.NotEnoughPV <- which(MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage$PV<0)
+if (length(indices.NotEnoughPV)>0) {
+  multiplier_limit.PV <- MaxCapacity_perRegion_perTech_MW$PV/Tranfer_RegionFromTo_PV[,RegionNumber]
+  multiplier_limit.PV <- multiplier_limit.PV[-which(is.infinite(multiplier_limit.PV)==TRUE)] ## remove "inf" values where we have divided by zero
+  multiplier.PV <- min(multiplier.PV,multiplier_limit.PV)
+  cat("User asked for too much PV.",sep="\n")
+  }
+rm(indices.temp,indices.NotEnoughPV)
+## Check for not enough Utility CSP Capacity
+indices.temp <- which(MWNeeded_per_Region_NoStorage$CSP>0)
+MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage$CSP[indices.temp] <- MaxCapacity_perRegion_perTech_MW$CSP[indices.temp] - MWNeeded_per_Region_NoStorage$CSP[indices.temp]
+indices.NotEnoughCSP <- which(MaxCapacity_perRegion_MINUS_MWNeeded_per_Region_NoStorage$CSP<0)
+if (length(indices.NotEnoughCSP)>0) {
+  multiplier_limit.CSP <- MaxCapacity_perRegion_perTech_MW$CSP/Tranfer_RegionFromTo_CSP[,RegionNumber]
+  multiplier_limit.CSP <- multiplier_limit.CSP[-which(is.infinite(multiplier_limit.CSP)==TRUE)] ## remove "inf" values where we have divided by zero
+  multiplier.CSP <- min(multiplier.CSP,multiplier_limit.CSP)
+  cat("User asked for too much CSP.",sep="\n")
+}
+rm(indices.temp,indices.NotEnoughCSP)
 
 ## +++++++++++++++
 ## Now calculate the net load (in absoluate MW each hour) that needs to
