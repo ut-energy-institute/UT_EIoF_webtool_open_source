@@ -145,15 +145,11 @@ Btu_per_kwh_engineering = 3412.14 #3412.14  This is the assumed pure engineering
 ## Calculate Btu of electricity, and Btu primary equivalents, for each electricity technology,
 ## and put these into the correct location in the U and V matrices.
 ## +++++++++++
-#library(tidyr)
-#library(tidyverse)
 
 ## ++++++++++++++++++
 ## No Storage case (U matrix)
 ## ++++++++++++++++++
-## +++
 ## Adjust values associated with Power Plants
-## +++
 U_NoStorage['Solar_Electricity', 'Electricity_Grid']= PPdata_NoStorage$TWhGeneration[which(PPdata_NoStorage$Technology=="PV")]*Btu_per_kwh_engineering*1e9 + PPdata_NoStorage$TWhGeneration[which(PPdata_NoStorage$Technology=="CSP")]*Btu_per_kwh_engineering*1e9  ## This shoud end up in units of Btu
 U_NoStorage['Nuclear_Electricity', 'Electricity_Grid']= PPdata_NoStorage$TWhGeneration[which(PPdata_NoStorage$Technology=="Nuclear")]*Btu_per_kwh_engineering*1e9
 U_NoStorage['Hydro_Electricity', 'Electricity_Grid']= PPdata_NoStorage$TWhGeneration[which(PPdata_NoStorage$Technology=="HydroDispatch")]*Btu_per_kwh_engineering*1e9

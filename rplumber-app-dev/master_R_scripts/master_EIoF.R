@@ -292,15 +292,16 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
 
   ########################### BEGIN JOSH GOGGLESHEET ACCESS ###########################
   
-  source('EIoF_gs_function.R')
-  
+  # source('EIoF_gs_function.R')
+  source('EIoF_gs4_function.R')
+
   ## massage outputs from solveGEN to go into the googlesheets code for "Annual Storage" solvGEN outputs
   SG_out_AnnualStorage <- solveGEN_output$PPdata_AnnualStorage[c('Technology', 'MW_needed', 'TWhGeneration')]
   target <- c("Coal", "Nuclear", "NGCC", "NGCT", "HydroDispatch", "PV", "Wind", "Geothermal", "Biomass", "Other", "PetroleumCC", "AnnualStorage_Total")
   SG_out_AnnualStorage <- SG_out_AnnualStorage[match(target, SG_out_AnnualStorage$Technology),]
   SG_out_AnnualStorage$Technology <- target
   SG_out_AnnualStorage[is.na(SG_out_AnnualStorage)] <- 0
-  gg_out_AnnualStorage <- EIoF_gs_function(SG_out = SG_out_AnnualStorage)
+  gg_out_AnnualStorage <- EIoF_gs4_function(SG_out = SG_out_AnnualStorage)
   gg_out_AnnualStorage <- as.data.frame(gg_out_AnnualStorage[,-1])
   
   ## massage outputs from solveGEN to go into the googlesheets code for "No Storage" solvGEN outputs
@@ -309,7 +310,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   SG_out_NoStorage <- SG_out_NoStorage[match(target, SG_out_NoStorage$Technology),]
   SG_out_NoStorage$Technology <- target
   SG_out_NoStorage[is.na(SG_out_NoStorage)] <- 0
-  gg_out_NoStorage <- EIoF_gs_function(SG_out = SG_out_NoStorage)
+  gg_out_NoStorage <- EIoF_gs4_function(SG_out = SG_out_NoStorage)
   gg_out_NoStorage <- as.data.frame(gg_out_NoStorage[,-1])
   
   

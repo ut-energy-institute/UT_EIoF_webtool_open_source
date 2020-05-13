@@ -69,7 +69,7 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     v_petrol <- 100 - sum(v_solar, v_nuclear, v_hydro, v_wind, v_geo, v_ng, v_coal, v_bio)
     ## In case rounding is affecting the answer, I think we are only using rounding here because the web interface is assumign user inputs only come in increments of whole percentages (e.g., 10%, 11%, 12%, etc.) without decimals (e.g., the web user cannot enter 12.3%)
     if (v_petrol < 0) {
-      v_ng = v_ng + v_petrol  ## This adds the negative value of "v_petrol" to adjust "v_ng" as default adjustment.
+      v_ng = v_ng + v_petrol  ## This adds any negative value of "v_petrol" to adjust "v_ng" as default adjustment.
       v_petrol = 0
     }
     
