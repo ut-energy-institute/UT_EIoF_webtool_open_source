@@ -143,7 +143,7 @@ EIoF_gs4_function <- function(SG_out){
   ## +++++++++++++
   googlesheet_fileID = "16jQuodzL_jBE6lOgbVvahovt7mqDq-9a47Ndt97KAA0"
   gargle::token_fetch()
-  options(gargle_quiet = FALSE)
+  #options(gargle_quiet = FALSE)
   gs4_auth(email = "eiof-project@ambient-segment-274318.iam.gserviceaccount.com",
            scopes = "https://www.googleapis.com/auth/spreadsheets",
            path = "sa.json")
