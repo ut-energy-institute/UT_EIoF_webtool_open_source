@@ -45,6 +45,7 @@ region_now <- region_names[RegionNumber]  ## sets the current region name as det
 ## Load the input baseline and "generic" hourly profiles for electricity demand
 ## These have been arranged to be in units of "MW" over each hour (so MWh/h = average MW)
 ## colnames(EIoF_8760Generation_2050) <- c("Hour.ending", "R1_NW","R2_CA", "R3_MN", "R4_SW", "R5_CE", "R6_TX", "R7_MW", "R8_AL", "R9_MA", "R10_SE", "R11_FL", "R12_NY", "R13_NE")  ## rename the columns
+## These data are calculated in file "generate8760_2050_baseline.R" or "generate8760_2050_baseline_WORKING.R"
 ## +++++++++++
 # EIoF_8760MW_GenerationTransportation_2050 = read.csv("EIoF_8760GenerationTransportation_2050_BaseResStock.csv") ## Baseline electricity profile to meet Transportation demand + "Transmission & Distribution" losses (assuming no electric light-duty vehicles)
 # EIoF_8760MW_GenerationIndustrial_2050 = read.csv("EIoF_8760GenerationIndustrial_2050_BaseResStock.csv")  ## Baseline electricity profile to meet Industrial demand + "Transmission" losses
@@ -53,8 +54,8 @@ region_now <- region_names[RegionNumber]  ## sets the current region name as det
 # EIoF_8760MW_GenerationResidential_NonHeating_ResStockBase_2050 = read.csv("EIoF_8760GenerationResidential_NonHeating_2050_BaseResStock.csv") ## Baseline electricity profile to meet "Residential demand other than heating" + "Transmission & Distribution" losses
 # EIoF_8760MW_GenerationResidential_Heating_ResStock100pctNG_2050 = read.csv("EIoF_8760GenerationResidential_Heating_2050_NGResStock.csv") ## Electricity profile to meet "Residential heating demand" + "Transmission & Distribution" losses if using 100% Natural Gas furnaces in homes per ResStock simulation
 # EIoF_8760MW_GenerationResidential_Heating_ResStock100pctHeatPump_2050 = read.csv("EIoF_8760GenerationResidential_Heating_2050_HeatPumpResStock.csv") ## Electricity profile to meet "Residential heating demand" + "Transmission & Distribution" losses if using 100% electric Heat Pumps in homes per ResStock simulation
-# save(EIoF_8760MW_GenerationTransportation_2050,EIoF_8760MW_GenerationIndustrial_2050,EIoF_8760MW_GenerationCommercial_2050,EIoF_8760MW_GenerationResidential_Heating_ResStockBase_2050,EIoF_8760MW_GenerationResidential_NonHeating_ResStockBase_2050,EIoF_8760MW_GenerationResidential_Heating_ResStock100pctNG_2050,EIoF_8760MW_GenerationResidential_Heating_ResStock100pctHeatPump_2050,file = "generate8760_data/Baseline_8760MW_Generation.Rdata")
-load("generate8760_data/Baseline_8760MW_Generation.Rdata")
+# save(EIoF_8760MW_GenerationTransportation_2050,EIoF_8760MW_GenerationIndustrial_2050,EIoF_8760MW_GenerationCommercial_2050,EIoF_8760MW_GenerationResidential_Heating_ResStockBase_2050,EIoF_8760MW_GenerationResidential_NonHeating_ResStockBase_2050,EIoF_8760MW_GenerationResidential_Heating_ResStock100pctNG_2050,EIoF_8760MW_GenerationResidential_Heating_ResStock100pctHeatPump_2050,file = "generate8760_data/Baseline_8760MW_Generation_2050.Rdata")
+load("generate8760_data/Baseline_8760MW_Generation_2050.Rdata")
 
 
 ## +++++++++++
