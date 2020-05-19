@@ -2,8 +2,9 @@ FROM trestletech/plumber
 MAINTAINER David Walling
 
 RUN apt update --allow-releaseinfo-change
-RUN apt remove -y libcurl4
-RUN apt install -y libcurl4 libcurl4-openssl-dev libxml2 libxml2-dev r-base
+RUN apt install -y libc6-dev
+RUN apt install -y libgcc-8-dev
+RUN apt install -y libcurl4-openssl-dev libxml2 libxml2-dev r-base
 
 # add filepath to R source packages
 ADD ./R_packages_static /R_packages_static
