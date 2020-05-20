@@ -1169,8 +1169,8 @@ if (length(indices.NotEnoughCSP)>0) {
   multiplier_limit.CSP <- MaxCapacity_perRegion_perTech_MW$CSP/Tranfer_RegionFromTo_CSP[,RegionNumber]
   multiplier_limit.CSP <- multiplier_limit.CSP[-which(is.infinite(multiplier_limit.CSP)==TRUE)] ## remove "inf" values where we have possibly divided by zero (e.g., 1/0)
   multiplier_limit.CSP <- multiplier_limit.CSP[-which(is.nan(multiplier_limit.CSP)==TRUE)] ## remove "NaN" values where we have done (possibly) 0/0 to get "NaN".
-  if (is_empty(multiplier_limit.CSP)==TRUE) {multiplier_limit.CSP=0}
-  multiplier.CSP <- min(multiplier.CSP,multiplier_limit.CSP)
+  # if (is_empty(multiplier_limit.CSP)==TRUE) {multiplier_limit.CSP=0}
+  multiplier.CSP <- min(multiplier.CSP,multiplier_limit.CSP)  ## This should = 0 if one of the inputs is empty (is.empty re)
   cat("User asked for too much CSP or ther is 0 MW allowed capacity in this region.",sep="\n")
 }
 rm(indices.temp,indices.NotEnoughCSP)
