@@ -54,6 +54,7 @@ Base.Fraction.petroleum = 1 - Base.Fraction.HeatPump - Base.Fraction.NG  ## Frac
 ##region_names <- c("R1_NW","R2_CA", "R3_MN", "R4_SW", "R5_CE", "R6_TX", "R7_MW", "R8_AL", "R9_MA", "R10_SE", "R11_FL", "R12_NY", "R13_NE")  ## specify the region names as they appear as the column names of the "8760" input profiles
 regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
 Reg = regions[RegionNumber] 
+
 # ## LOOP FOR SAVING ALL INPUT "U" AND "V" MATRICES INTO A DATA FILE. USE ONLY TO RESAVE THE U AND V MATRICS.
 # U = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[1],"_Sankey_Final_U_2050.csv"))
 # V = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[1],"_Sankey_Final_V_2050.csv"))
@@ -63,15 +64,16 @@ Reg = regions[RegionNumber]
 # V <- V[,-1]
 # U <- U*0
 # V <- V*0
-# U_2016_list <- list(U,U,U,U,U,U,U,U,U,U,U,U,U)  ## Make an empty list of 13 U matrices to fill in as we read them 
-# U_2050_list <- list(U,U,U,U,U,U,U,U,U,U,U,U,U)  ## Make an empty list of 13 U matrices to fill in as we read them 
-# V_2050_list <- list(V,V,V,V,V,V,V,V,V,V,V,V,V)  ## Make an empty list of 13 V matrices to fill in as we read them 
+# U_2016_list <- list(U,U,U,U,U,U,U,U,U,U,U,U,U)  ## Make an empty list of 13 U matrices to fill in as we read them
+# U_2050_list <- list(U,U,U,U,U,U,U,U,U,U,U,U,U)  ## Make an empty list of 13 U matrices to fill in as we read them
+# V_2050_list <- list(V,V,V,V,V,V,V,V,V,V,V,V,V)  ## Make an empty list of 13 V matrices to fill in as we read them
 # for (r in 1:13) {
 #   U_2016_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r] ,"_Sankey_Input_U_2016.csv"))
 #   U_2050_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r],"_Sankey_Final_U_2050.csv"))
 #   V_2050_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r],"_Sankey_Final_V_2050.csv"))
 # }
 # save(U_2016_list,U_2050_list,V_2050_list,file="generate_FinalUVY_2050_data/Base_UV_Matrices.Rdata")
+
 load("generate_FinalUVY_2050_data/Base_UV_Matrices.Rdata")  ## This loads baseline U, V, and Y matrices with values independent of user's inputs
 # U2016_baseline = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Input_U_2016.csv"))
 # U2050_PerUser = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Final_U_2050.csv"))
