@@ -121,6 +121,13 @@ After logging into the server, simply using the command `git pull origin master`
 
 ![Step 7 in commiting changes](workflow_instructions_media/server_git_pull_screen.png)
 
+### 7a. NEED TO update "Dockerfile" per a different one needed for putting code on Amazon Web Servicdes (AWS) server  
+There are some slightly different lines needed at the beginning of the Dockerfile for making Docker containers on TACC's Rodeo server versus the server access on AWS we have started using as of 5/19/20.  So, after updating the R codes from GitHub, and before building the Docker image on Rodeo at TACC, copy the earlier version of the Dockerile (filename = "Dockerfile_forTACC") to the filemane = "Dockerfile" since this latter filename is the ONLY one that Docker code looks for to make images. 
+
+This is done using the command for moving files (this overwrites the existing "Dockerfile" with "Dockerfile_forTACC": 
+
+`mv Dockerfile_forTACC Dockerfile`
+
 ### 8. Rebuild new codes on server 
 Once you have new codes on the server, you can rebuild the containers (make sure you have killed the running one first). *If you have added any new R packages to the codes that you have uplodaed, you must also update the containers themselves. See Updating_containter_codes.md*
 
