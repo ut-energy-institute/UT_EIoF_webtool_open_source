@@ -12,7 +12,7 @@
 # setwd('/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/generate_FinalUVY_2050/')
 #generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG) {
 #generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage) {
-generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_per_region_2050,Total_AnnualMWh_LDV_EVs) {
+generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_current_region_2050,Total_AnnualMWh_LDV_EVs) {
 
 UserFraction.HeatPump = percent_ResidentialHeatPump/100 ## This is ultimately the user input
 UserFraction.NG = percent_ResidentialNG/100 ## This is ultimately the user input
@@ -73,7 +73,6 @@ Reg = regions[RegionNumber]
 #   V_2050_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r],"_Sankey_Final_V_2050.csv"))
 # }
 # save(U_2016_list,U_2050_list,V_2050_list,file="generate_FinalUVY_2050_data/Base_UV_Matrices.Rdata")
-
 load("generate_FinalUVY_2050_data/Base_UV_Matrices.Rdata")  ## This loads baseline U, V, and Y matrices with values independent of user's inputs
 # U2016_baseline = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Input_U_2016.csv"))
 # U2050_PerUser = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Final_U_2050.csv"))
@@ -318,9 +317,9 @@ U_NoStorage['Geothermal_Flow', 'Resident_Other']=(UserFraction.other/Base.Fracti
 ## +++
 ## Adjust values associated with Electric Vehicles (EVs)
 ## FUNCTION INPUTS FOR THIS CALCULATION
-## Total_AnnualMWh_LDV_EVs = the annual MWh for charging LDVs in this user scenario
-## percent_ElectricLDV = % (0 to 100) of annual LDV miles driven on electricity
-## LDVmiles_per_region_2050 = the LDVs miles driven for the current region
+## 1. Total_AnnualMWh_LDV_EVs = the annual MWh for charging LDVs in this user scenario
+## 2. percent_ElectricLDV = % (0 to 100) of annual LDV miles driven on electricity
+## 3. LDVmiles_current_region_2050 = the LDVs miles driven for the current region
 ## +++
 gallon_per_BBL = 42
 btu_per_gallon_gasoline = 5.054*1e6/gallon_per_BBL ## BTUs in one gallon of gasoline, EIA Table A3 of Monthly Energy Review, for year 2019, states 5.054 Million Btu per BBL of gasoline
@@ -332,12 +331,11 @@ btu_per_gallon_ethanol = 3.553*1e6/gallon_per_BBL ## BTUs in one gallon of ethan
 fraction_ethanol = 0.88/(0.88+0.13) ## "fraction of biofuels that is ethanol": EIA 2019 Reference case, Table 11. Petroleum and Other Liquids Supply and Disposition, calculates in 2050, 0.88 million BBL/day of ethanol consumption and 0.13 million BBL/day of biodiesel for ALL sectors and uses (not only transportation or only LDVs)
 btu_per_gallon_biofuel = fraction_ethanol*btu_per_gallon_ethanol + (1-fraction_ethanol)*btu_per_gallon_biodiesel ## BTUs in one gallon of average biofuel fuel (biodiesel, ethanol).
 EIA_AEO2019_LDVmpg_2050 = 38.541634  ## miles per gallon average for all light duty vehicles (using liquid fuels) in 2050
-gallons_liquid_fuels = LDVmiles_per_region_2050/EIA_AEO2019_LDVmpg_2050
 fraction_LDVmiles_petrol_plus_biofuel = 1 - percent_ElectricLDV/100  ## percent of LDV miles driving on average liquid fuel mix (petroleum + biofuels)
 fraction_LDVmiles_petrol = 0.9*fraction_LDVmiles_petrol_plus_biofuel  ## assume that miles driven on average liquid fuel (petroleum + biofuel) are 90% due to petroleum
 fraction_LDVmiles_biofuel = 1 - percent_ElectricLDV/100 - fraction_LDVmiles_petrol
-ldv_petrol_btu =  fraction_LDVmiles_petrol*LDVmiles_per_region_2050/EIA_AEO2019_LDVmpg_2050*btu_per_gallon_petroleum ## Quadrillion Btu of petroleum consumed for LDV miles 
-ldv_biofuel_btu = fraction_LDVmiles_biofuel*LDVmiles_per_region_2050/EIA_AEO2019_LDVmpg_2050*btu_per_gallon_biofuel ## Quadrillion Btu of biofuel consumed for LDV miles 
+ldv_petrol_btu =  fraction_LDVmiles_petrol*LDVmiles_current_region_2050/EIA_AEO2019_LDVmpg_2050*btu_per_gallon_petroleum ## Quadrillion Btu of petroleum consumed for LDV miles 
+ldv_biofuel_btu = fraction_LDVmiles_biofuel*LDVmiles_current_region_2050/EIA_AEO2019_LDVmpg_2050*btu_per_gallon_biofuel ## Quadrillion Btu of biofuel consumed for LDV miles 
 Total_Btu_LDV_petrol = U_NoStorage['Petroleum_Flow','Transport_LDV_Petrol']  ## baseline value of petroleum energy for LDVs BEFORE user's inputs
 Total_Btu_LDV_biofuel = U_NoStorage['Biomass_Flow','Transport_LDV_Ethanol']  ## baseline value of biofuel energy for LDVs BEFORE user's inputs
 Total_Btu_LDV_EVs = Total_AnnualMWh_LDV_EVs*1e3*Btu_per_kwh_engineering
@@ -416,6 +414,13 @@ U_AnnualStorage['Petroleum_Flow', 'Resident_Other'] = U_NoStorage['Petroleum_Flo
 U_AnnualStorage['Biomass_Flow', 'Resident_Other']=U_NoStorage['Biomass_Flow', 'Resident_Other']
 U_AnnualStorage['Coal_Flow', 'Resident_Other']=U_NoStorage['Coal_Flow', 'Resident_Other']
 U_AnnualStorage['Geothermal_Flow', 'Resident_Other']=U_NoStorage['Geothermal_Flow', 'Resident_Other']
+
+## +++
+## Adjust values associated with Transportation (LDVs specfically need updating)
+## +++
+U_AnnualStorage['Electricity_Flow', 'Transport_LDV_Elec'] = U_NoStorage['Electricity_Flow', 'Transport_LDV_Elec'] ## Btus of electricity for charging EVs
+U_AnnualStorage['Petroleum_Flow','Transport_LDV_Petrol'] = U_NoStorage['Petroleum_Flow', 'Transport_LDV_Petrol']  ## baseline value of petroleum energy for LDVs BEFORE user's inputs
+U_AnnualStorage['Biomass_Flow','Transport_LDV_Ethanol'] = U_NoStorage['Biomass_Flow','Transport_LDV_Ethanol']  ## baseline value of biofuel energy for LDVs BEFORE user's inputs
 
 
 ## ++++++++++++++++++
