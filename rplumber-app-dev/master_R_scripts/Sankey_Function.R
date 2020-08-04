@@ -29,11 +29,11 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
   
   # error message - region_id; sum of percentages equal to 100
   if (!(as.numeric(region_id) %in% region)){
-    stop("Wrong region id")
+    stop("Wrong region_id in Sankey_Function.R")
   } else if (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) != 100){
-    stop("Total proportion of different Electricity parts unequal to 1")
+    stop("Total proportion of different Electricity parts unequal to 1 in Sankey_Function.R")
   } else if (sum(as.numeric(ldv_elec), as.numeric(ldv_petrol), as.numeric(ldv_ethanol)) != 100){
-    stop("LDV fuel does not add to 100%")
+    stop("LDV fuel does not add to 100% in Sankey_Function.R")
   } else {
     
     # read data - for now, only {1,2} for U/Y; V is just the same for all regions
