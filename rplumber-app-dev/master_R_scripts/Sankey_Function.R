@@ -85,7 +85,11 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     Service_LDV <- Y["Services_Transport_LDV_Petrol", "Energy_Services"] + Y["Services_Transport_LDV_Elec", "Energy_Services"] + Y["Services_Transport_LDV_Ethanol", "Energy_Services"]
     ## JDR edit swapped FT for Other
     Service_Other_Transport <- Y["Services_Transport_Other_Other", "Energy_Services"] + Y["Services_Transport_Other_Petrol", "Energy_Services"] + Y["Services_Transport_Other_NG", "Energy_Services"]
-    
+    ## CWK EDIT 8/12/20
+    Service_Resident_Other <- Y["Services_Resident_Other", "Energy_Services"]
+    Service_Commerce_Other <- Y["Services_Commerce_Other", "Energy_Services"]
+    Service_Industrial <- Y["Services_Industrial", "Energy_Services"]
+
     # pre-calculation - io_mats
     io_mats <- calc_io_mats(U = U, V = V, Y = Y, S_units = NULL)
     
@@ -109,13 +113,18 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     #Y_prime["Services_Commerce_Cooking_NG", "Energy_Services"] <- Service_Commerce_Cooking*(1 - as.numeric(c_ck_e)/100)
     Y_prime["Services_Commerce_Cooking_NG", "Energy_Services"] <- Service_Commerce_Cooking*as.numeric(c_ck_ng)/100
     Y_prime["Services_Commerce_Cooking_Elec", "Energy_Services"] <- Service_Commerce_Cooking*as.numeric(c_ck_e)/100
-    cat(paste0("Likely need to add flows into ['Services_Resident_Other', 'Energy_Services'] into U, V, and Y matrices."),sep="\n")
+    
+    ## CWK EDIT 8/12/20
+    # Y_prime["Services_Resident_Other", "Energy_Services"] <- Service_Resident_Other/100
+    # Y_prime["Services_Commerce_Other", "Energy_Services"] <- Service_Commerce_Other/100
+    # Y_prime["Services_Industrial", "Energy_Services"] <- Service_Industrial/100
+    cat(paste0("[Sankey_Function.R]: Likely need to add flows into ['Services_Resident_Other', 'Energy_Services'] into U, V, and Y matrices."),sep="\n")
     
     ## need to add ethanol and potentially a new input "ldv_ethanol" maybe some efficiency somewhere too?
     Y_prime["Services_Transport_LDV_Petrol", "Energy_Services"] <- Service_LDV*as.numeric(ldv_petrol)/100
     Y_prime["Services_Transport_LDV_Elec", "Energy_Services"] <- Service_LDV*as.numeric(ldv_elec)/100
     Y_prime["Services_Transport_LDV_Ethanol", "Energy_Services"] <- Service_LDV*as.numeric(ldv_ethanol)/100
-    cat(paste0("Likely need to make 'Services_Transport_LDV_Ethanol' in Y_prime as a direct proportionality to 'Services_Transport_LDV_Petrol' with biofuel blending assumption."),sep="\n")
+    cat(paste0("[Sankey_Function.R]: Likely need to make 'Services_Transport_LDV_Ethanol' in Y_prime as a direct proportionality to 'Services_Transport_LDV_Petrol' with biofuel blending assumption."),sep="\n")
     
     ## need to edit below swap FT for Other also elec for Other
     Y_prime["Services_Transport_Other_Other", "Energy_Services"] <- Service_Other_Transport*as.numeric(trans_other_other)/100
@@ -130,11 +139,14 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     
     # 1st recalculation based on k_prime
     UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
-    
+
     # update io_mats_prime
     # sometimes small negative values appear due (likely) to computational approximations to zero, but negative values should not be in UV_k$V_prime and UV_k$U_prime as athey cause matrix inversion singularity
-    UV_k$U_prime[which(UV_k$U_prime<0)]=0 
-    UV_k$V_prime[which(UV_k$V_prime<0)]=0
+    tol <- 1e-14
+    UV_k$U_prime[which(UV_k$U_prime<tol)]=0
+    UV_k$V_prime[which(UV_k$V_prime<tol)]=0
+    # UV_k$U_prime[which(UV_k$U_prime<0)]=0
+    # UV_k$V_prime[which(UV_k$V_prime<0)]=0
     io_mats_prime <- calc_io_mats(U = UV_k$U_prime, V = UV_k$V_prime, Y = Y, S_units = NULL)
 
     # 2nd recalculation based on Y_prime

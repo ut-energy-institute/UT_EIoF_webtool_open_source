@@ -28,8 +28,8 @@ setwd('/scripts')
 
 # ## inputs to make testing easier when running as a script and not a function
 # to make testing easier
-# region_id = 6
-# coal_percent = 0
+# region_id = 3
+# coal_percent = 10
 # PV_percent = 20
 # CSP_percent = 0
 # wind_percent = 20
@@ -38,9 +38,9 @@ setwd('/scripts')
 # petroleum_percent = 0
 # nuclear_percent = 10
 # geothermal_percent = 0
-# ng_percent = 30
-# ldv_e = 10
-# r_sh_e = 90
+# ng_percent = 20
+# ldv_e = 20
+# r_sh_e = 80
 # r_sh_ng = 50
 
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){

@@ -1,6 +1,6 @@
 #FROM trestletech/plumber
 FROM rocker/r-base:3.6.3
-MAINTAINER Carey King <careyking@mail.utexas.edu>
+MAINTAINER Jeff Allen <docker@trestletech.com>
 
 RUN apt-get update -qq && apt-get install -y \
   git-core \
@@ -16,11 +16,16 @@ ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(commandArgs()[4]); pr$run(host='0.0
 CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
 
 
+MAINTAINER David Walling
+
 RUN apt update --allow-releaseinfo-change
+
+
 ##RUN apt install -y libc6-dev
 RUN apt install -y gcc-8-base
 RUN apt install -y libgcc-8-dev
 RUN apt install -y libcurl4-openssl-dev libxml2 libxml2-dev
+
 
 
 # add filepath to R source packages
