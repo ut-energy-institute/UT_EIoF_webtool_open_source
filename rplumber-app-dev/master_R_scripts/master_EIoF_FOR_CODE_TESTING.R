@@ -63,22 +63,21 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
 # NY	0.02	0.61	0.37
 # NE	0.01	0.22	0.77
 
-  ## THese values are causing a singularity that I need to find (as of 5/5/20)
-  ## The problem is in "io_mats_prime" that is called within the Sankey code
-  region_id = 1
+  ## Input data that would normally come from the user via the website interface
+  region_id = 10
   coal_percent = 0
-  PV_percent = 10
+  PV_percent = 30
   CSP_percent = 0
-  wind_percent = 10
+  wind_percent = 30
   biomass_percent = 0 #15+25
-  hydro_percent = 10
+  hydro_percent = 0
   petroleum_percent = 0
   nuclear_percent = 0
   geothermal_percent = 0
-  ng_percent = 70
-  ldv_e = 0
-  r_sh_e = 0 #44
-  r_sh_ng = 100 #56
+  ng_percent = 40
+  ldv_e = 35
+  r_sh_e = 12 # 20
+  r_sh_ng = 50 # 80
   
   
   inputs <- as.data.frame(t(data.frame(
@@ -197,6 +196,9 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   ## Specify certain data from solveGEN_outoput for use by "generate_FinalUVY_2050.R"
   PPdata_NoStorage <- solveGEN_output$PPdata_NoStorage
   PPdata_AnnualStorage <- solveGEN_output$PPdata_AnnualStorage
+  ## Make a correction here to ensure no singular matrix calculations in Sankey diagrams.
+  ## THe correction is to ensure very small values of generation do not occur for technologies for which the user does not want any generation
+  
   Hourly_MW_NoStorage <- solveGEN_output$Hourly_MW_NoStorage
   Hourly_MW_AnnualStorage <- solveGEN_output$Hourly_MW_AnnualStorage
 
@@ -213,7 +215,6 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   ##                    "V_NoStorage_2050_CurrentRegion"=V_NoStorage,
   ##                    "U_AnnualStorage_2050_CurrentRegion"=U_AnnualStorage,
   ##                    "V_AnnualStorage_2050_CurrentRegion"=V_AnnualStorage)
-  
   source("generate_FinalUVY_2050.R")
   #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG)
   #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, PPdata_NoStorage,PPdata_AnnualStorage,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage)
