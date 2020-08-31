@@ -161,7 +161,7 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
         setrowtype("Products") %>% setcoltype("Industries")
       cat(paste0("[Sankey_Function.R]: Check if zero (after correction): sum(k_prime) - 1 = ", (sum(k_prime)-1)),sep="\n")
     }
-    browser()  ## use to start debugging here
+    # browser()  ## use to start debugging here
     UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
 
     # update io_mats_prime
