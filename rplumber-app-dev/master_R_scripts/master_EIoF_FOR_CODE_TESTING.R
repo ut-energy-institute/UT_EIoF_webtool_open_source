@@ -28,23 +28,6 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   
 # master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
-  # ## inputs to make testing easier when running as a script and not a function
-  # to make testing easier
-  # region_id = 6
-  # coal_percent = 30
-  # PV_percent = 15
-  # CSP_percent = 0
-  # wind_percent = 15
-  # biomass_percent = 0
-  # hydro_percent = 0
-  # petroleum_percent = 0
-  # nuclear_percent = 10
-  # geothermal_percent = 0
-  # ng_percent = 0
-  # ldv_e = 50
-  # r_sh_e = 50
-  # r_sh_ng = 50
-
 ## BASELINE RESIDENTIAL HEATING FRACTIONS 
 ## FracOther must be <= to the stated values
 ## This must hold true:  (FracHeatPump + FracNG) >= (1 - FracOther)
@@ -63,21 +46,55 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
 # NY	0.02	0.61	0.37
 # NE	0.01	0.22	0.77
 
+# ## inputs to make testing easier when running as a script and not a function
+  # to make testing easier
+  # region_id = 6
+  # coal_percent = 30
+  # PV_percent = 15
+  # CSP_percent = 0
+  # wind_percent = 15
+  # biomass_percent = 0
+  # hydro_percent = 0
+  # petroleum_percent = 0
+  # nuclear_percent = 10
+  # geothermal_percent = 0
+  # ng_percent = 0
+  # ldv_e = 50
+  # r_sh_e = 50
+  # r_sh_ng = 50
+
+## THESE INPUTS BREAK IT (8/28/20)
+region_id = 12 # or region 12 and 6 and maybe others ...
+coal_percent = 2
+PV_percent = 1
+CSP_percent = 0
+wind_percent = 2
+biomass_percent = 0 #15+25
+hydro_percent = 8 # 8 or 9 is what breaks it with region 12 (NY)--> Error in matsbyname::colsums_byname(y_prime_2) : object 'y_prime_2' not found ... at this line in "Sankey_Function": UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
+petroleum_percent = 0
+nuclear_percent = 29
+geothermal_percent = 0
+ng_percent = 57
+ldv_e = 0 # 
+r_sh_e = 30 # 20
+r_sh_ng = 61 # 80
+
+
   ## Input data that would normally come from the user via the website interface
-  region_id = 10
-  coal_percent = 0
-  PV_percent = 30
-  CSP_percent = 0
-  wind_percent = 30
-  biomass_percent = 0 #15+25
-  hydro_percent = 0
-  petroleum_percent = 0
-  nuclear_percent = 0
-  geothermal_percent = 0
-  ng_percent = 40
-  ldv_e = 35
-  r_sh_e = 12 # 20
-  r_sh_ng = 50 # 80
+  # region_id = 12
+  # coal_percent = 10
+  # PV_percent = 10
+  # CSP_percent = 0
+  # wind_percent = 10
+  # biomass_percent = 0 #15+25
+  # hydro_percent = 0
+  # petroleum_percent = 0
+  # nuclear_percent = 10
+  # geothermal_percent = 0
+  # ng_percent = 60
+  # ldv_e = 10
+  # r_sh_e = 40 # 20
+  # r_sh_ng = 60 # 80
   
   
   inputs <- as.data.frame(t(data.frame(
@@ -289,13 +306,16 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   percent_ldv_biofuel_quads = 100 - percent_ldv_elec_quads - percent_ldv_petrol_quads ## Calcualting this way ensures these three percentages add exactly to 100  (and not off by some differnece like 1e-14)
 
   ## Other (non-LDV transportation)
-  #trans_other_petrol = 80
-  #trans_other_ng = 10
   trans_other_totalenergy = sum(generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion[,"Transport_Other_NG"]) + sum(generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion[,"Transport_Other_Petrol"]) + sum(generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion[,"Transport_Other_Other"])
   if (trans_other_totalenergy>0){
     trans_other_petrol = 100*sum(generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion[,"Transport_Other_Petrol"])/trans_other_totalenergy
     trans_other_ng = 100*sum(generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion[,"Transport_Other_NG"])/trans_other_totalenergy
-    trans_other_other = 100 - trans_other_petrol - trans_other_ng
+    #trans_other_other = max(0,100 - trans_other_petrol - trans_other_ng)  ## sometimes "100 - trans_other_petrol - trans_other_ng" expression can result in small negative values within double precision, so need to make 0 if so
+    trans_other_other = 100 - trans_other_petrol - trans_other_ng  ## sometimes "100 - trans_other_petrol - trans_other_ng" expression can result in small negative values within double precision, so need to make 0 if so
+    if (trans_other_other < 0) {
+      trans_other_ng <- trans_other_ng + trans_other_other
+      trans_other_other = 0
+    }
   } else {
     trans_other_petrol = 100
     trans_other_ng = 0
@@ -320,6 +340,7 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
     percent_ldv_petrol_quads = percent_ldv_petrol_quads
     percent_ldv_biofuel_quads = 100 - percent_ldv_elec_quads - percent_ldv_petrol_quads
     }  ## For purposes of plotting the Sankey Diagram consistently, if "ldv_e = 0" from user, we need some > 0 value for electricity to LDVs so that the "Transportation" node is displayed in alignment with the other "end use" sectors  
+  sankey_inputs <- c(region_id, solar_percent, nuclear_percent, hydro_percent, wind_percent, geothermal_percent, ng_percent, coal_percent, biomass_percent, petroleum_percent, r_sh_e, r_sh_ng, r_wh_e, r_wh_ng, r_ck_e, r_ck_ng, c_sh_e, c_sh_ng, c_wh_e, c_wh_ng, c_ck_e, c_ck_ng, percent_ldv_elec_quads, percent_ldv_petrol_quads, percent_ldv_biofuel_quads, trans_other_petrol, trans_other_ng, trans_other_other)
   sankey_json_out <- sankey_json(region_id = region_id, p_solar = solar_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_NoStorage_2050_CurrentRegion,Y_template)
 
   ## Call Sankey function with "AnnualStorage" results of "solveGEN" and "generate_FinalUVY_2050"
@@ -437,7 +458,9 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   search_value1 = gg_out_NoStorage$value
   ## which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))  ## THis finds the value for the row of gg_out_NoStorage that has both the targeted phrase in column $type (e.g., "capex") and targeted phrase in column $value (e.g., "TandD")
   capex_3yr_TandD_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="TandD"))]] + gg_out_NoStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="TandD"))]] + gg_out_NoStorage$`2050`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="TandD"))]]
-  capex_3yr_all_pp_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_NoStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_NoStorage$`2050`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]]
+  ## Note "capex_3yr_all_pp_NoStorage" must go from 2047-2049 since the Google Sheet costs force (by definition) 2050 capital spending for power plants to be zero (0)
+  capex_3yr_all_pp_NoStorage <- gg_out_NoStorage$`2047`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_NoStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_NoStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]]
+  capex_3yr_AnnualNuke_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="annual_nuclear"))]] + gg_out_NoStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="annual_nuclear"))]] + gg_out_NoStorage$`2050`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="annual_nuclear"))]]
   opex_3yr_TandD_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="opex")[which(which(search_type1=="opex") %in% which(search_value1=="TandD"))]] + gg_out_NoStorage$`2049`[which(search_type1=="opex")[which(which(search_type1=="opex") %in% which(search_value1=="TandD"))]] + gg_out_NoStorage$`2050`[which(search_type1=="opex")[which(which(search_type1=="opex") %in% which(search_value1=="TandD"))]] 
   opex_3yr_all_pp_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="opex_wfuel")[which(which(search_type1=="opex_wfuel") %in% which(search_value1=="all_pp"))]] + gg_out_NoStorage$`2049`[which(search_type1=="opex_wfuel")[which(which(search_type1=="opex_wfuel") %in% which(search_value1=="all_pp"))]] + gg_out_NoStorage$`2050`[which(search_type1=="opex_wfuel")[which(which(search_type1=="opex_wfuel") %in% which(search_value1=="all_pp"))]] 
   deprec_3yr_TandD_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="depreciation_int")[which(which(search_type1=="depreciation_int") %in% which(search_value1=="TandD"))]] + gg_out_NoStorage$`2049`[which(search_type1=="depreciation_int")[which(which(search_type1=="depreciation_int") %in% which(search_value1=="TandD"))]] + gg_out_NoStorage$`2050`[which(search_type1=="depreciation_int")[which(which(search_type1=="depreciation_int") %in% which(search_value1=="TandD"))]]
@@ -445,7 +468,8 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   TWh_3yr_NoStorage <- gg_out_NoStorage$`2048`[which(search_type1=="generation")[which(which(search_type1=="generation") %in% which(search_value1=="total"))]] + gg_out_NoStorage$`2049`[which(search_type1=="generation")[which(which(search_type1=="generation") %in% which(search_value1=="total"))]] + gg_out_NoStorage$`2050`[which(search_type1=="generation")[which(which(search_type1=="generation") %in% which(search_value1=="total"))]] 
   cents_per_kwh_NoStorage_capex_2050 = 100*(capex_3yr_TandD_NoStorage + capex_3yr_all_pp_NoStorage)/TWh_3yr_NoStorage
   cents_per_kwh_NoStorage_opex_2050 = 100*(opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)/TWh_3yr_NoStorage
-  cents_per_kwh_NoStorage_deprec_interest_2050 = 100*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage)/TWh_3yr_NoStorage
+  ## "cents_per_kwh_NoStorage_deprec_interest_2050" includes the annual capital expenditures for existing nuclear power plants
+  cents_per_kwh_NoStorage_deprec_interest_2050 = 100*(capex_3yr_AnnualNuke_NoStorage + deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage)/TWh_3yr_NoStorage
   cents_per_kwh_NoStorage_total_2050 = cents_per_kwh_NoStorage_opex_2050 + cents_per_kwh_NoStorage_deprec_interest_2050
   load("Population_and_Electricity_Customers.rdata")
   EIoF_Regions_Population_Projections <- EIoF_Regions_Population_Projections[-which(is.na(EIoF_Regions_Population_Projections$EIoF.Region)=="TRUE"),]
@@ -454,7 +478,8 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   EIoF_Regions_Population_Projections <- EIoF_Regions_Population_Projections[match(regions, EIoF_Regions_Population_Projections$EIoF.Region),]
   ElectricityCustomer_Population_Ratios <- ElectricityCustomer_Population_Ratios[match(regions, ElectricityCustomer_Population_Ratios$EIoF.Region),]
   # dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(capex_3yr_TandD_NoStorage + capex_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
-  dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
+  # dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
+  dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage + capex_3yr_AnnualNuke_NoStorage)
   dollars_per_customer_NoStorage_2050 = dollars_per_person_NoStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
   
   ## With Annual Storage: Calculate cents/kWh - CAPEX, OPEX, and TOTAL
@@ -462,7 +487,9 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   search_type1 = gg_out_AnnualStorage$type
   search_value1 = gg_out_AnnualStorage$value
   capex_3yr_TandD_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="TandD"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="TandD"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="TandD"))]]
-  capex_3yr_all_pp_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]]
+  ## Note "capex_3yr_all_pp_AnnualStorage" must go from 2047-2049 since the Google Sheet costs force (by definition) 2050 capital spending for power plants to be zero (0)
+  capex_3yr_all_pp_AnnualStorage <- gg_out_AnnualStorage$`2047`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_AnnualStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="all_pp"))]]
+  capex_3yr_AnnualNuke_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="annual_nuclear"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="annual_nuclear"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="capex")[which(which(search_type1=="capex") %in% which(search_value1=="annual_nuclear"))]]
   opex_3yr_TandD_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="opex")[which(which(search_type1=="opex") %in% which(search_value1=="TandD"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="opex")[which(which(search_type1=="opex") %in% which(search_value1=="TandD"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="opex")[which(which(search_type1=="opex") %in% which(search_value1=="TandD"))]] 
   opex_3yr_all_pp_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="opex_wfuel")[which(which(search_type1=="opex_wfuel") %in% which(search_value1=="all_pp"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="opex_wfuel")[which(which(search_type1=="opex_wfuel") %in% which(search_value1=="all_pp"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="opex_wfuel")[which(which(search_type1=="opex_wfuel") %in% which(search_value1=="all_pp"))]] 
   deprec_3yr_TandD_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="depreciation_int")[which(which(search_type1=="depreciation_int") %in% which(search_value1=="TandD"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="depreciation_int")[which(which(search_type1=="depreciation_int") %in% which(search_value1=="TandD"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="depreciation_int")[which(which(search_type1=="depreciation_int") %in% which(search_value1=="TandD"))]]
@@ -470,10 +497,12 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   TWh_3yr_AnnualStorage <- gg_out_AnnualStorage$`2048`[which(search_type1=="generation")[which(which(search_type1=="generation") %in% which(search_value1=="total"))]] + gg_out_AnnualStorage$`2049`[which(search_type1=="generation")[which(which(search_type1=="generation") %in% which(search_value1=="total"))]] + gg_out_AnnualStorage$`2050`[which(search_type1=="generation")[which(which(search_type1=="generation") %in% which(search_value1=="total"))]] 
   cents_per_kwh_AnnualStorage_capex_2050 = 100*(capex_3yr_TandD_AnnualStorage + capex_3yr_all_pp_AnnualStorage)/TWh_3yr_AnnualStorage
   cents_per_kwh_AnnualStorage_opex_2050 = 100*(opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)/TWh_3yr_AnnualStorage
-  cents_per_kwh_AnnualStorage_deprec_interest_2050 = 100*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage)/TWh_3yr_AnnualStorage
+  ## "cents_per_kwh_AnnualStorage_deprec_interest_2050" includes the annual capital expenditures for existing nuclear power plants
+  cents_per_kwh_AnnualStorage_deprec_interest_2050 = 100*(capex_3yr_AnnualNuke_AnnualStorage + deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage)/TWh_3yr_AnnualStorage
   cents_per_kwh_AnnualStorage_total_2050 = cents_per_kwh_AnnualStorage_opex_2050 + cents_per_kwh_AnnualStorage_deprec_interest_2050
   # dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(capex_3yr_TandD_AnnualStorage + capex_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
-  dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
+  # dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
+  dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage + capex_3yr_AnnualNuke_AnnualStorage)
   dollars_per_customer_AnnualStorage_2050 = dollars_per_person_AnnualStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
   
   elec_cost_summary_2050 <- data.frame(c("cents_kwh_total","cents_kwh_capex","cents_kwh_depreciation_interest","cents_kwh_opex","dollars_per_person","dollars_per_customer"),
@@ -616,20 +645,158 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   ########################### END SUMMARIZE PRIMARY ENERGY FLOWS FOR "STANDARD REPORT GENERATOR"  ###########################
   
   
+  ########################### START MAKE FIGURES ###########################
+  # ==============================================================================
+  # COMMON COLORS -----------------------------------------------------
+  # ==============================================================================
+  red = rgb(0.894,0.090,0,1)
+  orange = rgb(1,0.612,0,1)
+  yellow = rgb(0.926,0.580,0.039,1)
+  ltgreen = rgb(0.365,1,0,1)
+  green = rgb(0.380,0.753,0.314,1)
+  ltblue = rgb(0,0.730,1,1)
+  mdblue = rgb(0.192,0.384,0.847,1)
+  blue = rgb(0.157,0.478,0.878,1)
+  dkblue = rgb(0.129,0,0.996,1)
+  purple = rgb(0.623,0.369,1,1)
+  brown = rgb(0.494,0.271,0.145,1)
+  grey75 = rgb(0.75,0.75,0.75,1)
+  grey50 = rgb(0.5,0.5,0.5,1)
+  grey25 = rgb(0.25,0.25,0.25,1)
+  black = rgb(0,0,0,1)
+  white = rgb(1,1,1,1)
+  
+  
+  # ==============================================================================
+  # CREATE PLOT
+  # ==============================================================================
+  # (5) Define figure layout
+  # Figure dimensions (in inches)
+  fig.wd <- 6	  
+  fig.ht <- 7
+  
+  # Font sizes
+  lab.size <- .8  # 1.1
+  axis.size <- .7 #1
+  text.size <- .6
+  
+  # Device background color
+  bg.col <- "white"
+  # bg.col <- "black"
+  
+  # Foreground colors
+  fg.col <- axis.col <- lab.col <- main.col <- "black"
+  # fg.col <- axis.col <- lab.col <- main.col <- "white"
+  
+  
+  # Line weight
+  line.wt <- 1
+  line.wts <- c(2,2,2)
+  
+  # line colors
+  colors = c(black,"red",lab.col)
+  
+  # line types
+  linetypes = c(1,1,1,2,2)
+  
+  
+  # PUBLICATION FORMATS -----------------------------------------------
+  # Start PDF/TIF/OTHER plotting device
+  dpi = 300
+  #png("EIoF_Figure_Test.png", units="in", height=fig.ht, width=fig.wd, res=dpi)
+  #svg(filename="EIoF_Figure_Test.svg",height=fig.ht, width=fig.wd,pointsize=12) 
+  svg(filename="EIoF_Figure_Test.svg",pointsize=12) 
+
+  # set labels for legend
+  #leg_labels = c("Food & Energy","Food","Energy")
+  
+  # (3) Define plot margins
+  bmar <- .5+axis.size   # Bottom margin (1)
+  lmar <- 3.2-1.2+axis.size # Left margin (2)
+  tmar <- 1.50 		# Top margin (3)
+  rmar <- 1-1+axis.size   # Right margin (4)
+  
+  # Define plot margins and axis tick label placement
+  par(mar=c(bmar,lmar,tmar,rmar))
+  
+  # Define background, foreground and object colors
+  par(bg=bg.col, fg=fg.col, col.axis=axis.col, col.lab=lab.col, col.main=main.col)
+  
+  # make the zero value of the x or y-axis to actually be at the
+  # left (of x-axis) or bottom (of y-axis) of the plot area
+  par(xaxs="i")
+  par(yaxs="i")
+  
+  ## Select the data to plot
+  # xdata = solveGEN_output$Hourly_MW_AnnualStorage$Hour_ending[1:7*24]
+  # ydata = solveGEN_output$Hourly_MW_AnnualStorage$Load[1:7*24]
+  xdata = solveGEN_output$Hourly_MW_AnnualStorage$Hour_ending
+  ydata = solveGEN_output$Hourly_MW_AnnualStorage$Load
+  
+  ## Set figure axis lower and upper limits for plotting DISPLAY, and tick mark increments
+  ylimit <- 1.1*max(ydata)
+  yrange = c(0,ylimit)
+  yinc <- 10000
+  #xrange = c(min(xdata),max(xdata))
+  xrange = c(0,7*24*4)
+  xinc = 24
+  
+  
+  # ==============================================================================
+  # CREATE PLOTS
+  # ==============================================================================
+  # PLOT  1
+  i=1
+  # test.plot <- plot(xdata,ydata,type="l",xlab="",ylab="",ylim=yrange,xlim=xrange,
+  #                   col=colors[i],lty=linetypes[i],lwd=line.wts[i],xaxt="n",yaxt="n")
+  test.plot <- plot(seq(1,xrange[2]),ydata,type="l",xlab="",ylab="",ylim=yrange,xlim=xrange,
+       col=colors[i],lty=linetypes[i],lwd=line.wts[i],xaxt="n",yaxt="n")
+  
+  # Add x-axis ticks and title text
+  axis(1, seq(xrange[1],xrange[2],xinc), las=1, cex.axis=axis.size*.8,padj=-2.4,tck=-0.03)
+  # title(xlab="Hour of Year", cex.lab=lab.size, line=bmar-1)
+  
+  # Add y-axis ticks and title text
+  axis(2,seq(0,ylimit,yinc),lab=paste0(seq(0,ylimit,yinc)),las=1,cex.axis=axis.size,hadj=0.5,tck=-0.03)
+  title(ylab="MW Generation", cex.lab=lab.size, line=lmar-1.*lab.size)
+  
+  # (1) INSERT PLOT TITLE
+  title(main="Power Plant Generation per Hour (1 week per season)",cex.main=lab.size,line=tmar-1)#
+  dev.off()
+  
+  ## Save .svg graph as base64 text
+  #library(base64) ## see https://cran.r-project.org/web/packages/base64/base64.pdf
+  tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
+  # testplot_svg <- base64::encode("EIoF_Figure_Test.svg",tmp,linebreaks = FALSE)
+  # file_testplot<-file("testplot_svg.txt")
+  # writeLines(read_file(testplot_svg), file_testplot)
+  # close(file_testplot)
+  testplot_svg2 <- base64enc::base64encode("EIoF_Figure_Test.svg",tmp)
+  file_testplot2<-file("testplot_svg2.txt")
+  writeLines(testplot_svg2, file_testplot2)
+  close(file_testplot2)
+  # 
+  # testplot_png <- base64::encode("EIoF_Figure_Test.png",tmp,linebreaks = FALSE)
+  # file_testplot<-file("testplot_png.txt")
+  # writeLines(read_file(testplot_png), file_testplot)
+  # close(file_testplot)
+  
+  ########################### END MAKE FIGURES ###########################
+  
   ########################### START ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
-  #all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out2, gg_out3,inputs)
-  #all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050)
   #all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, solveGEN_output$PPdata_NoStorage, solveGEN_output$PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
-  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
-  #  EIOF_no_timeseries <- list(sankey_json_out$links, sankey_json_out$nodes, gg_out)
-  #  EIOF_timeseries <- list(solveGEN_output$Hourly_MW_AnnualStorage)
+  # all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
+  # names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050')
   
-  #names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs')
-  #names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050')
-  names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary')
+  ## outputs with the figures
+  # all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,paste0(directory_now,"/EIoF_Figure_Test.eps"))
+  # all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,paste0(directory_now,"/EIoF_Figure_Test.png"))
+  ## all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,read_file(testplot_svg))
+  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,testplot_svg2)
+  names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary','Figure1')
   
-
+  
   ########################### END ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
   return(all)
