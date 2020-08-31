@@ -132,12 +132,31 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     Y_prime["Services_Transport_Other_NG", "Energy_Services"] <- Service_Other_Transport*as.numeric(trans_other_ng)/100
     
     # create k_prime matrix
-    k_prime <- matrix(data = c(as.numeric(p_solar)/100, as.numeric(p_nuclear)/100, as.numeric(p_hydro)/100, as.numeric(p_wind)/100, as.numeric(p_geo)/100, as.numeric(p_ng)/100, as.numeric(p_coal)/100, as.numeric(p_bio)/100, as.numeric(p_petrol)/100), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
-      setrowtype("Products") %>% setcoltype("Industries")
+    frac_solar <- as.numeric(p_solar)/100
+    frac_nuclear <- as.numeric(p_nuclear)/100
+    frac_hydro <- as.numeric(p_hydro)/100
+    frac_wind <- as.numeric(p_wind)/100
+    frac_geo <- as.numeric(p_geo)/100
+    frac_coal <- as.numeric(p_coal)/100
+    frac_bio <- as.numeric(p_bio)/100
+    frac_petrol <- as.numeric(p_petrol)/100
+    # frac_ng <- as.numeric(p_ng)/100
+    frac_ng <- 1 - sum(frac_solar,frac_nuclear,frac_hydro,frac_wind,frac_geo,frac_coal,frac_bio,frac_petrol)
+    check_frac_total <- 1 - sum(frac_ng,frac_solar,frac_nuclear,frac_hydro,frac_wind,frac_geo,frac_coal,frac_bio,frac_petrol)
+    if (check_frac_total != 0) {
+      frac_ng <- frac_ng + check_frac_total
+    }
+    k_prime <- matrix(data = c(frac_solar,frac_nuclear,frac_hydro, frac_wind, frac_geo, frac_ng, frac_coal, frac_bio, frac_petrol), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
+       setrowtype("Products") %>% setcoltype("Industries")
+    # k_prime <- matrix(data = c(as.numeric(p_solar)/100, as.numeric(p_nuclear)/100, as.numeric(p_hydro)/100, as.numeric(p_wind)/100, as.numeric(p_geo)/100, as.numeric(p_ng)/100, as.numeric(p_coal)/100, as.numeric(p_bio)/100, as.numeric(p_petrol)/100), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
+    #   setrowtype("Products") %>% setcoltype("Industries")
     # k_prime <- matrix(data = c(as.integer(p_solar)/100, as.integer(p_nuclear)/100, as.integer(p_hydro)/100, as.integer(p_wind)/100, as.integer(p_geo)/100, as.integer(p_ng)/100, as.integer(p_coal)/100, as.integer(p_bio)/100, as.integer(p_petrol)/100), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
     #   setrowtype("Products") %>% setcoltype("Industries")
-    
+    # cat(paste0("[Sankey_Function.R]: Sum of k_prime is: ", sum(k_prime)),sep="\n")
+
     # 1st recalculation based on k_prime
+    cat(paste0("[Sankey_Function.R]: Check if zero: sum(k_prime) - 1 = ", (sum(k_prime)-1)),sep="\n")
+    #browser()  ## use to start debugging here
     UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
 
     # update io_mats_prime
