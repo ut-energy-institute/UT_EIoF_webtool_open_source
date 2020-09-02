@@ -64,20 +64,20 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   # r_sh_ng = 50
 
 ## THESE INPUTS BREAK IT (8/28/20)
-region_id = 12 # or region 12 and 6 and maybe others ...
-coal_percent = 2
-PV_percent = 1
+region_id = 5 # or region 12 and 6 and maybe others ...
+coal_percent = 0
+PV_percent = 0
 CSP_percent = 0
-wind_percent = 2
-biomass_percent = 0 #15+25
-hydro_percent = 8 # 8 or 9 is what breaks it with region 12 (NY)--> Error in matsbyname::colsums_byname(y_prime_2) : object 'y_prime_2' not found ... at this line in "Sankey_Function": UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
+wind_percent = 100
+biomass_percent = 0 
+hydro_percent = 0 
 petroleum_percent = 0
-nuclear_percent = 29
+nuclear_percent = 0
 geothermal_percent = 0
-ng_percent = 57
-ldv_e = 0 # 
-r_sh_e = 30 # 20
-r_sh_ng = 61 # 80
+ng_percent = 0
+ldv_e = 10 
+r_sh_ng = 63 
+r_sh_e = 9 
 
 
   ## Input data that would normally come from the user via the website interface
@@ -772,7 +772,7 @@ r_sh_ng = 61 # 80
   # writeLines(read_file(testplot_svg), file_testplot)
   # close(file_testplot)
   testplot_svg2 <- base64enc::base64encode("EIoF_Figure_Test.svg",tmp)
-  file_testplot2<-file("testplot_svg2.txt")
+  file_testplot2 <- file("testplot_svg2.txt")
   writeLines(testplot_svg2, file_testplot2)
   close(file_testplot2)
   # 
