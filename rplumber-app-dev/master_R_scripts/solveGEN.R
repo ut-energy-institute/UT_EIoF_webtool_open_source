@@ -173,11 +173,15 @@ load("solveGen_data/Tranfer_RegionFromTo.Rdata")
 # land_area_EIoF$LandArea_Acre <- acre_per_SqMi*land_area_EIoF$LandArea_SqMi
 # save(land_area_EIoF,file="solveGen_data/land_area_ByEIoF.Rdata")
 load("solveGen_data/land_area_ByEIoF.Rdata")
-acre_perMW_CSP <- 9.5  ## assumed number of acres of "Total Area" for CSP Power Tower configurations [Ong, Sean; Campbell, Clinton; Denholm, Paul; Margolis, Robert, and Heath, Garvin (2013) Land-Use Requirements for Solar Power Plants in the United States, Technical Report: NREL/TP-6A20-56290, June 2013.]
-acre_perMW_PV <- 7.9  ## assumed number of acres of "Total Area" for solar PV [Ong, Sean; Campbell, Clinton; Denholm, Paul; Margolis, Robert, and Heath, Garvin (2013) Land-Use Requirements for Solar Power Plants in the United States, Technical Report: NREL/TP-6A20-56290, June 2013.]
-hectare_perMW_wind <- 0.3  ## assumed number of acres of "Direct Area" for wind farms [Denholm, Paul; Hand, Maureen; Jackson, Maddalena and Ong, Sean (2009) Land-Use Requirements of Modern Wind Power Plants in the United States, Technical Report: NREL/TP-6A2-45834, August 2009.]
+acre_perMW_CSP_totalarea <- 9.0  ## assumed number of acres of "Total Area" for CSP Power Tower configurations 
+acre_perMW_CSP_direct <- 8.0  ## assumed number of acres of "Direct Area" for CSP Power Tower configurations 
+acre_perMW_PV_totalarea <- 5.4  ## assumed number of acres of "Total Area" for solar PV 
+acre_perMW_PV_direct <- 4.9  ## assumed number of acres of "Direct Area" for solar PV 
+hectare_perMW_wind_direct <- 0.3  ## assumed number of acres of "Direct Area" for wind farms 
+hectare_perMW_wind_totalarea <- 34.5  ## assumed number of acres of "Total Project Area" for wind farms, including all area circumscribed with turbines in their layout 
 hectare_per_acre <- 0.404686
-acre_perMW_wind <- hectare_perMW_wind*hectare_per_acre  ## assumed number of acres of "Direct Area" for wind farms 
+acre_perMW_wind_direct <- hectare_perMW_wind_direct*hectare_per_acre  ## assumed number of acres of "Direct Area" for wind farms 
+acre_perMW_wind_totalarea <- hectare_perMW_wind_totalarea*hectare_per_acre  ## assumed number of acres of "Total Project Area" for wind farms 
 
 ## ++++++
 ## Load data that houses the "capacity and cost ($/MW for spur line connection)" data from whcih we can obtain
@@ -2716,50 +2720,83 @@ names(GeothermalCosts) <- c("NoStorage","AnnualStorage")
 rownames(GeothermalCosts) <-c("CAPEX_2017USD_per_kW","FOM_2017USD_per_kWyr","CAPEX_Lowest_2017USD_per_kW","FOM_Lowest_2017USD_per_kwyr")
 rm(ind_AnnualStorage,ind_NoStorage)
 
-## Land area calculation for wind, PV, and CSP
+## Land area calculation for wind, PV, and CSP (no storage)
 PPdata_NoStorage_solveGen_output$Land_1000acres <- rep(0,dim(PPdata_NoStorage_solveGen_output)[1])
-PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]
-PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]
-PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]
+PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV_totalarea*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]
+PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP_totalarea*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]
+PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind_totalarea*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]
+PPdata_NoStorage_solveGen_output$Land_1000acres_direct <- rep(0,dim(PPdata_NoStorage_solveGen_output)[1])
+PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV_direct*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]
+PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP_direct*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]
+PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind_direct*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]
+#levels(PPdata_NoStorage_solveGen_output$Technology)[length(levels(PPdata_NoStorage_solveGen_output$Technology))+1] <- c("LandTotal")
+# PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1]+1,] <- PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1],]  ## Create a new row by copying an existing row
+# PPdata_NoStorage_solveGen_output$Technology[dim(PPdata_NoStorage_solveGen_output)[1]] <- c("LandTotal")   ## relable the "Technology" of the row to "LandTotal"
+# PPdata_NoStorage_solveGen_output[(dim(PPdata_NoStorage_solveGen_output)[1]),(2:dim(PPdata_NoStorage_solveGen_output)[2])] <- rep(0,(dim(PPdata_NoStorage_solveGen_output)[2]-1))  ## Make add data for this "LandTotal" Technology = 0
+# PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
 levels(PPdata_NoStorage_solveGen_output$Technology)[length(levels(PPdata_NoStorage_solveGen_output$Technology))+1] <- c("LandTotal")
+levels(PPdata_NoStorage_solveGen_output$Technology)[length(levels(PPdata_NoStorage_solveGen_output$Technology))+1] <- c("LandDirect")
 PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1]+1,] <- PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1],]  ## Create a new row by copying an existing row
 PPdata_NoStorage_solveGen_output$Technology[dim(PPdata_NoStorage_solveGen_output)[1]] <- c("LandTotal")   ## relable the "Technology" of the row to "LandTotal"
 PPdata_NoStorage_solveGen_output[(dim(PPdata_NoStorage_solveGen_output)[1]),(2:dim(PPdata_NoStorage_solveGen_output)[2])] <- rep(0,(dim(PPdata_NoStorage_solveGen_output)[2]-1))  ## Make add data for this "LandTotal" Technology = 0
 PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
-
+PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
+## Land area calculation for wind, PV, and CSP (annual storage)
 PPdata_AnnualStorage_solveGen_output$Land_1000acres <- rep(0,dim(PPdata_AnnualStorage_solveGen_output)[1])
-PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")]
-PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")]
-PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")]
+PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV_totalarea*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")]
+PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP_totalarea*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")]
+PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind_totalarea*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")]
+PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct <- rep(0,dim(PPdata_AnnualStorage_solveGen_output)[1])
+PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV_direct*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")]
+PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP_direct*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")]
+PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind_direct*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")]
 levels(PPdata_AnnualStorage_solveGen_output$Technology)[length(levels(PPdata_AnnualStorage_solveGen_output$Technology))+1] <- c("LandTotal")
 PPdata_AnnualStorage_solveGen_output[dim(PPdata_AnnualStorage_solveGen_output)[1]+1,] <- PPdata_AnnualStorage_solveGen_output[dim(PPdata_AnnualStorage_solveGen_output)[1],]  ## Create a new row by copying an existing row
 PPdata_AnnualStorage_solveGen_output$Technology[dim(PPdata_AnnualStorage_solveGen_output)[1]] <- c("LandTotal")   ## relable the "Technology" of the row to "LandTotal"
 PPdata_AnnualStorage_solveGen_output[(dim(PPdata_AnnualStorage_solveGen_output)[1]),(2:dim(PPdata_AnnualStorage_solveGen_output)[2])] <- rep(0,(dim(PPdata_AnnualStorage_solveGen_output)[2]-1))  ## Make add data for this "LandTotal" Technology = 0
 PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
+PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
 
-## Calcualte the percent of "applicable" (= includes regions that import electricity to RegionNumber) land taken by PV, wind, and CSP
+## Calcualte the percent of "applicable" land (= includes regions that import electricity to RegionNumber) taken by PV, wind, and CSP
 LandAcres_byTech_NoStorage <- 0*MaxCapacity_perRegion_perTech_MW
-LandAcres_byTech_NoStorage[,6:7] <- LandAcres_byTech_NoStorage[,1:2]  ## add 5 new columns
-names(LandAcres_byTech_NoStorage) <- c("Wind","PV","CSP","Biomass","Geothermal","AcresTotal","PctLandTotal")
+# LandAcres_byTech_NoStorage[,6:7] <- LandAcres_byTech_NoStorage[,1:2]  ## add 2 new columns
+# names(LandAcres_byTech_NoStorage) <- c("Wind","PV","CSP","Biomass","Geothermal","AcresTotal","PctLandTotal")
+LandAcres_byTech_NoStorage[,6:14] <- c(LandAcres_byTech_NoStorage[,1:5],LandAcres_byTech_NoStorage[,1:4])  ## add 9 new columns
+names(LandAcres_byTech_NoStorage) <- c("WindTotal","PVTotal","CSPTotal","BiomassTotal","GeothermalTotal","WindDirect","PVDirect","CSPDirect","BiomassDirect","GeothermalDirect","LandAcresTotal","PctLandTotal","LandAcresDirect","PctLandDirect")
 LandAcres_byTech_AnnualStorage <- LandAcres_byTech_NoStorage
 ## Nostorage land use
-LandAcres_byTech_NoStorage$Wind <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]*Tranfer_RegionFromTo_Wind[,RegionNumber]
-LandAcres_byTech_NoStorage$PV <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]*Tranfer_RegionFromTo_PV[,RegionNumber]
-LandAcres_byTech_NoStorage$CSP <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]*Tranfer_RegionFromTo_CSP[,RegionNumber]
-LandAcres_byTech_NoStorage$AcresTotal <- rowSums(LandAcres_byTech_NoStorage[,1:5])
-LandAcres_byTech_NoStorage$PctLandTotal <- 100*LandAcres_byTech_NoStorage$AcresTotal/land_area_EIoF$LandArea_Acre
+LandAcres_byTech_NoStorage$WindTotal <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]*Tranfer_RegionFromTo_Wind[,RegionNumber]
+LandAcres_byTech_NoStorage$PVTotal <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]*Tranfer_RegionFromTo_PV[,RegionNumber]
+LandAcres_byTech_NoStorage$CSPTotal <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]*Tranfer_RegionFromTo_CSP[,RegionNumber]
+LandAcres_byTech_NoStorage$WindDirect <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]*Tranfer_RegionFromTo_Wind[,RegionNumber]
+LandAcres_byTech_NoStorage$PVDirect <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]*Tranfer_RegionFromTo_PV[,RegionNumber]
+LandAcres_byTech_NoStorage$CSPDirect <- 1000*PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]*Tranfer_RegionFromTo_CSP[,RegionNumber]
+LandAcres_byTech_NoStorage$LandAcresTotal <- rowSums(LandAcres_byTech_NoStorage[,1:5])
+LandAcres_byTech_NoStorage$PctLandTotal <- 100*LandAcres_byTech_NoStorage$LandAcresTotal/land_area_EIoF$LandArea_Acre
+LandAcres_byTech_NoStorage$LandAcresDirect <- rowSums(LandAcres_byTech_NoStorage[,6:10])
+LandAcres_byTech_NoStorage$PctLandDirect <- 100*LandAcres_byTech_NoStorage$LandAcresDirect/land_area_EIoF$LandArea_Acre
 ## AnnualStorage land use
-LandAcres_byTech_AnnualStorage$Wind <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")]*Tranfer_RegionFromTo_Wind[,RegionNumber]
-LandAcres_byTech_AnnualStorage$PV <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")]*Tranfer_RegionFromTo_PV[,RegionNumber]
-LandAcres_byTech_AnnualStorage$CSP <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")]*Tranfer_RegionFromTo_CSP[,RegionNumber]
-LandAcres_byTech_AnnualStorage$AcresTotal <- rowSums(LandAcres_byTech_AnnualStorage[,1:5])
-LandAcres_byTech_AnnualStorage$PctLandTotal <- 100*LandAcres_byTech_AnnualStorage$AcresTotal/land_area_EIoF$LandArea_Acre
+LandAcres_byTech_AnnualStorage$WindTotal <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")]*Tranfer_RegionFromTo_Wind[,RegionNumber]
+LandAcres_byTech_AnnualStorage$PVTotal <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")]*Tranfer_RegionFromTo_PV[,RegionNumber]
+LandAcres_byTech_AnnualStorage$CSPTotal <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")]*Tranfer_RegionFromTo_CSP[,RegionNumber]
+LandAcres_byTech_AnnualStorage$WindDirect <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="Wind")]*Tranfer_RegionFromTo_Wind[,RegionNumber]
+LandAcres_byTech_AnnualStorage$PVDirect <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="PV")]*Tranfer_RegionFromTo_PV[,RegionNumber]
+LandAcres_byTech_AnnualStorage$CSPDirect <- 1000*PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="CSP")]*Tranfer_RegionFromTo_CSP[,RegionNumber]
+LandAcres_byTech_AnnualStorage$LandAcresTotal <- rowSums(LandAcres_byTech_AnnualStorage[,1:5])
+LandAcres_byTech_AnnualStorage$PctLandTotal <- 100*LandAcres_byTech_AnnualStorage$LandAcresTotal/land_area_EIoF$LandArea_Acre
+LandAcres_byTech_AnnualStorage$LandAcresDirect <- rowSums(LandAcres_byTech_AnnualStorage[,6:10])
+LandAcres_byTech_AnnualStorage$PctLandDirect <- 100*LandAcres_byTech_AnnualStorage$LandAcresDirect/land_area_EIoF$LandArea_Acre
+
 ## Weighted sum of land use into a total percentage of land use across all used regions (i.e., including regions that might be importing wind/PV/CSP into RegionNumber)
 PPdata_NoStorage_solveGen_output$PctLand <- rep(0,13)
+PPdata_NoStorage_solveGen_output$PctLandDirect <- rep(0,13)
 PPdata_AnnualStorage_solveGen_output$PctLand <- rep(0,13)
-PPdata_NoStorage_solveGen_output$PctLand[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$AcresTotal*LandAcres_byTech_NoStorage$PctLandTotal)/sum(LandAcres_byTech_NoStorage$AcresTotal),1)
-PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$AcresTotal*LandAcres_byTech_AnnualStorage$PctLandTotal)/sum(LandAcres_byTech_AnnualStorage$AcresTotal),1)
-
+PPdata_AnnualStorage_solveGen_output$PctLandDirect <- rep(0,13)
+PPdata_NoStorage_solveGen_output$PctLand[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$LandAcresTotal*LandAcres_byTech_NoStorage$PctLandTotal)/sum(LandAcres_byTech_NoStorage$LandAcresTotal),1)
+PPdata_NoStorage_solveGen_output$PctLandDirect[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$LandAcresDirect*LandAcres_byTech_NoStorage$PctLandDirect)/sum(LandAcres_byTech_NoStorage$LandAcresDirect),1)
+PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresTotal*LandAcres_byTech_AnnualStorage$PctLandTotal)/sum(LandAcres_byTech_AnnualStorage$LandAcresTotal),1)
+PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresDirect*LandAcres_byTech_AnnualStorage$PctLandDirect)/sum(LandAcres_byTech_AnnualStorage$LandAcresDirect),1)
+#browser()
 
 ## Now calculate the percentage of land taken by PV, wind and CSP while accounting for how much is assumed installed in the current and neighboring regions
 # land_area_AllRegionsWithRenewables <- max(sum(land_area_EIoF$LandArea_Acre[regions_with_Wind]),sum(land_area_EIoF$LandArea_Acre[regions_with_PV]),sum(land_area_EIoF$LandArea_Acre[regions_with_CSP]))
