@@ -327,6 +327,9 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs')
   
+  source('create_figures.R')
+  all_figures <- create_figures(all)
+  
 #  write_lines(toJSON(all), 'all_EIOF_data.json')
 #  write_lines(toJSON(EIOF_no_timeseries), 'EIOF_no_timeseries_data.json')
 #  write_lines(toJSON(EIOF_timeseries), 'EIOF_timeseries_data.json')
