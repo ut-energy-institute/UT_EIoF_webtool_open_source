@@ -140,7 +140,7 @@ if (year == 2016) {
 # Tranfer_RegionFromTo_PV <- Tranfer_RegionFromTo_PV[,-1]
 # rownames(Tranfer_RegionFromTo_Wind) <- Tranfer_RegionFromTo_Wind[,1]
 # Tranfer_RegionFromTo_Wind <- Tranfer_RegionFromTo_Wind[,-1]
-# MilesTransmission_RegionFromTo_Wind=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_Wind.csv")
+# # MilesTransmission_RegionFromTo_Wind=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_Wind.csv")
 # MilesTransmission_RegionFromTo_CSP=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_CSP.csv")
 # MilesTransmission_RegionFromTo_PV=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_PV.csv")
 # rownames(MilesTransmission_RegionFromTo_Wind) <- MilesTransmission_RegionFromTo_Wind[,1]
@@ -226,6 +226,7 @@ if ( max(constrained_capacity_NoStorage.Wind)==0 ) {
   constrained_capacity_NoStorage.Wind <- min(constrained_capacity_NoStorage.Wind[constrained_capacity_NoStorage.Wind>0])  ## Find the minimum sum (that is not 0) of capacity that can be installed in all regions that can contribute to RegionNumber
 }
 rm(indices.temp,binding_regions)
+
 ## Max total capacity for PV
 binding_regions <- 0*Tranfer_RegionFromTo_PV
 indices.temp <- which(Tranfer_RegionFromTo_PV[,RegionNumber]>0)
@@ -1198,7 +1199,6 @@ ub = c(constrained_capacity_NoStorage.Wind,constrained_capacity_NoStorage.PV,con
 init_guesses <- c(multiplier_init.wind,multiplier_init.PV,multiplier_init.CSP)
 max_iters <- 200
 tolerance_NoStorage <- 1e10
-#browser()
 ##wind_solar_multipliers <- Rcgmin(fn=function_Wind_PV_CSP,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 #wind_solar_multipliers <- optimr(par=init_guesses,fn=function_Wind_PV_CSP,gr=NULL,lower=lb,upper=ub,method=NULL,hessian=NULL,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_NoStorage))
 wind_solar_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_NoStorage))
