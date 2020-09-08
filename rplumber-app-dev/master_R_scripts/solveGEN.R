@@ -177,11 +177,14 @@ acre_perMW_CSP_totalarea <- 9.0  ## assumed number of acres of "Total Area" for 
 acre_perMW_CSP_direct <- 8.0  ## assumed number of acres of "Direct Area" for CSP Power Tower configurations 
 acre_perMW_PV_totalarea <- 5.4  ## assumed number of acres of "Total Area" for solar PV 
 acre_perMW_PV_direct <- 4.9  ## assumed number of acres of "Direct Area" for solar PV 
-hectare_perMW_wind_direct <- 0.3  ## assumed number of acres of "Direct Area" for wind farms 
-hectare_perMW_wind_totalarea <- 34.5  ## assumed number of acres of "Total Project Area" for wind farms, including all area circumscribed with turbines in their layout 
+hectare_perMW_wind_direct <- 0.3  ## assumed number of hectares of "Direct Area" for wind farms 
+#hectare_perMW_wind_totalarea <- 34.5  ## assumed number of hectares of "Total Project Area" for wind farms, including all area circumscribed with turbines in their layout 
+km2_per_hectare_wind_totalarea <- 1/5  ## From Hand et al. (2012) Table A-10 (NREL Renewable Futures Study)
 hectare_per_acre <- 0.404686
-acre_perMW_wind_direct <- hectare_perMW_wind_direct*hectare_per_acre  ## assumed number of acres of "Direct Area" for wind farms 
-acre_perMW_wind_totalarea <- hectare_perMW_wind_totalarea*hectare_per_acre  ## assumed number of acres of "Total Project Area" for wind farms 
+acre_per_km2 <- 247.105
+acre_perMW_wind_direct <- hectare_perMW_wind_direct/hectare_per_acre  ## assumed number of acres of "Direct Area" for wind farms 
+#acre_perMW_wind_totalarea <- hectare_perMW_wind_totalarea/hectare_per_acre  ## assumed number of acres of "Total Project Area" for wind farms 
+acre_perMW_wind_totalarea <- km2_per_hectare_wind_totalarea*acre_per_km2  ## assumed number of acres of "Total Project Area" for wind farms 
 
 ## ++++++
 ## Load data that houses the "capacity and cost ($/MW for spur line connection)" data from whcih we can obtain
