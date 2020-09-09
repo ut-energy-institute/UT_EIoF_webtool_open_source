@@ -63,21 +63,21 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   # r_sh_e = 50
   # r_sh_ng = 50
 
-## THESE INPUTS BREAK IT (8/28/20)
-region_id = 5 # or region 12 and 6 and maybe others ...
-coal_percent = 0
-PV_percent = 0
-CSP_percent = 0
-wind_percent = 100
-biomass_percent = 0 
-hydro_percent = 0 
-petroleum_percent = 0
-nuclear_percent = 0
-geothermal_percent = 0
-ng_percent = 0
-ldv_e = 10 
-r_sh_ng = 63 
-r_sh_e = 9 
+## Test inputs
+region_id = 10 # or region 12 and 6 and maybe others ...
+coal_percent = 10
+PV_percent = 10
+CSP_percent = 10
+wind_percent = 10
+biomass_percent = 10 
+hydro_percent = 10 
+petroleum_percent = 10
+nuclear_percent = 9
+geothermal_percent = 10
+ng_percent = 11
+ldv_e = 30 
+r_sh_ng = 58 
+r_sh_e = 40 
 
 
   ## Input data that would normally come from the user via the website interface
