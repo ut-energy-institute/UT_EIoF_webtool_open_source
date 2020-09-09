@@ -29,16 +29,16 @@ setwd('/scripts')
 # ## inputs to make testing easier when running as a script and not a function
 # to make testing easier
 # region_id = 3
-# coal_percent = 10
-# PV_percent = 10
-# CSP_percent = 5
+# coal_percent = 0
+# PV_percent = 20
+# CSP_percent = 20
 # wind_percent = 20
 # biomass_percent = 10
 # hydro_percent = 5
 # petroleum_percent = 0
-# nuclear_percent = 10
+# nuclear_percent = 0
 # geothermal_percent = 0
-# ng_percent = 20
+# ng_percent = 25
 # ldv_e = 20
 # r_sh_e = 45
 # r_sh_ng = 50
