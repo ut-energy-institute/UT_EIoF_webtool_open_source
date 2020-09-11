@@ -64,20 +64,20 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
 # r_sh_ng = 58
 
 ## Test inputs
-region_id = 6
+region_id = 2
 coal_percent = 0
-PV_percent = 15
-CSP_percent = 0
-wind_percent = 15
+PV_percent = 30
+CSP_percent = 20
+wind_percent = 30
 biomass_percent = 0
 hydro_percent = 10
 petroleum_percent = 0
-nuclear_percent = 10
-geothermal_percent = 0
-ng_percent = 50
+nuclear_percent = 0
+geothermal_percent = 10
+ng_percent = 0
 ldv_e = 50
-r_sh_ng = 50
-r_sh_e = 50
+r_sh_ng = 0
+r_sh_e = 100
 
 
 
@@ -337,7 +337,7 @@ r_sh_e = 50
   sankey_input_pct_AnnualStorage_Hydro <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="HydroDispatch")])
   #sankey_input_pct_AnnualStorage_NG <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="NGCC")]+PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="NGCT")])
   sankey_input_pct_AnnualStorage_NG <- 100 - sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
-  #pct_check <- sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_NG,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
+  pct_check <- sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_NG,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
   #sankey_inputs_AnnualStorage <- c(region_id, solar_percent, nuclear_percent, hydro_percent, wind_percent, geothermal_percent, ng_percent, coal_percent, biomass_percent, petroleum_percent, r_sh_e, r_sh_ng, r_wh_e, r_wh_ng, r_ck_e, r_ck_ng, c_sh_e, c_sh_ng, c_wh_e, c_wh_ng, c_ck_e, c_ck_ng, percent_ldv_elec_quads, percent_ldv_petrol_quads, percent_ldv_biofuel_quads, trans_other_petrol, trans_other_ng, trans_other_other)
   sankey_json_out <- sankey_json(region_id = region_id, p_solar = sankey_input_pct_AnnualStorage_Solar, p_nuclear = sankey_input_pct_AnnualStorage_Nuclear, p_hydro = sankey_input_pct_AnnualStorage_Hydro, p_wind = sankey_input_pct_AnnualStorage_Wind, p_geo = sankey_input_pct_AnnualStorage_Geothermal, p_ng = sankey_input_pct_AnnualStorage_NG, p_coal = sankey_input_pct_AnnualStorage_Coal, p_bio = sankey_input_pct_AnnualStorage_Biomass, p_petrol = sankey_input_pct_AnnualStorage_Petroleum, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_AnnualStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_AnnualStorage_2050_CurrentRegion,Y_template)
   
