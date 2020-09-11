@@ -64,7 +64,6 @@
 ## ## +++++++++++++++++++++++++
 ## AND IS CALLED WITH THE LINE:
 ## wind_solar_storage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_daily_storage,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
-## 
 ## UserEnergy_to_Capacity_20190312v2 .. TBD : 
 ## This version incorporates a version of electricity storage that only addresses SEASONAL (or long-term storage for dispatch in another season)
 ## net load and generaton from "wind + solar".
@@ -2804,7 +2803,6 @@ PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen
 ## Now calculate the percentage of land taken by PV, wind and CSP while accounting for how much is assumed installed in the current and neighboring regions
 # land_area_AllRegionsWithRenewables <- max(sum(land_area_EIoF$LandArea_Acre[regions_with_Wind]),sum(land_area_EIoF$LandArea_Acre[regions_with_PV]),sum(land_area_EIoF$LandArea_Acre[regions_with_CSP]))
 # PPdata_NoStorage_solveGen_output$PctLand <- 100*PPdata_NoStorage_solveGen_output$Land_1000acres/(land_area_AllRegionsWithRenewables/1000)
-# PPdata_AnnualStorage_solveGen_output$PctLand <- 100*PPdata_AnnualStorage_solveGen_output$Land_1000acres/(land_area_AllRegionsWithRenewables/1000)
 
 ## Final output list from this function
 output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage[hrs,],
