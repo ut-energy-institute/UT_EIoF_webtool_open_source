@@ -64,39 +64,23 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
   # r_sh_ng = 50
 
 ## Test inputs
-region_id = 10 # or region 12 and 6 and maybe others ...
-coal_percent = 10
-PV_percent = 10
-CSP_percent = 10
-wind_percent = 10
-biomass_percent = 10 
-hydro_percent = 10 
-petroleum_percent = 10
-nuclear_percent = 9
-geothermal_percent = 10
-ng_percent = 11
-ldv_e = 30 
-r_sh_ng = 58 
-r_sh_e = 40 
+region_id = 6 
+coal_percent = 0
+PV_percent = 35
+CSP_percent = 0
+wind_percent = 35
+biomass_percent = 0 
+hydro_percent = 0 
+petroleum_percent = 0
+nuclear_percent = 10
+geothermal_percent = 0
+ng_percent = 20
+ldv_e = 50 
+r_sh_ng = 50 
+r_sh_e = 50 
 
 
-  ## Input data that would normally come from the user via the website interface
-  # region_id = 12
-  # coal_percent = 10
-  # PV_percent = 10
-  # CSP_percent = 0
-  # wind_percent = 10
-  # biomass_percent = 0 #15+25
-  # hydro_percent = 0
-  # petroleum_percent = 0
-  # nuclear_percent = 10
-  # geothermal_percent = 0
-  # ng_percent = 60
-  # ldv_e = 10
-  # r_sh_e = 40 # 20
-  # r_sh_ng = 60 # 80
-  
-  
+
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
   'coal_percent' = coal_percent,
@@ -472,15 +456,17 @@ r_sh_e = 40
   cents_per_kwh_NoStorage_deprec_interest_2050 = 100*(capex_3yr_AnnualNuke_NoStorage + deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage)/TWh_3yr_NoStorage
   cents_per_kwh_NoStorage_total_2050 = cents_per_kwh_NoStorage_opex_2050 + cents_per_kwh_NoStorage_deprec_interest_2050
   load("Population_and_Electricity_Customers.rdata")
+  load("FERC1_ResidentialRevenue_Data.rdata") ## FERC1_ResidentialRevenue_Data.rdata is generated and saved in file "FERC1_ComapreIOURevenue_AllEIoFRegions.R". From this .rdata file we use the fraction of total IOU revenue from Residential customers
   EIoF_Regions_Population_Projections <- EIoF_Regions_Population_Projections[-which(is.na(EIoF_Regions_Population_Projections$EIoF.Region)=="TRUE"),]
   ElectricityCustomer_Population_Ratios <- ElectricityCustomer_Population_Ratios[-which(is.na(ElectricityCustomer_Population_Ratios$EIoF.Region)=="TRUE"),]
   regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
   EIoF_Regions_Population_Projections <- EIoF_Regions_Population_Projections[match(regions, EIoF_Regions_Population_Projections$EIoF.Region),]
   ElectricityCustomer_Population_Ratios <- ElectricityCustomer_Population_Ratios[match(regions, ElectricityCustomer_Population_Ratios$EIoF.Region),]
+  ResidentialRevenueFraction <- mean(Residential_Revenue_PctOfTotal[1:8,(RegionNumber+1)])  ## Average the values from 1994-2001, before some regions restructured into wholesale markets wher IOUs no longer owned generation
   # dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(capex_3yr_TandD_NoStorage + capex_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
   # dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
   dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage + capex_3yr_AnnualNuke_NoStorage)
-  dollars_per_customer_NoStorage_2050 = dollars_per_person_NoStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
+  dollars_per_residential_customer_NoStorage_2050 = ResidentialRevenueFraction*dollars_per_person_NoStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
   
   ## With Annual Storage: Calculate cents/kWh - CAPEX, OPEX, and TOTAL
   ## Make this equal to last 3 yrs of CAPEX and OPEX divided by last 3 yrs of electricity generation
@@ -503,11 +489,11 @@ r_sh_e = 40
   # dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(capex_3yr_TandD_AnnualStorage + capex_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
   # dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
   dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage + capex_3yr_AnnualNuke_AnnualStorage)
-  dollars_per_customer_AnnualStorage_2050 = dollars_per_person_AnnualStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
+  dollars_per_residential_customer_AnnualStorage_2050 = ResidentialRevenueFraction*dollars_per_person_AnnualStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
   
   elec_cost_summary_2050 <- data.frame(c("cents_kwh_total","cents_kwh_capex","cents_kwh_depreciation_interest","cents_kwh_opex","dollars_per_person","dollars_per_customer"),
-                                       c(cents_per_kwh_NoStorage_total_2050,cents_per_kwh_NoStorage_capex_2050,cents_per_kwh_NoStorage_deprec_interest_2050,cents_per_kwh_NoStorage_opex_2050,dollars_per_person_NoStorage_2050,dollars_per_customer_NoStorage_2050),
-                                       c(cents_per_kwh_AnnualStorage_total_2050,cents_per_kwh_AnnualStorage_capex_2050,cents_per_kwh_AnnualStorage_deprec_interest_2050,cents_per_kwh_AnnualStorage_opex_2050,dollars_per_person_AnnualStorage_2050,dollars_per_customer_AnnualStorage_2050))
+                                       c(cents_per_kwh_NoStorage_total_2050,cents_per_kwh_NoStorage_capex_2050,cents_per_kwh_NoStorage_deprec_interest_2050,cents_per_kwh_NoStorage_opex_2050,dollars_per_person_NoStorage_2050,dollars_per_residential_customer_NoStorage_2050),
+                                       c(cents_per_kwh_AnnualStorage_total_2050,cents_per_kwh_AnnualStorage_capex_2050,cents_per_kwh_AnnualStorage_deprec_interest_2050,cents_per_kwh_AnnualStorage_opex_2050,dollars_per_person_AnnualStorage_2050,dollars_per_residential_customer_AnnualStorage_2050))
   colnames(elec_cost_summary_2050) <- c("data_type","NoStorage","AnnualStorage")
 
   ########################### END CALCULATE SPECIFIC 2050 ELECTRICITY COST SUMMARY VALUES FOR WEBSITE DISPLAY ###########################
@@ -806,4 +792,7 @@ r_sh_e = 40
 end_time <- Sys.time()
 code_time=end_time - start_time
 print(code_time)
-  
+
+## Write "all" to json file
+#write_json(all, "eiof_json_TEST.json", pretty = TRUE, auto_unbox = FALSE)
+#write_json(all, "eiof_json_TXDefault.json", pretty = TRUE, auto_unbox = FALSE)
