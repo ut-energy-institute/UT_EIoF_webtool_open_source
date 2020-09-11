@@ -27,10 +27,13 @@ region <- 1:13
 #------------------------------------------------#
 sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p_ng, p_coal, p_bio, p_petrol, r_sh_e, r_sh_ng, r_wh_e, r_wh_ng, r_ck_e, r_ck_ng, c_sh_e, c_sh_ng, c_wh_e, c_wh_ng, c_ck_e, c_ck_ng, ldv_elec, ldv_petrol, ldv_ethanol, trans_other_petrol, trans_other_ng, trans_other_other,U,V,Y){
   
-  # error message - region_id; sum of percentages equal to 100
+  tol <- 1e-14  ## set tolerance for values that are not exactly = 100 or 1 (due to double precision)
+  
+  # Check inputs:  region_id; sum of electricity percentages equal to 100; sum of fraction of LDV miles equal to 1
   if (!(as.numeric(region_id) %in% region)){
     stop("Wrong region_id in Sankey_Function.R")
-  } else if (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) != 100){
+  } else if ( (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) - 100) > 4*tol | (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) - 100) < -4*tol) {
+  #} else if (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) != 100){
     stop("Total proportion of different Electricity parts unequal to 1 in Sankey_Function.R")
   } else if (sum(as.numeric(ldv_elec), as.numeric(ldv_petrol), as.numeric(ldv_ethanol)) != 100){
     stop("LDV fuel does not add to 100% in Sankey_Function.R")
@@ -199,7 +202,6 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
 
     # update io_mats_prime
     # sometimes small negative values appear due (likely) to computational approximations to zero, but negative values should not be in UV_k$V_prime and UV_k$U_prime as athey cause matrix inversion singularity
-    tol <- 1e-14
     UV_k$U_prime[which(UV_k$U_prime<tol)]=0
     UV_k$V_prime[which(UV_k$V_prime<tol)]=0
     # UV_k$U_prime[which(UV_k$U_prime<0)]=0
