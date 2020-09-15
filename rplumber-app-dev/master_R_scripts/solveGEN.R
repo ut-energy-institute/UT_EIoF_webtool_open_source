@@ -2720,6 +2720,7 @@ GeothermalCosts <- data.frame(c(geo_2017USD_per_kW_NoStorage,geo_FOM_2017USD_per
                               c(geo_2017USD_per_kW_AnnualStorage,geo_FOM_2017USD_per_kWyr_AnnualStorage,geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cost_2017USD_per_kW[1],geo_CostSupplyCurve_byEIoF[[RegionNumber]]$FOM_2017USD_per_kWyear[1]))
 names(GeothermalCosts) <- c("NoStorage","AnnualStorage")
 rownames(GeothermalCosts) <-c("CAPEX_2017USD_per_kW","FOM_2017USD_per_kWyr","CAPEX_Lowest_2017USD_per_kW","FOM_Lowest_2017USD_per_kwyr")
+#browser()
 rm(ind_AnnualStorage,ind_NoStorage)
 
 ## Land area calculation for wind, PV, and CSP (no storage)
@@ -2797,7 +2798,7 @@ PPdata_AnnualStorage_solveGen_output$PctLandDirect <- rep(0,13)
 PPdata_NoStorage_solveGen_output$PctLand[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$LandAcresTotal*LandAcres_byTech_NoStorage$PctLandTotal)/sum(LandAcres_byTech_NoStorage$LandAcresTotal),1)
 PPdata_NoStorage_solveGen_output$PctLandDirect[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$LandAcresDirect*LandAcres_byTech_NoStorage$PctLandDirect)/sum(LandAcres_byTech_NoStorage$LandAcresDirect),1)
 PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresTotal*LandAcres_byTech_AnnualStorage$PctLandTotal)/sum(LandAcres_byTech_AnnualStorage$LandAcresTotal),1)
-PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresDirect*LandAcres_byTech_AnnualStorage$PctLandDirect)/sum(LandAcres_byTech_AnnualStorage$LandAcresDirect),1)
+PPdata_AnnualStorage_solveGen_output$PctLandDirect[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresDirect*LandAcres_byTech_AnnualStorage$PctLandDirect)/sum(LandAcres_byTech_AnnualStorage$LandAcresDirect),1)
 #browser()
 
 ## Now calculate the percentage of land taken by PV, wind and CSP while accounting for how much is assumed installed in the current and neighboring regions
