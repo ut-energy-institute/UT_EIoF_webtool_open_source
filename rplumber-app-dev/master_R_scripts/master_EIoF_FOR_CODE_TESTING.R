@@ -47,56 +47,40 @@ start_time <- Sys.time()  ## This is just to know how long it took to run the co
 # NE	0.01	0.22	0.77
 
 # ## inputs to make testing easier when running as a script and not a function
-  # to make testing easier
-  # region_id = 6
-  # coal_percent = 30
-  # PV_percent = 15
-  # CSP_percent = 0
-  # wind_percent = 15
-  # biomass_percent = 0
-  # hydro_percent = 0
-  # petroleum_percent = 0
-  # nuclear_percent = 10
-  # geothermal_percent = 0
-  # ng_percent = 0
-  # ldv_e = 50
-  # r_sh_e = 50
-  # r_sh_ng = 50
+# ## TEXAS DEFAULT INPUTS
+# region_id = 6
+# coal_percent = 23
+# PV_percent = 5
+# CSP_percent = 1
+# wind_percent = 10
+# biomass_percent = 0
+# hydro_percent = 0
+# petroleum_percent = 0
+# nuclear_percent = 8
+# geothermal_percent = 0
+# ng_percent = 53
+# ldv_e = 13
+# r_sh_e = 13
+# r_sh_ng = 58
 
 ## Test inputs
-region_id = 10 # or region 12 and 6 and maybe others ...
-coal_percent = 10
-PV_percent = 10
-CSP_percent = 10
-wind_percent = 10
-biomass_percent = 10 
-hydro_percent = 10 
-petroleum_percent = 10
-nuclear_percent = 9
+region_id = 2
+coal_percent = 0
+PV_percent = 30
+CSP_percent = 20
+wind_percent = 30
+biomass_percent = 0
+hydro_percent = 10
+petroleum_percent = 0
+nuclear_percent = 0
 geothermal_percent = 10
-ng_percent = 11
-ldv_e = 30 
-r_sh_ng = 58 
-r_sh_e = 40 
+ng_percent = 0
+ldv_e = 50
+r_sh_ng = 0
+r_sh_e = 100
 
 
-  ## Input data that would normally come from the user via the website interface
-  # region_id = 12
-  # coal_percent = 10
-  # PV_percent = 10
-  # CSP_percent = 0
-  # wind_percent = 10
-  # biomass_percent = 0 #15+25
-  # hydro_percent = 0
-  # petroleum_percent = 0
-  # nuclear_percent = 10
-  # geothermal_percent = 0
-  # ng_percent = 60
-  # ldv_e = 10
-  # r_sh_e = 40 # 20
-  # r_sh_ng = 60 # 80
-  
-  
+
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
   'coal_percent' = coal_percent,
@@ -340,11 +324,22 @@ r_sh_e = 40
     percent_ldv_petrol_quads = percent_ldv_petrol_quads
     percent_ldv_biofuel_quads = 100 - percent_ldv_elec_quads - percent_ldv_petrol_quads
     }  ## For purposes of plotting the Sankey Diagram consistently, if "ldv_e = 0" from user, we need some > 0 value for electricity to LDVs so that the "Transportation" node is displayed in alignment with the other "end use" sectors  
-  sankey_inputs <- c(region_id, solar_percent, nuclear_percent, hydro_percent, wind_percent, geothermal_percent, ng_percent, coal_percent, biomass_percent, petroleum_percent, r_sh_e, r_sh_ng, r_wh_e, r_wh_ng, r_ck_e, r_ck_ng, c_sh_e, c_sh_ng, c_wh_e, c_wh_ng, c_ck_e, c_ck_ng, percent_ldv_elec_quads, percent_ldv_petrol_quads, percent_ldv_biofuel_quads, trans_other_petrol, trans_other_ng, trans_other_other)
-  sankey_json_out <- sankey_json(region_id = region_id, p_solar = solar_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_NoStorage_2050_CurrentRegion,Y_template)
+  #sankey_json_out <- sankey_json(region_id = region_id, p_solar = solar_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_NoStorage_2050_CurrentRegion,Y_template)
 
-  ## Call Sankey function with "AnnualStorage" results of "solveGEN" and "generate_FinalUVY_2050"
-  # sankey_json_out_AnnualStorage <- sankey_json(region_id = region_id, p_solar = solar_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_AnnualStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_AnnualStorage_2050_CurrentRegion,Y_template)
+  ## Call Sankey function with "AnnualStorage" results of "solveGEN" and as input into "sankey_json"
+  sankey_input_pct_AnnualStorage_Solar <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="PV")]+PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="CSP")])
+  sankey_input_pct_AnnualStorage_Wind <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="Wind")])
+  sankey_input_pct_AnnualStorage_Biomass <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="Biomass")])
+  sankey_input_pct_AnnualStorage_Coal <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="Coal")])
+  sankey_input_pct_AnnualStorage_Nuclear <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="Nuclear")])
+  sankey_input_pct_AnnualStorage_Petroleum <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="PetroleumCC")])
+  sankey_input_pct_AnnualStorage_Geothermal <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="Geothermal")])
+  sankey_input_pct_AnnualStorage_Hydro <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="HydroDispatch")])
+  #sankey_input_pct_AnnualStorage_NG <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="NGCC")]+PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="NGCT")])
+  sankey_input_pct_AnnualStorage_NG <- 100 - sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
+  pct_check <- sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_NG,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
+  #sankey_inputs_AnnualStorage <- c(region_id, solar_percent, nuclear_percent, hydro_percent, wind_percent, geothermal_percent, ng_percent, coal_percent, biomass_percent, petroleum_percent, r_sh_e, r_sh_ng, r_wh_e, r_wh_ng, r_ck_e, r_ck_ng, c_sh_e, c_sh_ng, c_wh_e, c_wh_ng, c_ck_e, c_ck_ng, percent_ldv_elec_quads, percent_ldv_petrol_quads, percent_ldv_biofuel_quads, trans_other_petrol, trans_other_ng, trans_other_other)
+  sankey_json_out <- sankey_json(region_id = region_id, p_solar = sankey_input_pct_AnnualStorage_Solar, p_nuclear = sankey_input_pct_AnnualStorage_Nuclear, p_hydro = sankey_input_pct_AnnualStorage_Hydro, p_wind = sankey_input_pct_AnnualStorage_Wind, p_geo = sankey_input_pct_AnnualStorage_Geothermal, p_ng = sankey_input_pct_AnnualStorage_NG, p_coal = sankey_input_pct_AnnualStorage_Coal, p_bio = sankey_input_pct_AnnualStorage_Biomass, p_petrol = sankey_input_pct_AnnualStorage_Petroleum, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_AnnualStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_AnnualStorage_2050_CurrentRegion,Y_template)
   
   ########################### END Jianwei Sankey Code ###########################
   
@@ -472,15 +467,17 @@ r_sh_e = 40
   cents_per_kwh_NoStorage_deprec_interest_2050 = 100*(capex_3yr_AnnualNuke_NoStorage + deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage)/TWh_3yr_NoStorage
   cents_per_kwh_NoStorage_total_2050 = cents_per_kwh_NoStorage_opex_2050 + cents_per_kwh_NoStorage_deprec_interest_2050
   load("Population_and_Electricity_Customers.rdata")
+  load("FERC1_ResidentialRevenue_Data.Rdata") ## FERC1_ResidentialRevenue_Data.rdata is generated and saved in file "FERC1_ComapreIOURevenue_AllEIoFRegions.R". From this .rdata file we use the fraction of total IOU revenue from Residential customers
   EIoF_Regions_Population_Projections <- EIoF_Regions_Population_Projections[-which(is.na(EIoF_Regions_Population_Projections$EIoF.Region)=="TRUE"),]
   ElectricityCustomer_Population_Ratios <- ElectricityCustomer_Population_Ratios[-which(is.na(ElectricityCustomer_Population_Ratios$EIoF.Region)=="TRUE"),]
   regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
   EIoF_Regions_Population_Projections <- EIoF_Regions_Population_Projections[match(regions, EIoF_Regions_Population_Projections$EIoF.Region),]
   ElectricityCustomer_Population_Ratios <- ElectricityCustomer_Population_Ratios[match(regions, ElectricityCustomer_Population_Ratios$EIoF.Region),]
+  ResidentialRevenueFraction <- mean(Residential_Revenue_PctOfTotal[1:8,(RegionNumber+1)])  ## Average the values from 1994-2001, before some regions restructured into wholesale markets wher IOUs no longer owned generation
   # dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(capex_3yr_TandD_NoStorage + capex_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
   # dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage)
   dollars_per_person_NoStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_NoStorage + deprec_3yr_all_pp_NoStorage + opex_3yr_TandD_NoStorage + opex_3yr_all_pp_NoStorage + capex_3yr_AnnualNuke_NoStorage)
-  dollars_per_customer_NoStorage_2050 = dollars_per_person_NoStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
+  dollars_per_residential_customer_NoStorage_2050 = ResidentialRevenueFraction*dollars_per_person_NoStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
   
   ## With Annual Storage: Calculate cents/kWh - CAPEX, OPEX, and TOTAL
   ## Make this equal to last 3 yrs of CAPEX and OPEX divided by last 3 yrs of electricity generation
@@ -503,11 +500,11 @@ r_sh_e = 40
   # dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(capex_3yr_TandD_AnnualStorage + capex_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
   # dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage)
   dollars_per_person_AnnualStorage_2050 = (1/(3*EIoF_Regions_Population_Projections$X2050[RegionNumber]))*1e9*(deprec_3yr_TandD_AnnualStorage + deprec_3yr_all_pp_AnnualStorage + opex_3yr_TandD_AnnualStorage + opex_3yr_all_pp_AnnualStorage + capex_3yr_AnnualNuke_AnnualStorage)
-  dollars_per_customer_AnnualStorage_2050 = dollars_per_person_AnnualStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
+  dollars_per_residential_customer_AnnualStorage_2050 = ResidentialRevenueFraction*dollars_per_person_AnnualStorage_2050/ElectricityCustomer_Population_Ratios$X2018[RegionNumber]
   
   elec_cost_summary_2050 <- data.frame(c("cents_kwh_total","cents_kwh_capex","cents_kwh_depreciation_interest","cents_kwh_opex","dollars_per_person","dollars_per_customer"),
-                                       c(cents_per_kwh_NoStorage_total_2050,cents_per_kwh_NoStorage_capex_2050,cents_per_kwh_NoStorage_deprec_interest_2050,cents_per_kwh_NoStorage_opex_2050,dollars_per_person_NoStorage_2050,dollars_per_customer_NoStorage_2050),
-                                       c(cents_per_kwh_AnnualStorage_total_2050,cents_per_kwh_AnnualStorage_capex_2050,cents_per_kwh_AnnualStorage_deprec_interest_2050,cents_per_kwh_AnnualStorage_opex_2050,dollars_per_person_AnnualStorage_2050,dollars_per_customer_AnnualStorage_2050))
+                                       c(cents_per_kwh_NoStorage_total_2050,cents_per_kwh_NoStorage_capex_2050,cents_per_kwh_NoStorage_deprec_interest_2050,cents_per_kwh_NoStorage_opex_2050,dollars_per_person_NoStorage_2050,dollars_per_residential_customer_NoStorage_2050),
+                                       c(cents_per_kwh_AnnualStorage_total_2050,cents_per_kwh_AnnualStorage_capex_2050,cents_per_kwh_AnnualStorage_deprec_interest_2050,cents_per_kwh_AnnualStorage_opex_2050,dollars_per_person_AnnualStorage_2050,dollars_per_residential_customer_AnnualStorage_2050))
   colnames(elec_cost_summary_2050) <- c("data_type","NoStorage","AnnualStorage")
 
   ########################### END CALCULATE SPECIFIC 2050 ELECTRICITY COST SUMMARY VALUES FOR WEBSITE DISPLAY ###########################
@@ -806,4 +803,7 @@ r_sh_e = 40
 end_time <- Sys.time()
 code_time=end_time - start_time
 print(code_time)
-  
+
+## Write "all" to json file
+write_json(all, "eiof_json_TEST.json", pretty = TRUE, auto_unbox = FALSE)
+#write_json(all, "eiof_json_TXDefault.json", pretty = TRUE, auto_unbox = FALSE)
