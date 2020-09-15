@@ -433,12 +433,19 @@ data <- cbind(data,matrix(zeros , length(zeros) , (dim(Frac_MWhDesired_dispatcha
 ## ++++++++++++
 PPindex <- num_cols_now+1  ## This is the column in data.frame "data" to add the hourly generation for the current power plant type
 names(data)[PPindex] <- paste0("Nuclear_MW")
-PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
-data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
+nuclear_avg_CapacityFactor <- 0.95  ## a value < 1.0 implies that even if nukes run at max cacity each hour they are operating, they are down for refueling and maintenance on average some fraction of the time = (1-nuclear_avg_CapacityFactor)
+PP_MWneeded_NukeTemp <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
+data$Nuclear_MW <- rep(1,8760)*PP_MWneeded_NukeTemp
+PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- PP_MWneeded_NukeTemp/nuclear_avg_CapacityFactor
+#PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
+#data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
 if (max(data$Nuclear_MW) > min(data$Load_MW)) {  ## Then nuclear capacitiy is larger than the minimum load and the EIoF tool assumes this is not allowed
   Nuclear.MaxPct <- min(data$Load_MW)*8760/sum(data$Load_MW)
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- min(data$Load_MW)*.999
-  data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
+  PP_MWneeded_NukeTemp <- min(data$Load_MW)*.999
+  data$Nuclear_MW <- rep(1,8760)*PP_MWneeded_NukeTemp
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- PP_MWneeded_NukeTemp/nuclear_avg_CapacityFactor
+  # PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- min(data$Load_MW)*.999
+  # data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
   cat(paste0("Your choice leads to ",sprintf("%.1f", max(data$Nuclear_MW))," MW of nuclear.",sep="\n"))
   cat(paste0("The maximum allowed capacity for nuclear is ",sprintf("%.1f", min(data$Load_MW))," MW to achieve up to ",sprintf("%.1f", Nuclear.MaxPct*100)," % of generation.",sep="\n"))
   cat(paste0("Reduce your desired % of MWh from nuclear."))
