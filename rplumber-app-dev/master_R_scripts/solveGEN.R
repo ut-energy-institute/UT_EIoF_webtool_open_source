@@ -64,7 +64,6 @@
 ## ## +++++++++++++++++++++++++
 ## AND IS CALLED WITH THE LINE:
 ## wind_solar_storage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_daily_storage,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
-## 
 ## UserEnergy_to_Capacity_20190312v2 .. TBD : 
 ## This version incorporates a version of electricity storage that only addresses SEASONAL (or long-term storage for dispatch in another season)
 ## net load and generaton from "wind + solar".
@@ -434,12 +433,19 @@ data <- cbind(data,matrix(zeros , length(zeros) , (dim(Frac_MWhDesired_dispatcha
 ## ++++++++++++
 PPindex <- num_cols_now+1  ## This is the column in data.frame "data" to add the hourly generation for the current power plant type
 names(data)[PPindex] <- paste0("Nuclear_MW")
-PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
-data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
+nuclear_avg_CapacityFactor <- 0.95  ## a value < 1.0 implies that even if nukes run at max cacity each hour they are operating, they are down for refueling and maintenance on average some fraction of the time = (1-nuclear_avg_CapacityFactor)
+PP_MWneeded_NukeTemp <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
+data$Nuclear_MW <- rep(1,8760)*PP_MWneeded_NukeTemp
+PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- PP_MWneeded_NukeTemp/nuclear_avg_CapacityFactor
+#PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
+#data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
 if (max(data$Nuclear_MW) > min(data$Load_MW)) {  ## Then nuclear capacitiy is larger than the minimum load and the EIoF tool assumes this is not allowed
   Nuclear.MaxPct <- min(data$Load_MW)*8760/sum(data$Load_MW)
-  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- min(data$Load_MW)*.999
-  data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
+  PP_MWneeded_NukeTemp <- min(data$Load_MW)*.999
+  data$Nuclear_MW <- rep(1,8760)*PP_MWneeded_NukeTemp
+  PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- PP_MWneeded_NukeTemp/nuclear_avg_CapacityFactor
+  # PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- min(data$Load_MW)*.999
+  # data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
   cat(paste0("Your choice leads to ",sprintf("%.1f", max(data$Nuclear_MW))," MW of nuclear.",sep="\n"))
   cat(paste0("The maximum allowed capacity for nuclear is ",sprintf("%.1f", min(data$Load_MW))," MW to achieve up to ",sprintf("%.1f", Nuclear.MaxPct*100)," % of generation.",sep="\n"))
   cat(paste0("Reduce your desired % of MWh from nuclear."))
@@ -2721,6 +2727,7 @@ GeothermalCosts <- data.frame(c(geo_2017USD_per_kW_NoStorage,geo_FOM_2017USD_per
                               c(geo_2017USD_per_kW_AnnualStorage,geo_FOM_2017USD_per_kWyr_AnnualStorage,geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cost_2017USD_per_kW[1],geo_CostSupplyCurve_byEIoF[[RegionNumber]]$FOM_2017USD_per_kWyear[1]))
 names(GeothermalCosts) <- c("NoStorage","AnnualStorage")
 rownames(GeothermalCosts) <-c("CAPEX_2017USD_per_kW","FOM_2017USD_per_kWyr","CAPEX_Lowest_2017USD_per_kW","FOM_Lowest_2017USD_per_kwyr")
+#browser()
 rm(ind_AnnualStorage,ind_NoStorage)
 
 ## Land area calculation for wind, PV, and CSP (no storage)
@@ -2798,13 +2805,12 @@ PPdata_AnnualStorage_solveGen_output$PctLandDirect <- rep(0,13)
 PPdata_NoStorage_solveGen_output$PctLand[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$LandAcresTotal*LandAcres_byTech_NoStorage$PctLandTotal)/sum(LandAcres_byTech_NoStorage$LandAcresTotal),1)
 PPdata_NoStorage_solveGen_output$PctLandDirect[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_NoStorage$LandAcresDirect*LandAcres_byTech_NoStorage$PctLandDirect)/sum(LandAcres_byTech_NoStorage$LandAcresDirect),1)
 PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresTotal*LandAcres_byTech_AnnualStorage$PctLandTotal)/sum(LandAcres_byTech_AnnualStorage$LandAcresTotal),1)
-PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresDirect*LandAcres_byTech_AnnualStorage$PctLandDirect)/sum(LandAcres_byTech_AnnualStorage$LandAcresDirect),1)
+PPdata_AnnualStorage_solveGen_output$PctLandDirect[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresDirect*LandAcres_byTech_AnnualStorage$PctLandDirect)/sum(LandAcres_byTech_AnnualStorage$LandAcresDirect),1)
 #browser()
 
 ## Now calculate the percentage of land taken by PV, wind and CSP while accounting for how much is assumed installed in the current and neighboring regions
 # land_area_AllRegionsWithRenewables <- max(sum(land_area_EIoF$LandArea_Acre[regions_with_Wind]),sum(land_area_EIoF$LandArea_Acre[regions_with_PV]),sum(land_area_EIoF$LandArea_Acre[regions_with_CSP]))
 # PPdata_NoStorage_solveGen_output$PctLand <- 100*PPdata_NoStorage_solveGen_output$Land_1000acres/(land_area_AllRegionsWithRenewables/1000)
-# PPdata_AnnualStorage_solveGen_output$PctLand <- 100*PPdata_AnnualStorage_solveGen_output$Land_1000acres/(land_area_AllRegionsWithRenewables/1000)
 
 ## Final output list from this function
 output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage[hrs,],
