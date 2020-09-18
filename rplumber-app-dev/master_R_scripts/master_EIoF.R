@@ -10,7 +10,6 @@
 ## 2020-03-11
 
 setwd('/scripts')
-
 ## the inputs from the website website API URL GET (I have not idea) call will be:
 ## 1) Region considered (between 1 and 13, inclusive)
 ## 2) End-uses that we allow the user to change
@@ -29,16 +28,16 @@ setwd('/scripts')
 # ## inputs to make testing easier when running as a script and not a function
 # to make testing easier
 # region_id = 3
-# coal_percent = 0
-# PV_percent = 20
-# CSP_percent = 20
+# coal_percent = 10
+# PV_percent = 10
+# CSP_percent = 5
 # wind_percent = 20
 # biomass_percent = 10
 # hydro_percent = 5
 # petroleum_percent = 0
-# nuclear_percent = 0
+# nuclear_percent = 10
 # geothermal_percent = 0
-# ng_percent = 25
+# ng_percent = 20
 # ldv_e = 20
 # r_sh_e = 45
 # r_sh_ng = 50
@@ -305,7 +304,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   sankey_input_pct_AnnualStorage_Hydro <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="HydroDispatch")])
   sankey_input_pct_AnnualStorage_NG <- 100 - sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
   sankey_json_out <- sankey_json(region_id = region_id, p_solar = sankey_input_pct_AnnualStorage_Solar, p_nuclear = sankey_input_pct_AnnualStorage_Nuclear, p_hydro = sankey_input_pct_AnnualStorage_Hydro, p_wind = sankey_input_pct_AnnualStorage_Wind, p_geo = sankey_input_pct_AnnualStorage_Geothermal, p_ng = sankey_input_pct_AnnualStorage_NG, p_coal = sankey_input_pct_AnnualStorage_Coal, p_bio = sankey_input_pct_AnnualStorage_Biomass, p_petrol = sankey_input_pct_AnnualStorage_Petroleum, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_AnnualStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_AnnualStorage_2050_CurrentRegion,Y_template)
-  
+
   ########################### END Sankey Code ###########################
   
 
@@ -667,7 +666,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   # Start PDF/TIF/OTHER plotting device
   dpi = 300
   #png("EIoF_Figure_Test.png", units="in", height=fig.ht, width=fig.wd, res=dpi)
-  svg(filename="EIoF_Figure_Test.svg",height=fig.ht, width=fig.wd,pointsize=12) 
+  # svg(filename="EIoF_Figure_Test.svg",height=fig.ht, width=fig.wd,pointsize=12) 
   
   # set labels for legend
   #leg_labels = c("Food & Energy","Food","Energy")
@@ -728,15 +727,15 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   ## Save .svg graph as base64 text
   # library(base64) ## We should not need this "base64" package at https://cran.r-project.org/web/packages/base64/base64.pdf
-  tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
+  # tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
   # testplot_svg <- base64::encode("EIoF_Figure_Test.svg",tmp,linebreaks = FALSE)
   # file_testplot<-file("testplot_svg.txt")
   # writeLines(read_file(testplot_svg), file_testplot)
   # close(file_testplot)
-  testplot_svg2 <- base64enc::base64encode("EIoF_Figure_Test.svg",tmp)
-  file_testplot2<-file("testplot_svg2.txt")
-  writeLines(testplot_svg2, file_testplot2)
-  close(file_testplot2)
+  # testplot_svg2 <- base64enc::base64encode("EIoF_Figure_Test.svg",tmp)
+  # file_testplot2<-file("testplot_svg2.txt")
+  # writeLines(testplot_svg2, file_testplot2)
+  # close(file_testplot2)
   
   # 
   # testplot_png <- base64::encode("EIoF_Figure_Test.png",tmp,linebreaks = FALSE)
@@ -749,12 +748,16 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   ########################### START ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
-  # all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
-  # names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary')
+
   
-  ## outputs with the figures
-  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,testplot_svg2)
-  names(all) <- c('sankey_links', 'sankey_nodes', 'Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary','Figure1')
+  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
+
+  source('create_figures.R')
+  all_figures <- create_figures(all)
+  
+  all <- list(solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,all_figures)
+  names(all) <- c('Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary', 'Figures')
+  
   
   ########################### END ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
@@ -762,3 +765,5 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   return(all)
   
 }
+
+
