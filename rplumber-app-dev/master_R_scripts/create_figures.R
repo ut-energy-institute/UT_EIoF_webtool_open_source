@@ -2,11 +2,12 @@
 create_figures <- function(data){
 #----
 library(ggplot2) 
-library(base64)
+#library(base64)
 library(reshape2)
-library(dplyr)
 library(plyr)
+library(dplyr)
 library(base64enc)
+library(svglite)
 
 fig.wd <- 6	  
 fig.ht <- 4
@@ -23,6 +24,7 @@ names(techs_w_storage) <- c('Hour_ending','Hydro','Wind','Solar PV','Solar CSP',
 #    Plotting Hourly Dispatch W/ Storage
 #     Figure 1
 ##############################################
+#Hourly_MW_AnnualStorage <- data[[3]]
 Hourly_MW_AnnualStorage <- data$Hourly_MW_AnnualStorage
 Hourly_MW_AnnualStorage$Hour_ending <- (1:(7*4*24))
 
@@ -35,6 +37,8 @@ names(Hourly_MW_AnnualStorage) <- names(techs_w_storage)
 
 Hourly_MW_AnnualStorage <- melt(Hourly_MW_AnnualStorage,c('Hour_ending'))
 Hourly_MW_AnnualStorage <- Hourly_MW_AnnualStorage[with(Hourly_MW_AnnualStorage,order(Hour_ending,variable)), ]
+
+#svg(filename="figure1.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure1 <-  ggplot(Hourly_MW_AnnualStorage,aes(x=Hour_ending,y=value/1000,fill=variable)) + 
   geom_area() + 
   scale_fill_manual(values=colors) + 
@@ -61,10 +65,18 @@ figure1 <-  ggplot(Hourly_MW_AnnualStorage,aes(x=Hour_ending,y=value/1000,fill=v
   annotate('text',x = -Inf, y = Inf,hjust=-17,vjust=2,label='Fall')
 
 ggsave(filename="figure1.svg",plot=figure1,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure1_enc <- base64enc::base64encode("figure1.svg",tmp)
-# print(figure1)
+#print(figure1)
+#figure1_enc_TEST <- base64enc::base64encode("Figure1.svg",tmp)
+# testplot_svg2 <- base64enc::base64encode("figure1.svg",tmp)
+# file_testplot2<-file("testplot_svg2.txt")
+# writeLines(testplot_svg2, file_testplot2)
+# close(file_testplot2)
+
 #----
+browser()
 
 ##############################################
 #    Plotting Hourly Dispatch No Storage
@@ -83,6 +95,7 @@ names(Hourly_MW_NoStorage) <- names(techs_no_storage)
 
 Hourly_MW_NoStorage <- melt(Hourly_MW_NoStorage,c('Hour_ending'))
 # Hourly_MW_NoStorage <- Hourly_MW_NoStorage[with(Hourly_MW_NoStorage,order(Hour_ending,variable)), ]
+# svg(filename="Figure2.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure2 <-  ggplot(Hourly_MW_NoStorage,aes(x=Hour_ending,y=value/1000,fill=variable)) + 
   geom_area() + 
   scale_fill_manual(values=colors) + 
@@ -109,6 +122,7 @@ figure2 <-  ggplot(Hourly_MW_NoStorage,aes(x=Hour_ending,y=value/1000,fill=varia
   annotate('text',x = -Inf, y = Inf,hjust=-17,vjust=2,label='Fall')
 
 ggsave(filename="figure2.svg",plot=figure2,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure2_enc <- base64enc::base64encode("figure2.svg",tmp)
 # print(figure2)
@@ -144,6 +158,7 @@ annual_spending$variable <- as.numeric(as.character(annual_spending$variable))
 annual_spending$type <- factor(annual_spending$type,spend_types)
 colors <- c('orange','#D5A10B','#E59879','#E13105','#2A9324','#2A9324','#2A9324','#2A9324','#92D6FF','#92D6FF','#92D6FF','#92D6FF','#898989')
 
+# svg(filename="Figure3.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure3 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) + 
   geom_area() +
   labs(x='',y='$ Billions') + 
@@ -160,6 +175,7 @@ guides(shape = guide_legend(override.aes = list(size = .1)),
        color = guide_legend(override.aes = list(size = .1)))
 
 ggsave(filename="figure3.svg",plot=figure3,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure3_enc <- base64enc::base64encode("figure3.svg",tmp)
 # print(figure3)
@@ -195,6 +211,7 @@ annual_spending$variable <- as.numeric(as.character(annual_spending$variable))
 annual_spending$type <- factor(annual_spending$type,spend_types)
 colors <- c('orange','#D5A10B','#E59879','#E13105','#2A9324','#2A9324','#2A9324','#2A9324','#92D6FF','#92D6FF','#92D6FF','#92D6FF','#898989')
 
+# svg(filename="Figure4.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure4 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) + 
   geom_area() +
   labs(x='',y='$ Billions') + 
@@ -208,6 +225,7 @@ figure4 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) +
         legend.text  = element_text(size = small.legend.font)) 
   
 ggsave(filename="figure4.svg",plot=figure4,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure4_enc <- base64enc::base64encode("figure4.svg",tmp)
 # print(figure4)
@@ -243,6 +261,7 @@ annual_spending$variable <- as.numeric(as.character(annual_spending$variable))
 annual_spending$type <- factor(annual_spending$type,spend_types)
 colors <- c('orange','#D5A10B','#E59879','#E13105','#2A9324','#2A9324','#2A9324','#2A9324','#92D6FF','#92D6FF','#92D6FF','#92D6FF','#898989')
 
+# svg(filename="Figure5.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure5 <-  ggplot(annual_spending,aes(x=variable,y=value/1000,fill=type)) + 
   geom_area() +
   labs(x='',y='thousands $/person') + 
@@ -258,6 +277,7 @@ figure5 <-  ggplot(annual_spending,aes(x=variable,y=value/1000,fill=type)) +
 
 
 ggsave(filename="figure5.svg",plot=figure5,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure5_enc <- base64enc::base64encode("figure5.svg",tmp)
 # print(figure5)
@@ -293,6 +313,7 @@ annual_spending$variable <- as.numeric(as.character(annual_spending$variable))
 annual_spending$type <- factor(annual_spending$type,spend_types)
 colors <- c('orange','#D5A10B','#E59879','#E13105','#2A9324','#2A9324','#2A9324','#2A9324','#92D6FF','#92D6FF','#92D6FF','#92D6FF','#898989')
 
+# svg(filename="Figure6.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure6 <-  ggplot(annual_spending,aes(x=variable,y=value/1000,fill=type)) + 
   geom_area() +
 
@@ -307,6 +328,7 @@ figure6 <-  ggplot(annual_spending,aes(x=variable,y=value/1000,fill=type)) +
         legend.text  = element_text(size = small.legend.font))
   
 ggsave(filename="figure6.svg",plot=figure6,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure6_enc <- base64enc::base64encode("figure6.svg",tmp)
 # print(figure6)
@@ -342,6 +364,7 @@ annual_spending$variable <- as.numeric(as.character(annual_spending$variable))
 annual_spending$type <- factor(annual_spending$type,spend_types)
 colors <- c('orange','#D5A10B','#E59879','#E13105','#2A9324','#2A9324','#2A9324','#2A9324','#92D6FF','#92D6FF','#92D6FF','#92D6FF','#898989')
 
+# svg(filename="Figure7.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure7 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) + 
   geom_area() +
   labs(x='',y='%/GDP') + 
@@ -358,6 +381,7 @@ figure7 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) +
          color = guide_legend(override.aes = list(size = .1)))
 
 ggsave(filename="figure7.svg",plot=figure7,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure7_enc <- base64enc::base64encode("figure7.svg",tmp)
 # print(figure7)
@@ -393,6 +417,7 @@ annual_spending$variable <- as.numeric(as.character(annual_spending$variable))
 annual_spending$type <- factor(annual_spending$type,spend_types)
 colors <- c('orange','#D5A10B','#E59879','#E13105','#2A9324','#2A9324','#2A9324','#2A9324','#92D6FF','#92D6FF','#92D6FF','#92D6FF','#898989')
 
+# svg(filename="Figure8.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure8 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) + 
   geom_area() +
   labs(x='',y='%/GDP') + 
@@ -409,6 +434,7 @@ figure8 <-  ggplot(annual_spending,aes(x=variable,y=value,fill=type)) +
          color = guide_legend(override.aes = list(size = .1)))
 
 ggsave(filename="figure8.svg",plot=figure8,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure8_enc <- base64enc::base64encode("figure8.svg",tmp)
 # print(figure8)
@@ -436,6 +462,7 @@ co2$type[co2$type == 'embodied_in_PP'] <- 'Power Plant Mfg./Constr'
 co2$type[co2$type == 'petroleum'] <- 'Petroleum'
 
 colors <- c('#898989','#92D6FF','#2A9324','orange')
+# svg(filename="Figure9.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure9 <-  ggplot(co2,aes(x=year,y=value,fill=type)) + 
   geom_area() +
   labs(x='',y='Million Metric Tonnes of CO2') + 
@@ -449,6 +476,7 @@ figure9 <-  ggplot(co2,aes(x=year,y=value,fill=type)) +
         legend.text  = element_text(size = legend.font))
 
 ggsave(filename="figure9.svg",plot=figure9,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure9_enc <- base64enc::base64encode("figure9.svg",tmp) 
 # print(figure9)
@@ -476,6 +504,7 @@ co2_no_storage$type[co2_no_storage$type == 'embodied_in_PP'] <- 'Power Plant Mfg
 co2_no_storage$type[co2_no_storage$type == 'petroleum'] <- 'Petroleum'
 
 colors <- c('#898989','#92D6FF','#2A9324','orange')
+# svg(filename="Figure10.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure10 <-  ggplot(co2_no_storage,aes(x=year,y=value,fill=type)) + 
   geom_area() +
   labs(x='',y='Million Metric Tonnes of CO2') + 
@@ -489,6 +518,7 @@ figure10 <-  ggplot(co2_no_storage,aes(x=year,y=value,fill=type)) +
         legend.text  = element_text(size = legend.font))
 
 ggsave(filename="figure10.svg",plot=figure10,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure10_enc <- base64enc::base64encode("figure10.svg",tmp)
 # print(figure10)
@@ -510,6 +540,7 @@ cap$year <- as.integer(as.character(cap$year))
 cap$tech <- factor(cap$tech,c('Storage Capacity','Hydro','Wind','Solar PV','Solar CSP','Biomass','Coal','Geothermal','NGCC','NGCT','Petroleum','Nuclear'))
 colors <- c('black',"#3D3BFF","#925E95","#FAE059","#BCA845","#A6F2A9","#898989","#A87D4C","#62BEF7","#AED7EF","#7AA37B","#D44148")
 
+# svg(filename="Figure11.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure11 <-  ggplot(cap,aes(x=year,y=value/1000,fill=tech)) + 
   geom_area() +
   labs(x='',y='Gigawatts') + 
@@ -526,6 +557,7 @@ figure11 <-  ggplot(cap,aes(x=year,y=value/1000,fill=tech)) +
          color = guide_legend(override.aes = list(size = .1)))
 
 ggsave(filename="figure11.svg",plot=figure11,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure11_enc <- base64enc::base64encode("figure11.svg",tmp)
 # print(figure11)
@@ -549,6 +581,7 @@ cap$year <- as.integer(as.character(cap$year))
 cap$tech <- factor(cap$tech,c('Hydro','Wind','Solar PV','Solar CSP','Biomass','Coal','Geothermal','NGCC','NGCT','Petroleum','Nuclear'))
 colors <- c("#3D3BFF","#925E95","#FAE059","#BCA845","#A6F2A9","#898989","#A87D4C","#62BEF7","#AED7EF","#7AA37B","#D44148")
 
+#svg(filename="Figure12.svg",pointsize=12,height=fig.ht,width=fig.wd) 
 figure12 <-  ggplot(cap,aes(x=year,y=value/1000,fill=tech)) + 
   geom_area() +
   labs(x='',y='Gigawatts') + 
@@ -565,6 +598,7 @@ figure12 <-  ggplot(cap,aes(x=year,y=value/1000,fill=tech)) +
          color = guide_legend(override.aes = list(size = .1)))
 
 ggsave(filename="figure12.svg",plot=figure12,width=fig.wd,height=fig.ht)
+#dev.off()
 tmp <- tempfile()  ## returns a vector of character strings which can be used as names for temporary files
 figure12_enc <- base64enc::base64encode("figure12.svg",tmp)
 # # print(figure12)
@@ -573,5 +607,3 @@ outputs <- c(figure1_enc,figure2_enc,figure3_enc,figure4_enc,figure5_enc,figure6
 
 return(outputs)
 }
-
-
