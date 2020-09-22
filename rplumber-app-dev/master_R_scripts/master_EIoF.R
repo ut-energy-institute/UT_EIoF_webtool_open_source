@@ -27,25 +27,26 @@ setwd('/scripts')
 
 # ## inputs to make testing easier when running as a script and not a function
 # to make testing easier
-# region_id = 3
-# coal_percent = 10
+# region_id = 2
+# coal_percent = 0
 # PV_percent = 10
-# CSP_percent = 5
-# wind_percent = 20
-# biomass_percent = 10
-# hydro_percent = 5
+# CSP_percent = 10
+# wind_percent = 10
+# biomass_percent = 0
+# hydro_percent = 0
 # petroleum_percent = 0
-# nuclear_percent = 10
+# nuclear_percent = 20
 # geothermal_percent = 0
-# ng_percent = 20
-# ldv_e = 20
+# ng_percent = 50
+# ldv_e = 70
 # r_sh_e = 45
 # r_sh_ng = 50
 
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   print("Start of master_EIoF.R")
-
+  cat(paste0("Running region number = ",region_id),sep="\n")
+  
   ## pre calcualtions from inputs
   coal_percent = as.integer(coal_percent)
   PV_percent = as.integer(PV_percent)
@@ -283,6 +284,14 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   # save(Y_template,U_template,V_template,file="generate_FinalUVY_2050_data/UVY_templates.Rdata")
   load("generate_FinalUVY_2050_data/UVY_templates.Rdata")
   
+  ## make a function to check if percentages of LDV fuels equals exactly 100 (percent), with no double precision error/discrepancy
+  check_ldv_percent <- function(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads) {
+    cat(paste0("[Sankey_Function.R]: Check A#N if zero: sum(percent_ldv percentages of fuels) - 100 = ", (sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100)),sep="\n")
+    percent_ldv_biofuel_quads <- percent_ldv_biofuel_quads - (sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100)
+    cat(paste0("[Sankey_Function.R]: Check B#N if zero: sum(percent_ldv percentages of fuels) - 100 = ", (sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100)),sep="\n")
+    return(percent_ldv_biofuel_quads)
+  }
+  
   ## Call to solve sankey with the "NonStorage" results of "solveGEN" and "generate_FinalUVY_2050"
   ## TEST INPUTS TO CALL SANKEY CODE:
   ## sankey_json_out <- sankey_json(region_id = 1, p_solar = 5, p_nuclear = 5, p_hydro = 5, p_wind = 5, p_geo = 5, p_ng = 60, p_coal = 5, p_bio = 5, p_petrol = 5, r_sh_e = 50, r_sh_ng = 50, r_wh_e = 50, r_ck_e = 50, c_sh_e = 50, c_wh_e = 50, c_ck_e = 50, ldv_elec = 20, ldv_petrol = 70, ldv_ethanol = 10, trans_other_petrol = 90, trans_other_ng = 10, trans_other_other = 0)
@@ -291,6 +300,18 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
     percent_ldv_petrol_quads = percent_ldv_petrol_quads
     percent_ldv_biofuel_quads = 100 - percent_ldv_elec_quads - percent_ldv_petrol_quads
   }  ## For purposes of plotting the Sankey Diagram consistently, if "ldv_e = 0" from user, we need some > 0 value for electricity to LDVs so that the "Transportation" node is displayed in alignment with the other "end use" sectors  
+  ## Cycle through correcting if sum of LDV percentages is off by a factor near double precision, and correct it
+  cat(paste0("[master_EIof.R]: Before Sankey_Function. R, check #0 if zero: sum(percent_ldv percentages of fuels) - 100 = ", (sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100)),sep="\n")
+  if ((sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100) != 0) { ## Check #2
+    check_ldv_percent_output <- check_ldv_percent(frac_ng,k_prime)
+    check_ldv_percent <- check_ldv_percent_output[1]
+    if ((sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100) != 0) { ## Check #3
+      check_ldv_percent_output <- check_ldv_percent(frac_ng,k_prime)
+      check_ldv_percent <- check_ldv_percent_output[1]
+      if ((sum(percent_ldv_elec_quads,percent_ldv_petrol_quads,percent_ldv_biofuel_quads)-100) != 0) { ## Check #4
+        check_ldv_percent_output <- check_ldv_percent(frac_ng,k_prime)
+        check_ldv_percent<- check_ldv_percent_output[1]
+      } } }
   # sankey_json_out <- sankey_json(region_id = region_id, p_solar = solar_percent, p_nuclear = nuclear_percent, p_hydro = hydro_percent, p_wind = wind_percent, p_geo = geothermal_percent, p_ng = ng_percent, p_coal = coal_percent, p_bio = biomass_percent, p_petrol = petroleum_percent, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_NoStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_NoStorage_2050_CurrentRegion,Y_template)
 
   ## Call Sankey function with "AnnualStorage" results of "solveGEN" and as input into "sankey_json"
@@ -662,68 +683,62 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   linetypes = c(1,1,1,2,2)
   
   
-  # PUBLICATION FORMATS -----------------------------------------------
-  # Start PDF/TIF/OTHER plotting device
-  dpi = 300
-  #png("EIoF_Figure_Test.png", units="in", height=fig.ht, width=fig.wd, res=dpi)
-  # svg(filename="EIoF_Figure_Test.svg",height=fig.ht, width=fig.wd,pointsize=12) 
-  
-  # set labels for legend
-  #leg_labels = c("Food & Energy","Food","Energy")
-  
-  # (3) Define plot margins
-  bmar <- .5+axis.size   # Bottom margin (1)
-  lmar <- 3.2-1.2+axis.size # Left margin (2)
-  tmar <- 1.50 		# Top margin (3)
-  rmar <- 1-1+axis.size   # Right margin (4)
-  
-  # Define plot margins and axis tick label placement
-  par(mar=c(bmar,lmar,tmar,rmar))
-  
-  # Define background, foreground and object colors
-  par(bg=bg.col, fg=fg.col, col.axis=axis.col, col.lab=lab.col, col.main=main.col)
-  
-  # make the zero value of the x or y-axis to actually be at the
-  # left (of x-axis) or bottom (of y-axis) of the plot area
-  par(xaxs="i")
-  par(yaxs="i")
-  
-  ## Select the data to plot
-  # xdata = solveGEN_output$Hourly_MW_AnnualStorage$Hour_ending[1:7*24]
-  # ydata = solveGEN_output$Hourly_MW_AnnualStorage$Load[1:7*24]
-  xdata = solveGEN_output$Hourly_MW_AnnualStorage$Hour_ending
-  ydata = solveGEN_output$Hourly_MW_AnnualStorage$Load
-  
-  ## Set figure axis lower and upper limits for plotting DISPLAY, and tick mark increments
-  ylimit <- 1.1*max(ydata)
-  yrange = c(0,ylimit)
-  yinc <- 10000
-  #xrange = c(min(xdata),max(xdata))
-  xrange = c(0,7*24*4)
-  xinc = 24
-  
-  
-  # ==============================================================================
-  # CREATE PLOTS
-  # ==============================================================================
-  # PLOT  1
-  i=1
-  # test.plot <- plot(xdata,ydata,type="l",xlab="",ylab="",ylim=yrange,xlim=xrange,
+  # # PUBLICATION FORMATS -----------------------------------------------
+  # # Start PDF/TIF/OTHER plotting device
+  # dpi = 300
+  # #png("EIoF_Figure_Test.png", units="in", height=fig.ht, width=fig.wd, res=dpi)
+  # #svg(filename="EIoF_Figure_Test.svg",height=fig.ht, width=fig.wd,pointsize=12) 
+  # # (3) Define plot margins
+  # bmar <- .5+axis.size   # Bottom margin (1)
+  # lmar <- 3.2-1.2+axis.size # Left margin (2)
+  # tmar <- 1.50 		# Top margin (3)
+  # rmar <- 1-1+axis.size   # Right margin (4)
+  # 
+  # # Define plot margins and axis tick label placement
+  # par(mar=c(bmar,lmar,tmar,rmar))
+  # 
+  # # Define background, foreground and object colors
+  # par(bg=bg.col, fg=fg.col, col.axis=axis.col, col.lab=lab.col, col.main=main.col)
+  # 
+  # # make the zero value of the x or y-axis to actually be at the
+  # # left (of x-axis) or bottom (of y-axis) of the plot area
+  # par(xaxs="i")
+  # par(yaxs="i")
+  # 
+  # ## Select the data to plot
+  # # xdata = solveGEN_output$Hourly_MW_AnnualStorage$Hour_ending[1:7*24]
+  # # ydata = solveGEN_output$Hourly_MW_AnnualStorage$Load[1:7*24]
+  # xdata = solveGEN_output$Hourly_MW_AnnualStorage$Hour_ending
+  # ydata = solveGEN_output$Hourly_MW_AnnualStorage$Load
+  # 
+  # ## Set figure axis lower and upper limits for plotting DISPLAY, and tick mark increments
+  # ylimit <- 1.1*max(ydata)
+  # yrange = c(0,ylimit)
+  # yinc <- 10000
+  # #xrange = c(min(xdata),max(xdata))
+  # xrange = c(0,7*24*4)
+  # xinc = 24
+  # 
+  # 
+  # # ==============================================================================
+  # # CREATE PLOTS
+  # # ==============================================================================
+  # # PLOT  1
+  # i=1
+  # test.plot <- plot(seq(1,xrange[2]),ydata,type="l",xlab="",ylab="",ylim=yrange,xlim=xrange,
   #                   col=colors[i],lty=linetypes[i],lwd=line.wts[i],xaxt="n",yaxt="n")
-  test.plot <- plot(seq(1,xrange[2]),ydata,type="l",xlab="",ylab="",ylim=yrange,xlim=xrange,
-                    col=colors[i],lty=linetypes[i],lwd=line.wts[i],xaxt="n",yaxt="n")
-  
-  # Add x-axis ticks and title text
-  axis(1, seq(xrange[1],xrange[2],xinc), las=1, cex.axis=axis.size*.8,padj=-2.4,tck=-0.03)
-  # title(xlab="Hour of Year", cex.lab=lab.size, line=bmar-1)
-  
-  # Add y-axis ticks and title text
-  axis(2,seq(0,ylimit,yinc),lab=paste0(seq(0,ylimit,yinc)),las=1,cex.axis=axis.size,hadj=0.5,tck=-0.03)
-  title(ylab="MW Generation", cex.lab=lab.size, line=lmar-1.*lab.size)
-  
-  # (1) INSERT PLOT TITLE
-  title(main="Power Plant Generation per Hour (1 week per season)",cex.main=lab.size,line=tmar-1)#
-  dev.off()
+  # 
+  # # Add x-axis ticks and title text
+  # axis(1, seq(xrange[1],xrange[2],xinc), las=1, cex.axis=axis.size*.8,padj=-2.4,tck=-0.03)
+  # # title(xlab="Hour of Year", cex.lab=lab.size, line=bmar-1)
+  # 
+  # # Add y-axis ticks and title text
+  # axis(2,seq(0,ylimit,yinc),lab=paste0(seq(0,ylimit,yinc)),las=1,cex.axis=axis.size,hadj=0.5,tck=-0.03)
+  # title(ylab="MW Generation", cex.lab=lab.size, line=lmar-1.*lab.size)
+  # 
+  # # (1) INSERT PLOT TITLE
+  # title(main="Power Plant Generation per Hour (1 week per season)",cex.main=lab.size,line=tmar-1)#
+  # #dev.off()
   
   ## Save .svg graph as base64 text
   # library(base64) ## We should not need this "base64" package at https://cran.r-project.org/web/packages/base64/base64.pdf
@@ -749,14 +764,15 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   ########################### START ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
 
-  
+  #browser()
   all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
-
-  source('create_figures.R')
-  all_figures <- create_figures(all)
+  names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary')
   
-  all <- list(solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,all_figures)
-  names(all) <- c('Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary', 'Figures')
+  # source('create_figures.R')
+  # all_figures <- create_figures(all)
+  # 
+  # all <- list(sankey_json_out$links, sankey_json_out$nodes,solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,all_figures)
+  # names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary', 'Figures')
   
   
   ########################### END ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
@@ -765,5 +781,3 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   return(all)
   
 }
-
-
