@@ -1694,6 +1694,7 @@ net_load_duration <- net_load_duration[order(-net_load_duration$MW),]
 curtailed_WindSolar_WithAnnualStorage <- data$net_load_WithAnnualStorageNoCurtailment
 curtailed_WindSolar_WithAnnualStorage[curtailed_WindSolar_WithAnnualStorage>0]=0
 curtailed_WindSolar_WithAnnualStorage <- -curtailed_WindSolar_WithAnnualStorage
+curtailed_WindSolar_WithAnnualStorage_AnnualTWh <- sum(curtailed_WindSolar_WithAnnualStorage)/1e6
 MW_capacity_AnnualStorage <- max(curtailed_WindSolar_WithAnnualStorage)  ## The MW capacity of the storage system is assumed = that require to store the maxim MW of curtailed Wind+PV+CSP
 StoredWindSolar_AnnualStorage <- curtailed_WindSolar_WithAnnualStorage*efficiency_OneWay_DailyStorage^2                ## First, assume all curtailed wind and solar is stored, subtracting MWh due to efficiency loss
 StoredWindSolar_AnnualStorage[StoredWindSolar_AnnualStorage>MW_capacity_AnnualStorage] <- MW_capacity_AnnualStorage  ## Next, this says I can't store energy faster in any given hour, due to power constraint, than the MW power capacity of the storage system which is set by the highest MW (in all hours of the year) of all curtailed renewables needed to be stored.
@@ -2818,7 +2819,8 @@ output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage[hrs,],
                         "PPdata_NoStorage"=PPdata_NoStorage_solveGen_output,
                         "PPdata_AnnualStorage"=PPdata_AnnualStorage_solveGen_output,
                         "BiomassPrice" = BiomassPrice,
-                        "GeothermalCosts" = GeothermalCosts)
+                        "GeothermalCosts" = GeothermalCosts,
+                        "WindSolar_InputIntoStorage_AnnualTWh" = curtailed_WindSolar_WithAnnualStorage_AnnualTWh)
 
 return(output_list)
 ## ++++++++++++++++++++++++++++
