@@ -20,6 +20,7 @@ rm(list=ls(all=TRUE))
 
 ## Use this to call the function after it is sourced as a function:
 # start_time <- Sys.time()  ## This is just to know how long it took to run the code
+# print(start_time)
 # eiof_out <- master_EIoF(region_id = 6, coal_percent = 10, PV_percent = 10, CSP_percent = 0, wind_percent = 10, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 20, r_sh_e = 0, r_sh_ng = 100)
 # end_time <- Sys.time()
 # code_time=end_time - start_time
@@ -28,20 +29,20 @@ rm(list=ls(all=TRUE))
 
 # ## inputs to make testing easier when running as a script and not a function
 # to make testing easier
-region_id = 2
-coal_percent = 20
-PV_percent = 20
+region_id = 6
+coal_percent = 0
+PV_percent = 30
 CSP_percent = 0
-wind_percent = 20
+wind_percent = 30
 biomass_percent = 0
 hydro_percent = 0
 petroleum_percent = 0
 nuclear_percent = 0
 geothermal_percent = 0
-ng_percent = 40
-ldv_e = 100
-r_sh_e = 50
-r_sh_ng = 50
+ng_percent =480
+ldv_e = 20
+r_sh_e = 13
+r_sh_ng = 58
 
 # master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
@@ -329,6 +330,7 @@ r_sh_ng = 50
   
 
   ########################### BEGIN GOOGLESHEET ACCESS ###########################
+  
   print("Starting Google Sheets process.")
   
   source('EIoF_gs4_function.R')
@@ -764,9 +766,11 @@ r_sh_ng = 50
   
 
   #browser()
-  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
-  names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary')
-
+  # all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary)
+  # names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary')
+  all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,solveGEN_output$WindSolar_InputIntoStorage_AnnualTWh)
+  names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary','WindSolar_InputIntoStorage_AnnualTWh')
+  
   # source('create_figures.R')
   # all_figures <- create_figures(all)
   # 
@@ -780,5 +784,4 @@ r_sh_ng = 50
   return(all)
   
 # }
-
 
