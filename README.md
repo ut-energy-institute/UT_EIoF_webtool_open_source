@@ -8,7 +8,7 @@ This repo holds one version of the code in the the 'rplumber-app' directory.
 
 # NOTES DECEMBER 2020 on issues with creating new Docker images 
 
-++++
+## ++++
 TWO: plumber version updates … 
 ++++
 It seems the latest version of plumber.r package moved to 1.0.0 on Sept 14, 2020.  I’m not sure if this coincides with our problems (when was the last images you made that worked?):
