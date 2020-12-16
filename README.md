@@ -45,12 +45,14 @@ FOUR:  setting a fixed plumber version to install in the Dockerfile
 ++++
 
 See here (https://github.com/rstudio/plumber/blob/master/Dockerfile) that a “latest” version of how to call plumber in a Dockerfile has some different syntax and maybe this is causing us our issue (but this is referencing “rstudio” and not “R” so we need to look into this
+
 ==============
 ARG PLUMBER_REF=master
 RUN Rscript -e "remotes::install_github('rstudio/plumber@${PLUMBER_REF}')"
 
 EXPOSE 8000
 ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(rev(commandArgs())[1]); pr$run(host='0.0.0.0', port=8000, swagger=TRUE)"]
+
 ==============
 
 
