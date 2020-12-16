@@ -47,6 +47,7 @@ FOUR:  setting a fixed plumber version to install in the Dockerfile
 See here (https://github.com/rstudio/plumber/blob/master/Dockerfile) that a “latest” version of how to call plumber in a Dockerfile has some different syntax and maybe this is causing us our issue (but this is referencing “rstudio” and not “R” so we need to look into this
 
 ==============
+
 ARG PLUMBER_REF=master
 RUN Rscript -e "remotes::install_github('rstudio/plumber@${PLUMBER_REF}')"
 
@@ -57,7 +58,9 @@ ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(rev(commandArgs())[1]); pr$run(host
 
 
 This discussion (https://community.rstudio.com/t/latest-rstudio-plumber-docker-container-outdated/86785/4) shows how you can hard-code the version of plumber to install (from downloading), in this case Docker 1.0.0:
+
 ==============
+
 you can use this Docker file to build a docker image with plumber 1.0.0 version.
 Replace
 
@@ -66,38 +69,46 @@ ARG PLUMBER_REF=master
 by
 
 ARG PLUMBER_REF=v1.0.0
+
 ==============
 
 So, I suppose we COULD FIRST try to do the following from our Docker file … 
 
 CURRENTLY WE HAVE:
+
 =============
+
 RUN install2.r plumber
 
 EXPOSE 8000
 ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(commandArgs()[4]); pr$run(host='0.0.0.0', port=8000)"]
 CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
+
 =============
 
 MAYBE WE COULD CHANGE TO INSTALL VERSION 0.4.6 (I don’t know if we still need the line with the command “RUN install2.r plumber”):
+
 =============
+
 ARG PLUMBER_REF=V0.4.6
 RUN Rscript -e "remotes::install_github('rstudio/plumber@${PLUMBER_REF}')"
 
 EXPOSE 8000
 ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(commandArgs()[4]); pr$run(host='0.0.0.0', port=8000)"]
 CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
+
 =============
 
 
-
-++++
+****
 FIVE:  Install plumber from source file (tar.gz) ???
-++++
+****
 I think this site has what we need to do: https://chtc.cs.wisc.edu/docker-build.shtml .   For a Dockerfile, it discusses installing a package from source file, then using install2.r like we already have in our Dockerfile.  You store the source code in the same directory as the Dockerfile.
 
 From the example for installing the “JAGS” package, from source file “JAGS-4.3.0.tar.gz”, I’ve modified it to think about plumber:
+
 ================
+
 # COPY the plumber source code into the image under /tmp
 COPY plumber_0.4.6.tar.gz /tmp
 
@@ -111,6 +122,7 @@ RUN cd /tmp \
 
 # install the R package plumber
 RUN install2.r --error plumber
+
 ================
 
 
@@ -140,13 +152,16 @@ https://cran.r-project.org/web/packages/littler/vignettes/littler-examples.html#
 
 
 The above is referencing “rstudio” so perhaps we have to learn how to change the line below, but MAYBE WE COULD CHANGE TO INSTALL VERSION 0.4.6 (I don’t know if we still need the line with the command “RUN install2.r plumber”) with something like this:
+
 =============
+
 ARG PLUMBER_REF=V0.4.6
 RUN Rscript -e "remotes::install_github('rstudio/plumber@${PLUMBER_REF}')"
 
 EXPOSE 8000
 ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(commandArgs()[4]); pr$run(host='0.0.0.0', port=8000)"]
 CMD ["/usr/local/lib/R/site-library/plumber/examples/04-mean-sum/plumber.R"]
+
 =============
 
 
