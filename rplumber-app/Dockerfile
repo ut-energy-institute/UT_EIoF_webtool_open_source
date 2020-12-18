@@ -5,11 +5,19 @@ MAINTAINER Jeff Allen <docker@trestletech.com>
 RUN apt-get update -qq && apt-get install -y \
   git-core \
   libssl-dev \
-  libcurl4-gnutls-dev
+  libcurl4-gnutls-dev\
+  libsodium-dev
+
 
 ## RUN R -e 'install.packages(c("devtools"))'
 ## RUN R -e 'devtools::install_github("trestletech/plumber")'
-RUN install2.r plumber
+#RUN R -e 'devtools::install_github("rstudio/plumber@v0.4.6")'
+# RUN install2.r plumber
+
+# add filepath to R source packages
+ADD ./R_packages_static /R_packages_static
+
+RUN R -e "install.packages(c('R_packages_static/rlang_0.4.6.tar.gz','R_packages_static/glue_1.4.1.tar.gz','R_packages_static/lifecycle_0.2.0.tar.gz','R_packages_static/mime_0.9.tar.gz','R_packages_static/magrittr_1.5.tar.gz','R_packages_static/swagger_3.33.0.tar.gz','R_packages_static/sodium_1.1.tar.gz','R_packages_static/BH_1.72.0-3.tar.gz','R_packages_static/Rcpp_1.0.4.6.tar.gz','R_packages_static/later_1.1.0.1.tar.gz','R_packages_static/R6_2.4.1.tar.gz','R_packages_static/promises_1.1.1.tar.gz','R_packages_static/crayon_1.3.4.tar.gz','R_packages_static/httpuv_1.5.3.1.tar.gz','R_packages_static/jsonlite_1.6.1.tar.gz','R_packages_static/curl_4.3.tar.gz','R_packages_static/webutils_1.1.tar.gz','R_packages_static/stringi_1.4.6.tar.gz','R_packages_static/plumber_0.4.6.tar.gz'), repos = NULL, type='source')"
 
 EXPOSE 8000
 ENTRYPOINT ["R", "-e", "pr <- plumber::plumb(commandArgs()[4]); pr$run(host='0.0.0.0', port=8000)"]
@@ -25,11 +33,6 @@ RUN apt update --allow-releaseinfo-change
 RUN apt install -y gcc-8-base
 RUN apt install -y libgcc-8-dev
 RUN apt install -y libcurl4-openssl-dev libxml2 libxml2-dev
-
-
-
-# add filepath to R source packages
-ADD ./R_packages_static /R_packages_static
 
 # install static packages THESE ARE IN ORDER, DO NOT CHANGE ORDER
 
