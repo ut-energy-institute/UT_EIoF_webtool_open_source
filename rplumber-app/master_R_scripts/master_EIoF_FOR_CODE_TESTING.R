@@ -31,15 +31,15 @@ rm(list=ls(all=TRUE))
 # to make testing easier
 region_id = 6
 coal_percent = 0
-PV_percent = 30
+PV_percent = 50
 CSP_percent = 0
-wind_percent = 30
+wind_percent = 50
 biomass_percent = 0
 hydro_percent = 0
 petroleum_percent = 0
 nuclear_percent = 0
 geothermal_percent = 0
-ng_percent =480
+ng_percent = 0
 ldv_e = 20
 r_sh_e = 13
 r_sh_ng = 58
@@ -173,9 +173,11 @@ r_sh_ng = 58
   
 
   ## Call the function
+  print("Starting solveGEN.R.")
   #solveGEN_output <- solveGEN(RegionNumber = region_id, year = year, coal_percent = coal_percent, PV_percent = PV_percent, CSP_percent = CSP_percent, wind_percent = wind_percent, nuclear_percent = nuclear_percent, hydro_percent = hydro_percent, biomass_percent = biomass_percent, geothermal_percent = geothermal_percent, petroleum_percent = petroleum_percent)
   solveGEN_output <- solveGEN(RegionNumber = region_id, year = year, coal_percent = coal_percent, PV_percent = PV_percent, CSP_percent = CSP_percent, wind_percent = wind_percent, nuclear_percent = nuclear_percent, hydro_percent = hydro_percent, biomass_percent = biomass_percent, geothermal_percent = geothermal_percent, petroleum_percent = petroleum_percent,Total_Hourly_MW_8760_CurrentRegion)
-
+  print("solveGEN.R is finished.")
+  
   ## Specify certain data from solveGEN_outoput for use by "generate_FinalUVY_2050.R"
   PPdata_NoStorage <- solveGEN_output$PPdata_NoStorage
   PPdata_AnnualStorage <- solveGEN_output$PPdata_AnnualStorage
@@ -197,10 +199,11 @@ r_sh_ng = 58
   ##                    "V_AnnualStorage_2050_CurrentRegion"=V_AnnualStorage)
   
   source("generate_FinalUVY_2050.R")
-  #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG)
   #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, PPdata_NoStorage,PPdata_AnnualStorage,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage)
   #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_per_region_2050[RegionNumber],Total_AnnualMWh_LDV_EVs)
+  print("Starting generate_FinalUVY_2050.R.")
   generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_current_region_2050,Total_AnnualMWh_LDV_EVs)
+  print("generate_FinalUVY_2050.R is finished.")
   save(generate_FinalUVY_2050_output,file="generate_FinalUVY_2050_output.Rdata")  ## I can just put "Total_Hourly_MW_8760_CurrentRegion" as an input into "solveGEN.R"
   
   ########################### END CAREY "generate_FinalUVY_2050.R"  ###########################
@@ -324,8 +327,10 @@ r_sh_ng = 58
   sankey_input_pct_AnnualStorage_Geothermal <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="Geothermal")])
   sankey_input_pct_AnnualStorage_Hydro <- 100*(PPdata_AnnualStorage$Fraction_MWhActual[which(PPdata_AnnualStorage$Technology=="HydroDispatch")])
   sankey_input_pct_AnnualStorage_NG <- 100 - sum(sankey_input_pct_AnnualStorage_Solar,sankey_input_pct_AnnualStorage_Wind,sankey_input_pct_AnnualStorage_Biomass,sankey_input_pct_AnnualStorage_Coal,sankey_input_pct_AnnualStorage_Nuclear,sankey_input_pct_AnnualStorage_Petroleum,sankey_input_pct_AnnualStorage_Geothermal,sankey_input_pct_AnnualStorage_Hydro)
+  print("Starting sankey_json.R.")
   sankey_json_out <- sankey_json(region_id = region_id, p_solar = sankey_input_pct_AnnualStorage_Solar, p_nuclear = sankey_input_pct_AnnualStorage_Nuclear, p_hydro = sankey_input_pct_AnnualStorage_Hydro, p_wind = sankey_input_pct_AnnualStorage_Wind, p_geo = sankey_input_pct_AnnualStorage_Geothermal, p_ng = sankey_input_pct_AnnualStorage_NG, p_coal = sankey_input_pct_AnnualStorage_Coal, p_bio = sankey_input_pct_AnnualStorage_Biomass, p_petrol = sankey_input_pct_AnnualStorage_Petroleum, r_sh_e = r_sh_e, r_sh_ng = r_sh_ng, r_wh_e = r_wh_e, r_wh_ng = r_wh_ng, r_ck_e = r_ck_e, r_ck_ng = r_ck_ng, c_sh_e = c_sh_e, c_sh_ng = c_sh_ng, c_wh_e = c_wh_e, c_wh_ng = c_wh_ng, c_ck_e = c_ck_e, c_ck_ng = c_ck_ng, ldv_elec = percent_ldv_elec_quads, ldv_petrol = percent_ldv_petrol_quads, ldv_ethanol = percent_ldv_biofuel_quads, trans_other_petrol = trans_other_petrol, trans_other_ng = trans_other_ng, trans_other_other = trans_other_other,generate_FinalUVY_2050_output$U_AnnualStorage_2050_CurrentRegion,generate_FinalUVY_2050_output$V_AnnualStorage_2050_CurrentRegion,Y_template)
-
+  print("sankey_json.R is finished.")
+  
   ########################### END Sankey Code ###########################
   
 
@@ -785,3 +790,4 @@ r_sh_ng = 58
   
 # }
 
+#write_json(all, "all_json_test", pretty = TRUE, auto_unbox = FALSE)
