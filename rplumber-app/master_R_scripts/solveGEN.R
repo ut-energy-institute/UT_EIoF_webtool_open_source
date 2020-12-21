@@ -1210,7 +1210,9 @@ max_iters <- 200
 tolerance_NoStorage <- 1e10
 ##wind_solar_multipliers <- Rcgmin(fn=function_Wind_PV_CSP,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 #wind_solar_multipliers <- optimr(par=init_guesses,fn=function_Wind_PV_CSP,gr=NULL,lower=lb,upper=ub,method=NULL,hessian=NULL,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_NoStorage))
+print("In solveGEN.R: Start optimize wind and solar capacity (no storage).")
 wind_solar_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_NoStorage))
+print("In solveGEN.R: Completed optimize wind and solar capacity (no storage).")
 # cat(paste0("wind_solar_multipliers (no storage) convergence code is: ",wind_solar_multipliers$convergence),sep = "\n")
 # cat(paste0("wind_solar_multipliers (no storage) 'counts' to call function is: ",wind_solar_multipliers$counts),sep = "\n")
 multiplier.wind <- wind_solar_multipliers$par[1]
@@ -1252,6 +1254,7 @@ MWh_max_biomass <- biomass_MMBtu_max*1e6/HeatRate_biomass/1e3  # set upper bound
 ## Set maximum MW for geothermal power plants as set by NREL ReEDS data
 geothermal_MW_max <- sum(geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cap_MW)
 
+print("In solveGEN.R: Start of solve dispatch of dispatchable technologies (no storage).")
 ## Now go through solving for dispatch and capacity of dispatchable power plants
 for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NGCC and 2) NGCT
   names(data)[PPindex+i] <- paste0(PP_MWneeded$Technology[i],"_MW")  ## Recall, PP_MWneeded has been put in an order from smallest to largest variable operating cost, but with renewables, nuclear, and NG plants arbitrarily set to very high variable costs such that they are ordered at the end
@@ -1312,6 +1315,7 @@ for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NG
 ## Perform optimization to find the capacity of dispatchables in the actual time series of net_load.
 ## This for loop solves for dispatchable generation when there is NO STORAGE of any kind.
 ## +++++++++++++++++
+print("In solveGEN.R: End of solve dispatch of dispatchable technologies (no storage).")
 
 ## +++++++++++++++++
 ## Input the MW of installed capacity needed for Wind, PV, and CSP into "PP_MWneeded".
@@ -1434,6 +1438,7 @@ max_capacity_fall <- PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion
 ## Here we solve for hydro dispatch by reducing the peak net loads each season as much as possible usign HydroDispatch.
 ## This is done by analyzing the net load duration curve for each season.
 
+print("In solveGEN.R: Start of solve dispatch of dispatchable hydro (no storage).")
 ## Fourth:  Go season by season and find the hours and quantity of dispatch to use up the entire energy budget
 ## Call function for determining disptach of hydro.
 ## Winter
@@ -1449,6 +1454,7 @@ HydroOutputs_summer <- HydroOutputs_summer[-which(HydroOutputs_summer$Hrs==0),]
 HydroOutputs_fall <- function_solve_hydro_dispatch(hr_max_fall,max_capacity_fall,HydroDispatch_budget_fall,net_load_duration_fall,hour_per_season[4])
 HydroOutputs_fall <- HydroOutputs_fall[-which(HydroOutputs_fall$Hrs==0),]
 #} ## else related to: if (NotEnoughHydro == 1) 
+print("In solveGEN.R: End of solve dispatch of dispatchable hydro (no storage).")
 
 ## At this point in the code it is POSSIBLE that the solved HydroDispatch (e.g., in HydroOutputs_fall$HydroDispatch_MW)
 ## causes negative net load after accounting for the dispatch. So we correct this here.
@@ -1657,7 +1663,9 @@ tolerance_AnnualStorage <- 1e10
 # wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
 #wind_solar_AnnualStorage_multipliers <- optimr(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_AnnualStorage))
 #browser() ## stops here for debugging when running code
+print("In solveGEN.R: Start optimize wind and solar capacity (annual storage).")
 wind_solar_AnnualStorage_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_AnnualStorage))
+print("In solveGEN.R: Completed optimize wind and solar capacity (annual storage).")
 # cat(paste0("wind_solar_multipliers (annual storage) convergence code is: ",wind_solar_AnnualStorage_multipliers$convergence),sep = "\n")
 # cat(paste0("wind_solar_multipliers (annual storage) 'counts' to call function is: ",wind_solar_AnnualStorage_multipliers$counts),sep = "\n")
 multiplier_WithAnnualStorage.wind <- wind_solar_AnnualStorage_multipliers$par[1]
@@ -1665,6 +1673,7 @@ multiplier_WithAnnualStorage.PV   <- wind_solar_AnnualStorage_multipliers$par[2]
 multiplier_WithAnnualStorage.CSP  <- wind_solar_AnnualStorage_multipliers$par[3] # make these zero if desired fraction is zero
 
 
+print("In solveGEN.R: Start of solve dispatch of annual storage.")
 ## +++++++++++++++
 ## POST PROCESSING TO GET DISPATCHED STORAGE - BEGIN
 ## from "function_Wind_PV_CSP_annual_storage"
@@ -1743,6 +1752,7 @@ SOC_hourly_WithAnnualStorage_init <- SOC_hourly_WithAnnualStorage[1]
 ## POST PROCESSING TO GET DISPATCHED STORAGE - END
 ## from "function_Wind_PV_CSP_annual_storage"
 ## +++++++++++++++
+print("In solveGEN.R: End of solve dispatch of annual storage.")
 
 
 ## +++++++++++++++++
@@ -1768,6 +1778,7 @@ PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded_AnnualStorage$Technology==
 PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded_AnnualStorage$Technology=="CSP")] <- 0
 PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded_AnnualStorage$Technology=="PV")] <- 0
 
+print("In solveGEN.R: Start of solve dispatch of dispatchable technologies (annual storage).")
 for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NGCC and 2) NGCT
   new_column_number <- dim(data)[2]+1
   data[,new_column_number] <- 0*data$Load_MW
@@ -1830,6 +1841,7 @@ for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NG
 ## Perform optimization to find the capacity of dispatchables in the actual time series of net_load.
 ## This for loop solves for dispatchable generation when there is ANNUAL ELECTRICITY STORAGE.
 ## +++++++++++++++++
+print("In solveGEN.R: End of solve dispatch of dispatchable technologies (annual storage).")
 
 
 
@@ -1901,6 +1913,7 @@ net_load_duration_fall$HydroDispatch_MW <- rep(0,dim(net_load_duration_fall)[1])
 names(net_load_duration_fall) = c("MW","Hrs","HydroDispatch_MW")
 net_load_duration_fall <- net_load_duration_fall[order(-net_load_duration_fall$MW),]
 
+print("In solveGEN.R: Start of solve dispatch of dispatchable hydro (annual storage).")
 ## Third:  Go season by season and find the hours and quantity of dispatch to use up the entire energy budget
 ## Call function for determining disptach of hydro.
 HydroOutputs_winter[,] <- 0  ## reset this variable for when it was solved without assuming Annual Electricity Storage
@@ -1919,6 +1932,7 @@ HydroOutputs_summer <- HydroOutputs_summer[-which(HydroOutputs_summer$Hrs==0),]
 ## Fall
 HydroOutputs_fall <- function_solve_hydro_dispatch(hr_max_fall,max_capacity_fall,HydroDispatch_budget_fall,net_load_duration_fall,hour_per_season[4])
 HydroOutputs_fall <- HydroOutputs_fall[-which(HydroOutputs_fall$Hrs==0),]
+print("In solveGEN.R: End of solve dispatch of dispatchable hydro (no storage).")
 
 ## At this point in the code it is POSSIBLE that the solved HydroDispatch (e.g., in HydroOutputs_fall$HydroDispatch_MW)
 ## causes negative net load after accounting for the dispatch. So we correct this here.
@@ -2768,7 +2782,7 @@ PPdata_AnnualStorage_solveGen_output[(dim(PPdata_AnnualStorage_solveGen_output)[
 PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_AnnualStorage_solveGen_output$Land_1000acres[which(PPdata_AnnualStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
 PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
 
-## Calcualte the percent of "applicable" land (= includes regions that import electricity to RegionNumber) taken by PV, wind, and CSP
+## Calculate the percent of "applicable" land (= includes regions that import electricity to RegionNumber) taken by PV, wind, and CSP
 LandAcres_byTech_NoStorage <- 0*MaxCapacity_perRegion_perTech_MW
 # LandAcres_byTech_NoStorage[,6:7] <- LandAcres_byTech_NoStorage[,1:2]  ## add 2 new columns
 # names(LandAcres_byTech_NoStorage) <- c("Wind","PV","CSP","Biomass","Geothermal","AcresTotal","PctLandTotal")
@@ -2813,6 +2827,8 @@ PPdata_AnnualStorage_solveGen_output$PctLandDirect[which(PPdata_AnnualStorage_so
 # land_area_AllRegionsWithRenewables <- max(sum(land_area_EIoF$LandArea_Acre[regions_with_Wind]),sum(land_area_EIoF$LandArea_Acre[regions_with_PV]),sum(land_area_EIoF$LandArea_Acre[regions_with_CSP]))
 # PPdata_NoStorage_solveGen_output$PctLand <- 100*PPdata_NoStorage_solveGen_output$Land_1000acres/(land_area_AllRegionsWithRenewables/1000)
 
+print("In solveGEN.R: end of all calculations.")
+
 ## Final output list from this function
 output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage[hrs,],
                         "Hourly_MW_AnnualStorage"=hourly_MWOutput_AnnualStorage[hrs,],
@@ -2822,6 +2838,7 @@ output_list <- list("Hourly_MW_NoStorage"=hourly_MWOutput_NoStorage[hrs,],
                         "GeothermalCosts" = GeothermalCosts,
                         "WindSolar_InputIntoStorage_AnnualTWh" = curtailed_WindSolar_WithAnnualStorage_AnnualTWh)
 
+print("In solveGEN.R: just before returning final output.")
 return(output_list)
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
