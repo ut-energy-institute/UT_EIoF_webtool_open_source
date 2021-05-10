@@ -25,15 +25,12 @@ setwd('/scripts')
 # print(code_time)
   
 
-# ## inputs to make testing easier when running as a script and not a function
-# to make testing easier
-
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   print("Start of master_EIoF.R")
   cat(paste0("Running region number = ",region_id),sep="\n")
   
-  ## pre calcualtions from inputs
+  #convert inputs to integers
   coal_percent = as.integer(coal_percent)
   PV_percent = as.integer(PV_percent)
   CSP_percent = as.integer(CSP_percent)
@@ -43,9 +40,10 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   petroleum_percent = as.integer(petroleum_percent)
   nuclear_percent = as.integer(nuclear_percent)
   geothermal_percent = as.integer(geothermal_percent)
+  #although natural gas is technically an input, it is calculated here as the difference of 100 minus the sum of all other technologies
   ng_percent = as.integer(100) - as.integer((coal_percent + PV_percent + CSP_percent + wind_percent + biomass_percent + hydro_percent + petroleum_percent + nuclear_percent + geothermal_percent))
   
-  
+  #inputs dataframe
   inputs <- as.data.frame(t(data.frame(
   'region_id' = region_id,
   'coal_percent' = coal_percent,
@@ -75,18 +73,12 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   library(jsonlite)
   library(readr)
   
-  ## pre calcualtions from inputs
-  ng_percent = 100 - as.integer((coal_percent + PV_percent + CSP_percent + wind_percent + biomass_percent + hydro_percent + petroleum_percent + nuclear_percent + geothermal_percent))
-
   ## Initialize information and confirm inputs are valid
   year = 2016  ## This is the year of input data to use for 8760 hour profiles of load, wind, and PV output. This might or might not ever allow user selection to use a different baseline year of data for load, wind, PV, and weather (e.g., year = 2017).
   RegionNumber = region_id  ## Specify the region number to calculate (there are 13 defined U.S. regions)
   if ( (RegionNumber >= 1) & (RegionNumber <= 13)){
-    hey = 1 ## all is OK
+    region_valid = 1 ## all is OK
   } else {
-    ## PERHAPS HERE WE NEED TO OUTPUT A SET OF DEFAULT "NONSENSICAL VALUES" THAT ARE COMPATIBLE WITH THE WEBSITE
-    ## TO MAKE IT OBVIOUS THAT THE SIMULATION DID NOT COMMENCE, YET A RESULT IS STILL RETURNED TO THE WEBSITE
-    ## SO THAT THE WEBSITE IS NOT JUST HANGING UP WITHOUT THE USER KNOWING THERE WAS A PROBLEM???
     stop("You have not selected a valid RegionNumber.r.")
   } 
   
@@ -111,31 +103,16 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   LDVmiles_current_region_2050 <- EIoF_LDV_Data$VMT_Millions_2050[RegionNumber]*1e6
   LDV_miles_per_kwh_2050 <- as.numeric(EIoF_LDV_Data$mile_per_kwh_EIoF2050[RegionNumber])
   
-  ## PREVIOUS SIMPLE ESTIAMTION TO RUN PROGRAM:
-  # fraction_LDVmiles_per_region_2050 = (1/13)*rep(1,13)
-  # LDVmiles_per_region_2050 <- data.frame(0)
-  # assign("EIA_AEO2019_LDVmiles_2050",3472.650879*1e9)  ## miles driven all light duty vehicles (using liquid fuels) in 2050; value from AEO Ref. 2019 for U.S. is 3472.65087 billion miles
-  # for (i in 1:13) {
-  #   LDVmiles_per_region_2050[i] = fraction_LDVmiles_per_region_2050[i]*EIA_AEO2019_LDVmiles_2050
-  # }
-  # region_names <- c("R1_NW","R2_CA", "R3_MN", "R4_SW", "R5_CE", "R6_TX", "R7_MW", "R8_AL", "R9_MA", "R10_SE", "R11_FL", "R12_NY", "R13_NE")  ## specify the region names as they appear as the column names of the "8760" input profiles
-  # names(LDVmiles_per_region_2050) <- c(region_names)
-  
   source("generate8760.R")
-  print("Starting generate_FinalUVY_2050.R.")
+  print("Generating 8760 data (generate8760.R)")
   #generate8760_output <- generate8760(RegionNumber,year,percent_ResidentialHeatPump,percent_ResidentialNG,percent_ElectricLDV)
   #generate8760_output <- generate8760(RegionNumber,year,percent_ResidentialHeatPump,percent_ResidentialNG,percent_ElectricLDV,LDVmiles_per_region_2050[RegionNumber])
   generate8760_output <- generate8760(RegionNumber,year,percent_ResidentialHeatPump,percent_ResidentialNG,percent_ElectricLDV,LDVmiles_current_region_2050,LDV_miles_per_kwh_2050)
-  print("generate_FinalUVY_2050.R is finished.")
+  print("Done generating 8760 data")
   
   ## Save "generate8760.R" in form that can be used as inputs to other functions
   Total_Hourly_MW_8760_CurrentRegion = generate8760_output$Total_Hourly_MW_8760_CurrentRegion
   Total_AnnualMWh_LDV_EVs = generate8760_output$Total_AnnualMWh_LDV_EVs
-  #save(Total_Hourly_MW_8760_CurrentRegion,file="generate8760_output.Rdata")  ## I can just put "Total_Hourly_MW_8760_CurrentRegion" as an input into "solveGEN.R"
-  
-  # source('generate8760.R')
-  # ldv_elec_quads <- sankey_json_out$links$Value[sankey_json_out$links$From == 'Electricity' & sankey_json_out$links$To == 'Transportation']
-  # ev_charging_profile <- generate8760(ldv_quads = ldv_elec_quads)
   
   ########################### END "generate8760" ###########################
   
@@ -156,12 +133,10 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   require(optimr)  ## pakcage for gradient based optimization
   
   source("solveGEN.R")
-  #source("solveGEN_bak20200302.R")
-  
+
 
   ## Call the function
-  print("Starting solveGEN.R.")
-  #solveGEN_output <- solveGEN(RegionNumber = region_id, year = year, coal_percent = coal_percent, PV_percent = PV_percent, CSP_percent = CSP_percent, wind_percent = wind_percent, nuclear_percent = nuclear_percent, hydro_percent = hydro_percent, biomass_percent = biomass_percent, geothermal_percent = geothermal_percent, petroleum_percent = petroleum_percent)
+  print("Solving for power plant generation capacities (solveGEN.R)")
   solveGEN_output <- solveGEN(RegionNumber = region_id, year = year, coal_percent = coal_percent, PV_percent = PV_percent, CSP_percent = CSP_percent, wind_percent = wind_percent, nuclear_percent = nuclear_percent, hydro_percent = hydro_percent, biomass_percent = biomass_percent, geothermal_percent = geothermal_percent, petroleum_percent = petroleum_percent,Total_Hourly_MW_8760_CurrentRegion)
   print("solveGEN.R is finished.")
   
@@ -186,9 +161,6 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   ##                    "V_AnnualStorage_2050_CurrentRegion"=V_AnnualStorage)
   
   source("generate_FinalUVY_2050.R")
-  #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG)
-  #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, PPdata_NoStorage,PPdata_AnnualStorage,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage)
-  #generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_per_region_2050[RegionNumber],Total_AnnualMWh_LDV_EVs)
   generate_FinalUVY_2050_output <- generate_FinalUVY_2050(RegionNumber = region_id, percent_ResidentialHeatPump = percent_ResidentialHeatPump, percent_ResidentialNG = percent_ResidentialNG, Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_current_region_2050,Total_AnnualMWh_LDV_EVs)
   save(generate_FinalUVY_2050_output,file="generate_FinalUVY_2050_output.Rdata")  ## I can just put "Total_Hourly_MW_8760_CurrentRegion" as an input into "solveGEN.R"
   
@@ -198,12 +170,13 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
 
   ########################### BEGIN  Sankey Code ###########################
   
-  ## call Jianwei's code (Sankey.R) to edit the Sankey based on user input
+  ## call Jianwei's code (Sankey.R) to edit the Sankey data based on user input
   ## inputs: end use changes, percent electricity generation from primary fuels, region
   ## outputs : JSON file with new values used to create Sankey
   
   source('Sankey_Function.R')
-
+  print('Calculating energy flows by fuel type, sector and end use (Sankey_Function.R)')
+  
   ## Inputs to sankey code are as XXXXXXX ... 
   ## All of the inputs to the Sankey code are treated as "percentages of the total for flows through some node" (with values 0 - 100).
   ## Thus certain items need to sum to 100 (100 percent) as follows:
@@ -268,10 +241,6 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   solar_percent = PV_percent + CSP_percent
   ## Load blank Y matrix template for U, V, and Y Sankey calculations
-  # Y_template = read.csv("Y_template.csv",row.names = 1)
-  # U_template = read.csv("U_template.csv",row.names = 1) 
-  # V_template = read.csv("V_template.csv",row.names = 1)
-  # save(Y_template,U_template,V_template,file="generate_FinalUVY_2050_data/UVY_templates.Rdata")
   load("generate_FinalUVY_2050_data/UVY_templates.Rdata")
   
   ## make a function to check if percentages of LDV fuels equals exactly 100 (percent), with no double precision error/discrepancy
@@ -760,12 +729,7 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,solveGEN_output$WindSolar_InputIntoStorage_AnnualTWh)
   names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary','WindSolar_InputIntoStorage_AnnualTWh')
   
-  # source('create_figures.R')
-  # all_figures <- create_figures(all)
-  # 
-  # all <- list(sankey_json_out$links, sankey_json_out$nodes,solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,all_figures)
-  # names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary', 'Figures')
-  
+
   
   ########################### END ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
