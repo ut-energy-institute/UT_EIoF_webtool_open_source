@@ -14,7 +14,6 @@ library(lubridate)
 library(jsonlite)
 library(readr)
 
-setwd('/scripts')
 ## the inputs from the website website API URL GET (I have not idea) call will be:
 ## 1) Region considered (between 1 and 13, inclusive)
 ## 2) End-uses that we allow the user to change
