@@ -71,7 +71,7 @@ for(n in 1:nrow(simulations)){
   scenario_name = paste0(scenario_prefix,'_region_',region_id,'_coal_',coal_percent,'_pv_',pv_percent,'_csp_',csp_percent,'_wind_',wind_percent,'_bio_',biomass_percent,'_hydro_',hydro_percent,'_pet_',petroleum_percent,'_nuc_',nuclear_percent,'_geo_',geothermal_percent,'_ng_',ng_percent,'_ldve_',ldv_e,'_rshe_',r_sh_e,'_rshng_',r_sh_ng)
   
   #check if this run already exists. If yes, skip it
-  if(file.exists(paste0(save_folder,batch_name,'/',scenario_name,'.rds'))){
+  if(file.exists(paste0(save_folder,scenario_name,'.rds'))){
     next
    } else{
     # old = Sys.time() #start timer
@@ -81,7 +81,7 @@ for(n in 1:nrow(simulations)){
             warning = function(w){print('***THE SIMULATION WAS SUCCESSFUL WITH AT LEAST 1 WARING***')},
             error = function(e){print('***THE SIMULATION FAILED TO COMPLETE***')})
     #Save the results of the simulation. Throw an error message if the data can't be saved for some reason.
-    tryCatch(save(data,file=paste0(scenario_name,'.rds')),
+    tryCatch(save(data,file=paste0(save_folder,scenario_name,'.rds')),
              warning=function(w){print('***THE DATA WAS SAVED WITH AT LEAST 1 WARNING***')},
              error=function(e){print('***THE DATA COULD NOT BE SAVE***')})
 
