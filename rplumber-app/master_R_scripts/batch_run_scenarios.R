@@ -43,7 +43,10 @@ times = c()
 for(n in 1:nrow(simulations)){
   
 #run 1 scenario for testing  
-# for(n in 1:1){
+# for(n in 1:1){    start = Sys.time() #start timer
+  
+  start = Sys.time() #start timer
+  
   print('')
   print('**************************************')
   print(paste0('Running scenario ',n,' of ',nrow(simulations)))
@@ -74,7 +77,7 @@ for(n in 1:nrow(simulations)){
   if(file.exists(paste0(save_folder,scenario_name,'.rds'))){
     next
    } else{
-    # old = Sys.time() #start timer
+    start = Sys.time() #start timer
      
     #Run a simulation with the given inputs. Throw an error message if the run couldn't complete for some reason
     data = tryCatch(master_EIoF(region_id, coal_percent, pv_percent, csp_percent, wind_percent, biomass_percent, hydro_percent, petroleum_percent, nuclear_percent, geothermal_percent, ng_percent, ldv_e, r_sh_e, r_sh_ng),
@@ -85,20 +88,21 @@ for(n in 1:nrow(simulations)){
              warning=function(w){print('***THE DATA WAS SAVED WITH AT LEAST 1 WARNING***')},
              error=function(e){print('***THE DATA COULD NOT BE SAVE***')})
 
-    # new = Sys.time() - old #stop timer
-    # times = append(times,as.numeric(new))
-    # average_time = mean(times)
-    # time_left = ((nrow(simulations) - n)*average_time)/60/60
   }
 
 
-  # print('########################')
-  # print('')
-  # print(new) #read timer
-  # print(paste0('Average time is: ',average_time))
-  # print(paste0('Estimated time remaining is: ',time_left))
-  # print('')
-  # print('########################')
+  stop = Sys.time() - old #stop timer
+  times = append(times,as.numeric(new))
+  average_time = mean(times)
+  time_left = ((nrow(simulations) - n)*average_time)/60/60
+  
+  print('########################')
+  print('')
+  print(new) #read timer
+  print(paste0('Average time is: ',average_time))
+  print(paste0('Estimated time remaining is: ',time_left))
+  print('')
+  print('########################')
   
   #remove the data
   rm(data)
