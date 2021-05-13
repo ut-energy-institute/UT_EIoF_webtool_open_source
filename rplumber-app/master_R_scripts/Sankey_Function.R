@@ -33,19 +33,12 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
   if (!(as.numeric(region_id) %in% region)){
     stop("Wrong region_id in Sankey_Function.R")
   } else if ( (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) - 100) > 4*tol | (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) - 100) < -4*tol) {
-  #} else if (sum(as.numeric(p_solar), as.numeric(p_nuclear), as.numeric(p_hydro), as.numeric(p_wind), as.numeric(p_geo), as.numeric(p_ng), as.numeric(p_coal), as.numeric(p_bio), as.numeric(p_petrol)) != 100){
     stop("Total proportion of different Electricity parts unequal to 1 in Sankey_Function.R")
   } else if (sum(as.numeric(ldv_elec), as.numeric(ldv_petrol), as.numeric(ldv_ethanol)) != 100){
     stop("LDV fuel does not add to 100% in Sankey_Function.R")
   } else {
     
-    # read data - for now, only {1,2} for U/Y; V is just the same for all regions
-    #U <- read.csv(paste0("./EIoFRegion_2050Sankey_Input_Files_20191024_NumberLabels/U", region_id, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
-    #V <- read.csv(paste0("./EIoFRegion_2050Sankey_Input_Files_20191024_NumberLabels/V", region_id, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Industries") %>% setcoltype("Products")
-    #Y <- read.csv(paste0("./EIoFRegion_2050Sankey_Input_Files_20191024_NumberLabels/Y", region_id, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
-    # U <- read.csv(paste0("U", 1, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
-    # V <- read.csv(paste0("V", 1, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Industries") %>% setcoltype("Products")
-    # Y <- read.csv(paste0("Y", 1, ".csv"), row.names = 1) %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
+    #Initialize U,V, and Y matrices
     U <- U %>% as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
     V <- V %>% as.matrix() %>% setrowtype("Industries") %>% setcoltype("Products")
     Y <- Y %>%  as.matrix() %>% setrowtype("Products") %>% setcoltype("Industries")
@@ -117,10 +110,7 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     Y_prime["Services_Commerce_Cooking_NG", "Energy_Services"] <- Service_Commerce_Cooking*as.numeric(c_ck_ng)/100
     Y_prime["Services_Commerce_Cooking_Elec", "Energy_Services"] <- Service_Commerce_Cooking*as.numeric(c_ck_e)/100
     
-    ## CWK EDIT 8/12/20
-    # Y_prime["Services_Resident_Other", "Energy_Services"] <- Service_Resident_Other/100
-    # Y_prime["Services_Commerce_Other", "Energy_Services"] <- Service_Commerce_Other/100
-    # Y_prime["Services_Industrial", "Energy_Services"] <- Service_Industrial/100
+
     cat(paste0("[Sankey_Function.R]: Likely need to add flows into ['Services_Resident_Other', 'Energy_Services'] into U, V, and Y matrices."),sep="\n")
     
     ## need to add ethanol and potentially a new input "ldv_ethanol" maybe some efficiency somewhere too?
@@ -149,9 +139,7 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
     
     k_prime <- matrix(data = c(frac_solar,frac_nuclear,frac_hydro, frac_wind, frac_geo, frac_ng, frac_coal, frac_bio, frac_petrol), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
        setrowtype("Products") %>% setcoltype("Industries")
-    # k_prime <- matrix(data = c(as.numeric(p_solar)/100, as.numeric(p_nuclear)/100, as.numeric(p_hydro)/100, as.numeric(p_wind)/100, as.numeric(p_geo)/100, as.numeric(p_ng)/100, as.numeric(p_coal)/100, as.numeric(p_bio)/100, as.numeric(p_petrol)/100), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
-    #   setrowtype("Products") %>% setcoltype("Industries")
- 
+
     # 1st recalculation based on k_prime. NOTE: sum(k_prime) must exactly equal 1 for the "new_k_ps" function to work.
     check_k_prime <- function(frac_ng,k_prime) {
       frac_ng <- frac_ng - (sum(k_prime)-1)
@@ -161,7 +149,7 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
         setrowtype("Products") %>% setcoltype("Industries")
       return(list(frac_ng,k_prime))
     }
-    # browser()  ## use to start debugging here
+
     cat(paste0("[Sankey_Function.R]: Check #1 if zero: sum(k_prime) - 1 = ", (sum(k_prime)-1)),sep="\n")
     if ((sum(k_prime)-1) != 0) { ## Check #2
       check_k_prime_output <- check_k_prime(frac_ng,k_prime)
@@ -176,36 +164,13 @@ sankey_json <- function(region_id, p_solar, p_nuclear, p_hydro, p_wind, p_geo, p
           frac_ng <- check_k_prime_output[[1]]
           k_prime <- check_k_prime_output[[2]]
     } } }
-    
-    ## ++++++++++++++++++
-    ## ++++++++++++++++++
-    # cat(paste0("[Sankey_Function.R]: Check #1 if zero: sum(k_prime) - 1 = ", (sum(k_prime)-1)),sep="\n")
-    # browser()  ## use to start debugging here
-    # if ((sum(k_prime)-1) != 0) { ## Check #2
-    #   frac_ng <- frac_ng - (sum(k_prime)-1)
-    #   ## Recalculate k_prime
-    #   k_prime <- matrix(data = c(frac_solar,frac_nuclear,frac_hydro, frac_wind, frac_geo, frac_ng, frac_coal, frac_bio, frac_petrol), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
-    #     setrowtype("Products") %>% setcoltype("Industries")
-    #   cat(paste0("[Sankey_Function.R]: Check #2 if zero (after correction): sum(k_prime) - 1 = ", (sum(k_prime)-1)),sep="\n")
-    #   if ((sum(k_prime)-1) != 0) { ## Check #3
-    #     frac_ng <- frac_ng - (sum(k_prime)-1)
-    #     ## Recalculate k_prime
-    #     k_prime <- matrix(data = c(frac_solar,frac_nuclear,frac_hydro, frac_wind, frac_geo, frac_ng, frac_coal, frac_bio, frac_petrol), ncol = 1, dimnames = list(c("Solar_Electricity", "Nuclear_Electricity", "Hydro_Electricity", "Wind_Electricity", "Geothermal_Electricity", "NaturalGas_Electricity", "Coal_Electricity", "Biomass_Electricity", "Petroleum_Electricity"), "Electricity_Grid")) %>%
-    #       setrowtype("Products") %>% setcoltype("Industries")
-    #     cat(paste0("[Sankey_Function.R]: Check #3 if zero (after correction): sum(k_prime) - 1 = ", (sum(k_prime)-1)),sep="\n")
-    #   } # if ((sum(k_prime)-1) != 0) { ## Check #3
-    # } # if ((sum(k_prime)-1) != 0) { ## Check #2
-    ## ++++++++++++++++++
-    ## ++++++++++++++++++
-    
+
     UV_k <- new_k_ps(c(io_mats, list(U = U, V = V, Y = Y, k_prime = k_prime)))
 
     # update io_mats_prime
     # sometimes small negative values appear due (likely) to computational approximations to zero, but negative values should not be in UV_k$V_prime and UV_k$U_prime as athey cause matrix inversion singularity
     UV_k$U_prime[which(UV_k$U_prime<tol)]=0
     UV_k$V_prime[which(UV_k$V_prime<tol)]=0
-    # UV_k$U_prime[which(UV_k$U_prime<0)]=0
-    # UV_k$V_prime[which(UV_k$V_prime<0)]=0
     io_mats_prime <- calc_io_mats(U = UV_k$U_prime, V = UV_k$V_prime, Y = Y, S_units = NULL)
 
     # 2nd recalculation based on Y_prime
