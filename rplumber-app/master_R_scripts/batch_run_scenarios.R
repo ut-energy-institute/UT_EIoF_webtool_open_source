@@ -38,7 +38,7 @@ times = c()
 #It first collects inputs needed to run the EFD. These are what would normally be entered on the website
 #     - percentage of generation by technology
 #     - percentage of electric light duty vehicles
-#     - percent of residential heating by techology
+#     - percent of residential heating by technology
 
 for(n in 1:nrow(simulations)){
   
@@ -49,7 +49,7 @@ for(n in 1:nrow(simulations)){
   
   print('')
   print('**************************************')
-  print(paste0('Running scenario ',n,' of ',nrow(simulations)))
+  print(paste0('Running simulation ',n,' of ',nrow(simulations)))
   print('**************************************')
   print('')
   
@@ -75,7 +75,7 @@ for(n in 1:nrow(simulations)){
   
   #check if this run already exists. If yes, skip it
   if(file.exists(paste0(save_folder,scenario_name,'.rds'))){
-    next
+    print('Simulaiton found, skipping to next one ')
    } else{
     start = Sys.time() #start timer
      
@@ -91,14 +91,14 @@ for(n in 1:nrow(simulations)){
   }
 
 
-  stop = Sys.time() - old #stop timer
-  times = append(times,as.numeric(new))
+  stop = Sys.time() - start #stop timer
+  times = append(times,as.numeric(stop))
   average_time = mean(times)
   time_left = ((nrow(simulations) - n)*average_time)/60/60
   
   print('########################')
   print('')
-  print(new) #read timer
+  print(stop) #read timer
   print(paste0('Average time is: ',average_time))
   print(paste0('Estimated time remaining is: ',time_left))
   print('')
