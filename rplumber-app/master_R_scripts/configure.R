@@ -41,7 +41,8 @@ for(file_name in g_sheets){
   sheet_meta = drive_upload(
     media = paste0(getwd(),"/GoogleSheets/",file_name),
     name,
-    type = "spreadsheet")
+    type = "spreadsheet",
+    overwrite = TRUE)
   
   #save the name and ID
   if(grepl('AnnualStorage', name, fixed = TRUE)){
