@@ -16,3 +16,4 @@ Installed_R_packages_container.html
 Updating_container_codes.html
 rplumber-app/master_R_scripts/simulations/*
 config.csv
+rplumber-app/master_R_scripts/EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.rdata
