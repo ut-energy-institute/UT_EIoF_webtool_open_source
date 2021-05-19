@@ -19,8 +19,8 @@ source('master_EIoF.R')
 
 
 #comment out this line and unccoment the next for testing in RStudio
-# batch_name = opt$b
-batch_name = 'test'
+batch_name = opt$b
+#batch_name = 'test'
 
 #read in specified simulations file
 simulations = read.csv(paste0('simulations_',batch_name,'.csv'))
