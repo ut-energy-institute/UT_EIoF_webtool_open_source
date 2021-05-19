@@ -1,19 +1,13 @@
-# UT EIoF webtool
+# Energy Futures Dashboard (EFD)
 
-This is the open source code for the UT-Austin Energy Institutes Energy Infrastructure of the Future web tool. 
+![Image of UT Energy Institute Logo](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/7941cb97ccaf1fb48a02933b714a1b71381cd66c/images/RGB_formal_Energy_Institute.png)
 
-**Tasks to complete for open sourcing**
+This GitHub repository contains the source code for the Energy Futures Dashboard, developed by researchers at The University of Texas Energy Institute. The EFD is a web-based tool with a user friendly interface that can be located [here](http://energyfuturesdashboard.energy.utexas.edu/).
 
-1. Go through code and remove redundant code, commented out code, unnecessary comments
-2. Add in clarifying comments
-3. Remove anything involving docker (other users should not need this since they won't be connecting to the website)
-4. Figure out how to prevent users to access the googlesheets
-5. Automate running code with a csv file?
-6. Provide instructions on setting up model and conducting a run
-   - Maybe create a script that installs all necessary R packages
-7. Provide descriptions of code and data files
+## Contents
+
+* [Introduction](#Introduction)
 
 
-Questions
-generate_FinalUVY_2050.R has a lot of commented out code. I think it would be best for Carey to take a look so I don't accidently remove anything I shouldn't. 
-
+<a name="Introduction"></a>
+The EFD is a product of the [Energy Ifrastructure of the Futures Study](https://energy.utexas.edu/policy/eiof). It is intended to provide access to a non-expert audience that has interest in environmental and economic energy-related tradeoffs but might lack the training, experience, or time to utilize more complex modeling tools.
