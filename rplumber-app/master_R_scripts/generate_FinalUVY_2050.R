@@ -5,13 +5,6 @@
 ##
 ## +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-## +++++++++++
-## These lines are removed when converting to a function
-## +++++++++++
-# rm(list=ls(all=TRUE))
-# setwd('/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/generate_FinalUVY_2050/')
-#generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG) {
-#generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage) {
 generate_FinalUVY_2050 <- function(RegionNumber,percent_ResidentialHeatPump,percent_ResidentialNG,Hourly_MW_NoStorage,Hourly_MW_AnnualStorage,PPdata_NoStorage,PPdata_AnnualStorage,percent_ElectricLDV,LDVmiles_current_region_2050,Total_AnnualMWh_LDV_EVs) {
 
 UserFraction.HeatPump = percent_ResidentialHeatPump/100 ## This is ultimately the user input
@@ -55,28 +48,7 @@ Base.Fraction.petroleum = 1 - Base.Fraction.HeatPump - Base.Fraction.NG  ## Frac
 regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
 Reg = regions[RegionNumber] 
 
-# ## LOOP FOR SAVING ALL INPUT "U" AND "V" MATRICES INTO A DATA FILE. USE ONLY TO RESAVE THE U AND V MATRICS.
-# U = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[1],"_Sankey_Final_U_2050.csv"))
-# V = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[1],"_Sankey_Final_V_2050.csv"))
-# rownames(U) <- U[,1]
-# U <- U[,-1]
-# rownames(V) <- V[,1]
-# V <- V[,-1]
-# U <- U*0
-# V <- V*0
-# U_2016_list <- list(U,U,U,U,U,U,U,U,U,U,U,U,U)  ## Make an empty list of 13 U matrices to fill in as we read them
-# U_2050_list <- list(U,U,U,U,U,U,U,U,U,U,U,U,U)  ## Make an empty list of 13 U matrices to fill in as we read them
-# V_2050_list <- list(V,V,V,V,V,V,V,V,V,V,V,V,V)  ## Make an empty list of 13 V matrices to fill in as we read them
-# for (r in 1:13) {
-#   U_2016_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r] ,"_Sankey_Input_U_2016.csv"))
-#   U_2050_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r],"_Sankey_Final_U_2050.csv"))
-#   V_2050_list[[r]] = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",regions[r],"_Sankey_Final_V_2050.csv"))
-# }
-# save(U_2016_list,U_2050_list,V_2050_list,file="generate_FinalUVY_2050_data/Base_UV_Matrices.Rdata")
 load("generate_FinalUVY_2050_data/Base_UV_Matrices.Rdata")  ## This loads baseline U, V, and Y matrices with values independent of user's inputs
-# U2016_baseline = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Input_U_2016.csv"))
-# U2050_PerUser = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Final_U_2050.csv"))
-# V2050_PerUser = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Final_V_2050.csv"))
 U2016_baseline = U_2016_list[[RegionNumber]]
 U2050_PerUser = U_2050_list[[RegionNumber]]
 V2050_PerUser = V_2050_list[[RegionNumber]]
@@ -84,17 +56,9 @@ U_NoStorage <- U2050_PerUser
 V_NoStorage <- V2050_PerUser
 U_AnnualStorage <- U2050_PerUser
 V_AnnualStorage <- V2050_PerUser
-# Y_NoStorage <- Y2050_PerUser
-# Y2050_PerUser = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Input_Y_2050.csv"))
-# Y_AnnualStorage <- Y2050_PerUser
+
 
 # ##Set first column of matrices as row names
-# rownames(U2016_baseline) <- U2016_baseline[,1]
-# U2016_baseline <- U2016_baseline[,-1]
-# rownames(U2050_PerUser) <- U2050_PerUser[,1]
-# U2050_PerUser <- U2050_PerUser[,-1]
-# rownames(V2050_PerUser) <- V2050_PerUser[,1]
-# V2050_PerUser <- V2050_PerUser[,-1]
 rownames(U_NoStorage) <- U_NoStorage[,1]
 U_NoStorage <- U_NoStorage[,-1]
 rownames(V_NoStorage) <- V_NoStorage[,1]
@@ -107,10 +71,7 @@ rownames(U2050_PerUser) <- U2050_PerUser[,1]
 U2050_PerUser <- U2050_PerUser[,-1]
 rownames(V2050_PerUser) <- V2050_PerUser[,1]
 V2050_PerUser <- V2050_PerUser[,-1]
-# # rownames(Y_NoStorage) <- Y_NoStorage[,1]
-# # Y_NoStorage <- Y_NoStorage[,-1]
-# # rownames(Y_AnnualStorage) <- Y_AnnualStorage[,1]
-# # Y_AnnualStorage <- Y_AnnualStorage[,-1]
+
 
 # # Read or state the conversion factor, using the U.S. Energy Information Administration (EIA)
 # # convention for converting renewable electricity to quads of primary energy.
