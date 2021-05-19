@@ -10,6 +10,9 @@ EIoF_gs4_function <- function(RegionNumber,GS_inputs_AnnualStorage,GS_inputs_NoS
   suppressMessages(library(dplyr))
   load("EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.Rdata")
   
+  config = read.csv('config.csv')
+  g_email = config$g_email
+  
   ## +++++++++++++
   ## Array and selection of the correct two Google Sheets for the given input EIoF Region
   ## +++++++++++++
