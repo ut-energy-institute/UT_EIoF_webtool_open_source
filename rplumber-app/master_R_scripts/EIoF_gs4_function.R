@@ -20,7 +20,7 @@ EIoF_gs4_function <- function(RegionNumber,GS_inputs_AnnualStorage,GS_inputs_NoS
   # ## Carey King's authorization for EIoF Google Sheet (06-11-2020)
   # ## NOTE: To allow the googlesheets4 package to access a google sheet, then you must invite this e-mail account to be editor of the Google Sheet:
   # ## +++++++++++++
-  gs4_auth(email = "danny.greer@utexas.edu",#"eiof-project@ambient-segment-274318.iam.gserviceaccount.com",
+  gs4_auth(email = g_email,
           scopes = "https://www.googleapis.com/auth/spreadsheets")#,
 
   eiof_AnnualStorage = gs4_get(googlesheet_fileID_AnnualStorage)
