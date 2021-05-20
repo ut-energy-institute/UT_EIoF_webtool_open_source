@@ -28,7 +28,6 @@ The file running_EFD_source_code.pptx, located in the repository, contains a ste
 
 Describe the workflow here.
 
-
 <a name="Initial Setup"></a>
 # Initial Setup
 
