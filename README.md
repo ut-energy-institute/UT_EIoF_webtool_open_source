@@ -30,13 +30,14 @@ The file running_EFD_source_code.pptx, located in the repository, contains a ste
 <a name="Workflow"></a>
 # Workflow
 
-Describe the workflow here.
+![Image of workflow diagram](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/9a9da91fe97eb504fcac38e3701dc84f328d37fb/images/flow_diagram.png)
 
+Figure 3. Flow diagram showing the workflow from start to finish of the EFD source code
 
 <a name="Setup"></a>
 # Initial Setup
 
-Before running the EFD for the first time, you need to run the file _config.R_ This executes a setup process that is needed in order to operate the EFD. This process does 4 things:
+Before running the EFD for the first time, you need to run the file _config.R_ in RStudio. This executes a setup process that is needed in order to operate the EFD. This process does 4 things:
   1. Install all necessary R packages needed to operate the EFD
   2. Upload the excel cashflow models for each region to a user's google drive account and convert them to google sheets
   3. Authorize R to read and write to google sheets on a user's google drive account
@@ -61,9 +62,14 @@ Figure 2. Every column is an input and every row represents a unique simulation
 <a name="GoogleSheets"></a>
 # Google Sheets
 
-Describe the Google Sheets here
+The R code of the EFD interfaces with a set of Google Sheets. There are two worksheets for each region, for a total of 26 worksheets. Each Google Sheet file has a series of worksheets that house all cost assumptions, historical data on power plant generation and capacity, and calculate costs using a cash flow approach from 2020 to 2050 based on the user inputs.  The EFD reads all output from the “Aggregation” worksheet for display to the user on the website.  Each region has 2 versions, one for “no curtailment (with storage)” and one for “full curtailment (no storage)”.  There is no difference in these two versions, and they are created only to be able to run them in parallel rather than in series
+
+To allow each user exclusive access to their own set of Google Sheets, these exist locally in the repo as excel files. They are easily uploaded and coverted to Google Sheets using the _config.R_ file. 
 
 <a name="Contact"></a>
 # Contact
 
-Put contact info here
+For questions regarding the EFD, its documentation, or its source code, please reach out to Dr. Carey King at The University of Texas Energy Institute
+
+Carey King
+careyking@mail.utexas.edu
