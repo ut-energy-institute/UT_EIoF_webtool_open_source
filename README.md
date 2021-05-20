@@ -47,8 +47,10 @@ Before running the EFD for the first time, you need to run the file _config.R_ T
 
 The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 2). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
     
-    `cd path/to/UT_EIoF_webtool
-    rscript run simulations.R -b test`
+    ```
+    cd path/to/UT_EIoF_webtool
+    rscript run simulations.R -b test
+    ```
     
 In this example, test is the batch name which is indicated by the -b flag. Both must be included for the simulations to execute. Once a simulation has completed, the output data will be saved as an Rdata file in /master_r_scripts/simulations/batch name. 
 
