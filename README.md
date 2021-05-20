@@ -7,6 +7,7 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 ## Contents
 
 * [Introduction](#Introduction)
+* [Downloading the code](#Download)
 * [Workflow](#Workflow)
 * [Initial Setup](#Setup)
 * [Operating the EFD](#Operating)
@@ -26,6 +27,12 @@ Figure 1. Regional definitions used in the Energy Futures Dashboard. Northwest (
 
 Documentation for the EFD model and its assumptions can be located [here](https://energy.utexas.edu/energy-futures-dashboard-documentation).
 The file running_EFD_source_code.pptx, located in the repository, contains a step by step walkthrough for setting up and operating the EFD.
+
+<a name="Download"></a>
+# Downloading the code
+To download the code, simply enter the following command into a terminal window.
+    `git clone https://github.com/ut-energy-institute/UT_EIoF_webtool_open_source.git`
+
 
 <a name="Workflow"></a>
 # Workflow
