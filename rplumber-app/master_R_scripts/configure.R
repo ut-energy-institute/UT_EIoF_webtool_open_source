@@ -61,6 +61,16 @@ for(file_name in g_sheets){
   }
 }
 
+print('###############################################################
+#             Installing R packages                           #
+###############################################################')
+
+install.packages(c('../R_packages_static/rlang_0.4.6.tar.gz','R_packages_static/glue_1.4.1.tar.gz','R_packages_static/lifecycle_0.2.0.tar.gz',
+'R_packages_static/mime_0.9.tar.gz','R_packages_static/magrittr_1.5.tar.gz','R_packages_static/swagger_3.33.0.tar.gz','R_packages_static/sodium_1.1.tar.gz',
+'R_packages_static/BH_1.72.0-3.tar.gz','R_packages_static/Rcpp_1.0.4.6.tar.gz','R_packages_static/later_1.1.0.1.tar.gz','R_packages_static/R6_2.4.1.tar.gz',
+'R_packages_static/promises_1.1.1.tar.gz','R_packages_static/crayon_1.3.4.tar.gz','R_packages_static/httpuv_1.5.3.1.tar.gz','R_packages_static/jsonlite_1.6.1.tar.gz',
+'R_packages_static/curl_4.3.tar.gz','R_packages_static/webutils_1.1.tar.gz','R_packages_static/stringi_1.4.6.tar.gz','R_packages_static/plumber_0.4.6.tar.gz'), 
+repos = NULL, type='source')
 
 ###############################################################
 #   Outputs                                                   #
