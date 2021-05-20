@@ -12,4 +12,4 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 <a name="Introduction"></a>
 The EFD is a product of the [Energy Infrastructure of the Futures Study](https://energy.utexas.edu/policy/eiof). It is intended to provide access to a non-expert audience that has interest in environmental and economic energy-related tradeoffs but might lack the training, experience, or time to utilize more complex modeling tools.
 
-Documentation for the EFD model and its assumptions can be located [hear](https://energy.utexas.edu/energy-futures-dashboard-documentation).
+Documentation for the EFD model and its assumptions can be located [here](https://energy.utexas.edu/energy-futures-dashboard-documentation).
