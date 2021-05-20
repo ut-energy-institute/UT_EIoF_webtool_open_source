@@ -18,7 +18,8 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 # Introduction
 The EFD is a product of the [Energy Infrastructure of the Futures Study](https://energy.utexas.edu/policy/eiof). It is a [web based tool](http://energyfuturesdashboard.energy.utexas.edu/) for modeling the growth, utilization, and impacts of energy on the U.S. economy. This tool is intended to provide access to a non-expert audience that has interest in environmental and economic energy-related tradeoffs but might lack the training, experience, or time to utilize more complex modeling tools.
 
-![Image of EIoF regions](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/7941cb97ccaf1fb48a02933b714a1b71381cd66c/images/eiof_regions.png)
+![Image of EIoF regions](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/8f2b11b6118319aec0d16d7081773b9dcb66086a/images/eiof_regions.png)
+
 
 The EFD divides the continental United States into 13 geographic regions (see Figure 1). The regional definitions enable us to investigate broad geographical differences in energy infrastructure capacities, supply costs, electricity demand and climate profiles, and number of customers. The EFD takes in, as inputs, a n integer from 1 - 13 identifying a region,  a 2050 power sector generation mix of up to 10 different fuel and technology types (coal, natural gas, nuclear, petroleum, biomass, geothermal, wind, PV, CSP, and hydro), the 2050 percentage of electrified light duty vehicles, and the 2050 percentage of household heating from either natural gas, electricity, or other technologies.
 
@@ -49,7 +50,7 @@ The EFD runs simulations in batches defined in simulations_{batch name}.csv. The
     
 In this example, test is the batch name which is indicated by the -b flag. Both must be included for the simulations to execute. Once a simulation has completed, the output data will be saved as an Rdata file in /master_r_scripts/simulations/batch name. 
 
-![Image of example simulations file](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/7941cb97ccaf1fb48a02933b714a1b71381cd66c/images/simulation_test.png)
+![Image of example simulations file](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/8f2b11b6118319aec0d16d7081773b9dcb66086a/images/simulation_test.png)
 
 <a name="Google Sheets"></a>
 # Google Sheets
