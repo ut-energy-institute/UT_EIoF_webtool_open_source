@@ -40,7 +40,7 @@ To download the code, simply enter the following command into a terminal window.
 
 ![Image of workflow diagram](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/9a9da91fe97eb504fcac38e3701dc84f328d37fb/images/flow_diagram.png)
 
-Figure 3. Flow diagram showing the workflow from start to finish of the EFD source code
+Figure 2. Flow diagram showing the workflow from start to finish of the EFD source code
 
 <a name="Setup"></a>
 # Initial Setup
@@ -54,7 +54,7 @@ Before running the EFD for the first time, you need to run the file _config.R_ i
 <a name="Operating"></a>
 # Operating the EFD
 
-The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 2). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
+The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 3). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
     
     ```
     cd path/to/UT_EIoF_webtool
@@ -65,7 +65,7 @@ In this example, test is the batch name which is indicated by the -b flag. Both 
 
 ![Image of example simulations file](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/8f2b11b6118319aec0d16d7081773b9dcb66086a/images/simulation_test.png)
 
-Figure 2. Every column is an input and every row represents a unique simulation
+Figure 3. Every column is an input and every row represents a unique simulation
 
 <a name="GoogleSheets"></a>
 # Google Sheets
