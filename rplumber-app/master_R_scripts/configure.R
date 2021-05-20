@@ -44,6 +44,13 @@ for(file_name in g_sheets){
     type = "spreadsheet",
     overwrite = TRUE)
   
+  drive_share(
+    file = name,
+    role = "writer",
+    type = "user",
+    emailAddress = g_email
+  )
+  
   #save the name and ID
   if(grepl('AnnualStorage', name, fixed = TRUE)){
     AnnualStorage_Name= append(AnnualStorage_Name,name)
@@ -53,6 +60,14 @@ for(file_name in g_sheets){
     NoStorage_ID = append(NoStorage_ID,sheet_meta$id)
   }
 }
+
+
+###############################################################
+#   Outputs                                                   #
+#   1. Rdata file containing the google sheet names and IDs   #
+#   2. config.csv file containing configuration settings      #
+###############################################################
+
 
 #Save a data file with all names and sheet IDs for each region
 EIoF_GoogleSheet_Names = data.frame(EIoF_Region, NoStorage_ID, NoStorage_Name, 
