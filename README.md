@@ -13,7 +13,6 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 * [Google Sheets](#Google Sheets)
 * [Contact](#Contact)
 
-
 <a name="Introduction"></a>
 # Introduction
 The EFD is a product of the [Energy Infrastructure of the Futures Study](https://energy.utexas.edu/policy/eiof). It is a [web based tool](http://energyfuturesdashboard.energy.utexas.edu/) for modeling the growth, utilization, and impacts of energy on the U.S. economy. This tool is intended to provide access to a non-expert audience that has interest in environmental and economic energy-related tradeoffs but might lack the training, experience, or time to utilize more complex modeling tools.
@@ -32,6 +31,7 @@ The file running_EFD_source_code.pptx, located in the repository, contains a ste
 
 Describe the workflow here.
 
+
 <a name="Initial Setup"></a>
 # Initial Setup
 
@@ -41,7 +41,7 @@ Before running the EFD for the first time, you need to run the file _config.R_ T
   3. Authorize R to read and write to google sheets on a user's google drive account
   4. Save a _config.csv_ file with any configuration settings that may be needed in the model.
 
-<a name="Operting the EFD"></a>
+<a name="Operating the EFD"></a>
 # Operating the EFD
 
 The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 2). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
