@@ -8,9 +8,9 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 
 * [Introduction](#Introduction)
 * [Workflow](#Workflow)
-* [Initial Setup](#Initial Setup)
-* [Operating the EFD](#Operating the EFD)
-* [Google Sheets](#Google Sheets)
+* [Initial Setup](#Setup)
+* [Operating the EFD](#Operating)
+* [Google Sheets](#GoogleSheets)
 * [Contact](#Contact)
 
 <a name="Introduction"></a>
@@ -32,7 +32,7 @@ The file running_EFD_source_code.pptx, located in the repository, contains a ste
 Describe the workflow here.
 
 
-<a name="Initial Setup"></a>
+<a name="Setup"></a>
 # Initial Setup
 
 Before running the EFD for the first time, you need to run the file _config.R_ This executes a setup process that is needed in order to operate the EFD. This process does 4 things:
@@ -41,7 +41,7 @@ Before running the EFD for the first time, you need to run the file _config.R_ T
   3. Authorize R to read and write to google sheets on a user's google drive account
   4. Save a _config.csv_ file with any configuration settings that may be needed in the model.
 
-<a name="Operating the EFD"></a>
+<a name="Operating"></a>
 # Operating the EFD
 
 The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 2). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
@@ -54,7 +54,7 @@ In this example, test is the batch name which is indicated by the -b flag. Both 
 ![Image of example simulations file](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/8f2b11b6118319aec0d16d7081773b9dcb66086a/images/simulation_test.png)
 Figure 2. Every column is an input and every row represents a unique simulation
 
-<a name="Google Sheets"></a>
+<a name="GoogleSheets"></a>
 # Google Sheets
 
 Describe the Google Sheets here
