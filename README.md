@@ -8,7 +8,7 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 
 * [Introduction](#Introduction)
 * [Workflow](#Workflow)
-* [Initial Setup](#Initital Setup)
+* [Initial Setup](#Initial Setup)
 * [Operating the EFD](#Operating the EFD)
 * [Google Sheets](#Google Sheets)
 * [Contact](#Contact)
@@ -28,7 +28,7 @@ The file running_EFD_source_code.pptx, located in the repository, contains a ste
 
 
 
-<a name="Initital Setup"></a>
+<a name="Initial Setup"></a>
 # Initial Setup
 
 Before running the EFD for the first time, you need to run the file _config.R_ This executes a setup process that is needed in order to operate the EFD. This process does 4 things:
