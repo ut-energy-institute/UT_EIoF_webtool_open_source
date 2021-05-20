@@ -26,6 +26,7 @@ The file running_EFD_source_code.pptx, located in the repository, contains a ste
 <a name="Workflow"></a>
 # Workflow
 
+Describe the workflow here.
 
 
 <a name="Initial Setup"></a>
@@ -50,5 +51,9 @@ In this example, test is the batch name which is indicated by the -b flag. Both 
 <a name="Google Sheets"></a>
 # Google Sheets
 
+Describe the Google Sheets here
+
 <a name="Contact"></a>
 # Contact
+
+Put contact info here
