@@ -6,7 +6,6 @@
 
 EIoF_gs4_function <- function(RegionNumber,GS_inputs_AnnualStorage,GS_inputs_NoStorage){
 
-  library(googlesheets4) 
   suppressMessages(library(dplyr))
   load("EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.Rdata")
   
@@ -20,8 +19,7 @@ EIoF_gs4_function <- function(RegionNumber,GS_inputs_AnnualStorage,GS_inputs_NoS
   googlesheet_fileID_AnnualStorage = EIoF_GoogleSheet_Names$AnnualStorage_ID[RegionNumber]   ## This is ID for spreashseet to perform "NoStorage" calculations  
 
   # ## +++++++++++++
-  # ## Carey King's authorization for EIoF Google Sheet (06-11-2020)
-  # ## NOTE: To allow the googlesheets4 package to access a google sheet, then you must invite this e-mail account to be editor of the Google Sheet:
+  # ## Authorization for EIoF Google Sheet (06-11-2020)
   # ## +++++++++++++
   gs4_auth(email = g_email,
           scopes = "https://www.googleapis.com/auth/spreadsheets")#,
