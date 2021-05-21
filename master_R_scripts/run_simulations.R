@@ -14,7 +14,6 @@ option_list = list(
 )
 opt = parse_args(OptionParser(option_list=option_list))
 
-# setwd('/Users/danny/Documents/UT_EIoF_webtool/rplumber-app/master_R_scripts')
 source('master_EIoF.R')
 
 
