@@ -110,17 +110,6 @@ geothermal_fraction = geothermal_percent / 100
 ## +++++++++
 ## Read data and set initial parameters
 ## +++++++++
-## Hourly data
-# wind_8760=read.csv(paste0("solveGen_data/Wind_Profiles_",year,".csv"))  ## Data must be input as "MW output per hour per installed MW of capacity"
-# PV_8760=read.csv(paste0("solveGen_data/PV_Profiles_",year,".csv"))      ## Data must be input as "MW output per hour per installed MW of capacity"
-# CSP_8760=read.csv(paste0("solveGen_data/CSP_Profiles_",year,".csv"))    ## Data must be input as "MW output per hour per installed MW of capacity"
-# save(wind_8760,file="solveGen_data/wind_8760.Rdata")
-# save(PV_8760,file="solveGen_data/PV_8760.Rdata")
-# save(CSP_8760,file="solveGen_data/CSP_8760.Rdata")
-# load("solveGen_data/wind_8760.Rdata")
-# load("solveGen_data/PV_8760.Rdata")
-# load("solveGen_data/CSP_8760.Rdata")
-#save(wind_8760,PV_8760,CSP_8760,file="solveGen_data/renewables_2016profiles_8760.Rdata")
 if (year == 2016) {
   load("solveGen_data/renewables_2016profiles_8760.Rdata")
   } else {
@@ -130,59 +119,22 @@ if (year == 2016) {
 ## ++++++
 ## Data indicating were renewables (wind, PV, and CSP) can be built yet serve load in another region
 ## ++++++
-# Tranfer_RegionFromTo_CSP=read.csv("solveGen_data/FractionFromRegionToRegion_Matrix_CSP.csv")   ## An input-output matrix: For all of the user's desired CSP electricity TO region on the COLUMN, what fraction comes FROM the region of the ROW
-# Tranfer_RegionFromTo_PV=read.csv("solveGen_data/FractionFromRegionToRegion_Matrix_PV.csv")     ## An input-output matrix: For all of the user's desired PV electricity TO region on the COLUMN, what fraction comes FROM the region of the ROW
-# Tranfer_RegionFromTo_Wind=read.csv("solveGen_data/FractionFromRegionToRegion_Matrix_Wind.csv") ## An input-output matrix: For all of the user's desired (onshore) Wind electricity TO region on the COLUMN, what fraction comes FROM the region of the ROW
-# rownames(Tranfer_RegionFromTo_CSP) <- Tranfer_RegionFromTo_CSP[,1]
-# Tranfer_RegionFromTo_CSP <- Tranfer_RegionFromTo_CSP[,-1]
-# rownames(Tranfer_RegionFromTo_PV) <- Tranfer_RegionFromTo_PV[,1]
-# Tranfer_RegionFromTo_PV <- Tranfer_RegionFromTo_PV[,-1]
-# rownames(Tranfer_RegionFromTo_Wind) <- Tranfer_RegionFromTo_Wind[,1]
-# Tranfer_RegionFromTo_Wind <- Tranfer_RegionFromTo_Wind[,-1]
-# # MilesTransmission_RegionFromTo_Wind=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_Wind.csv")
-# MilesTransmission_RegionFromTo_CSP=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_CSP.csv")
-# MilesTransmission_RegionFromTo_PV=read.csv("solveGen_data/MilesTransmissionFromRegionToRegion_Matrix_PV.csv")
-# rownames(MilesTransmission_RegionFromTo_Wind) <- MilesTransmission_RegionFromTo_Wind[,1]
-# MilesTransmission_RegionFromTo_Wind <- MilesTransmission_RegionFromTo_Wind[,-1]
-# rownames(MilesTransmission_RegionFromTo_CSP) <- MilesTransmission_RegionFromTo_CSP[,1]
-# MilesTransmission_RegionFromTo_CSP <- MilesTransmission_RegionFromTo_CSP[,-1]
-# rownames(MilesTransmission_RegionFromTo_PV) <- MilesTransmission_RegionFromTo_PV[,1]
-# MilesTransmission_RegionFromTo_PV <- MilesTransmission_RegionFromTo_PV[,-1]
-# save(Tranfer_RegionFromTo_CSP,Tranfer_RegionFromTo_PV,Tranfer_RegionFromTo_Wind,MilesTransmission_RegionFromTo_PV,MilesTransmission_RegionFromTo_CSP,MilesTransmission_RegionFromTo_Wind,file="solveGen_data/Tranfer_RegionFromTo.Rdata")
+
 load("solveGen_data/Tranfer_RegionFromTo.Rdata")
 
 ## ++++++
 ## Load data for land area per EIoF region
 ## ++++++
-# land_area <- read.csv("solveGen_data/US Census Area of US States.csv",header=T,stringsAsFactors = FALSE)
-# land_area_EIoF <- land_area[1:13,-c(1,2)]
-# land_area_EIoF[,c(1:4)] <- 0
-# target_regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions ,in order
-# land_area_EIoF$EIoF_Region <- target_regions
-# for (i in 1:13) {
-#   indices <- which(land_area$EIoF_Region==land_area_EIoF$EIoF_Region[i])
-#   land_area_EIoF$TotalArea_SqMi[i] <- sum(land_area$TotalArea_SqMi[indices])
-#   land_area_EIoF$TotalArea_SqKm[i] <- sum(land_area$TotalArea_SqKm[indices])
-#   land_area_EIoF$LandArea_SqMi[i]  <- sum(land_area$LandArea_SqMi[indices])
-#   land_area_EIoF$LandArea_SqKm[i]  <- sum(land_area$LandArea_SqKm[indices])
-# }
-# acre_per_SqMi <- 640 ## Coversion from square miles to acres
-# hetare_per_SqKm <- 100 ## Coversion from square kilometers to hectares
-# land_area_EIoF$LandArea_Hectare <- hetare_per_SqKm*land_area_EIoF$LandArea_SqKm
-# land_area_EIoF$LandArea_Acre <- acre_per_SqMi*land_area_EIoF$LandArea_SqMi
-# save(land_area_EIoF,file="solveGen_data/land_area_ByEIoF.Rdata")
 load("solveGen_data/land_area_ByEIoF.Rdata")
 acre_perMW_CSP_totalarea <- 9.0  ## assumed number of acres of "Total Area" for CSP Power Tower configurations 
 acre_perMW_CSP_direct <- 8.0  ## assumed number of acres of "Direct Area" for CSP Power Tower configurations 
 acre_perMW_PV_totalarea <- 5.4  ## assumed number of acres of "Total Area" for solar PV 
 acre_perMW_PV_direct <- 4.9  ## assumed number of acres of "Direct Area" for solar PV 
 hectare_perMW_wind_direct <- 0.3  ## assumed number of hectares of "Direct Area" for wind farms 
-#hectare_perMW_wind_totalarea <- 34.5  ## assumed number of hectares of "Total Project Area" for wind farms, including all area circumscribed with turbines in their layout 
 km2_per_hectare_wind_totalarea <- 1/5  ## From Hand et al. (2012) Table A-10 (NREL Renewable Futures Study)
 hectare_per_acre <- 0.404686
 acre_per_km2 <- 247.105
 acre_perMW_wind_direct <- hectare_perMW_wind_direct/hectare_per_acre  ## assumed number of acres of "Direct Area" for wind farms 
-#acre_perMW_wind_totalarea <- hectare_perMW_wind_totalarea/hectare_per_acre  ## assumed number of acres of "Total Project Area" for wind farms 
 acre_perMW_wind_totalarea <- km2_per_hectare_wind_totalarea*acre_per_km2  ## assumed number of acres of "Total Project Area" for wind farms 
 
 ## ++++++
@@ -195,12 +147,8 @@ regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  
 MaxCapacity_perRegion_perTech_MW <- data.frame(rep(0,13),rep(0,13),rep(0,13),rep(0,13),rep(0,13))
 names(MaxCapacity_perRegion_perTech_MW) <- c("Wind_total","PV","CSP","Biomass","Geothermal")
 row.names(MaxCapacity_perRegion_perTech_MW) <- regions
-# MaxCapacity_perRegion_perTech_MW <- data.frame(regions,rep(0,13),rep(0,13),rep(0,13),rep(0,13),rep(0,13),rep(0,13))
-# names(MaxCapacity_perRegion_perTech_MW) <- c("EIoF_Region","Wind_onshore","Wind_offshore","PV","CSP","Biomass","Geothermal")
 for (i in 1:length(regions)) {
   MaxCapacity_perRegion_perTech_MW$Wind_total[i] <- sum(wind_data_onshore_EIoF_List[[i]]$capacity_MW) + sum(wind_data_offshore_EIoF_List[[i]]$capacity_MW)
-  # MaxCapacity_perRegion_perTech_MW$Wind_onshore[i] <- sum(wind_data_onshore_EIoF_List[[i]]$capacity_MW)
-  # MaxCapacity_perRegion_perTech_MW$Wind_offshore[i] <- sum(wind_data_offshore_EIoF_List[[i]]$capacity_MW)
   MaxCapacity_perRegion_perTech_MW$PV[i] <- sum(upv_data_all_EIoF_List[[i]]$capacity_MW)
   if (i!=12 & i!=13) { ## Some EIoF reigons (Regions 12=NY and 13=NE) have 0 MW of capacity potential for CSP
     MaxCapacity_perRegion_perTech_MW$CSP[i] <- sum(csp_data_all_EIoF_List[[i]]$capacity_MW)
@@ -278,17 +226,6 @@ MW_data_CSP <- 1    ## [this is a needed initial input for internal optimization
 ## Cost data (that mostly set up names for internal data frames)
 ## Cost data do not influence the calculations of this code (except to confirm NG is )
 ## ++++++
-# ###NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN.csv")  ## A proxy set of cost input data for newly installed power plants
-# ###NewPPcost <- NewPPcost[order(NewPPcost$X),]
-# ###assign('NewPPcost',NewPPcost,envir=.GlobalEnv)
-# ###assign('StorageCost',StorageCost,envir=.GlobalEnv)
-# ###save(NewPPcost,StorageCost,file="solveGen_data/PowerPlantCosts.Rdata")
-# ###load("solveGen_data/PowerPlantCosts.Rdata")
-# regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
-# df.tech_generic <- read.csv("solveGen_data/Technology_DataFrame_Generic.csv")
-# NewPPcost = read.csv("solveGen_data/NewTechnologyCosts_solveGEN_AllRegions.csv")  ## A proxy set of cost input data for newly installed power plants
-# StorageCost = read.csv("solveGen_data/StorageTechnologyCosts_solveGEN.csv") ## A proxy set of cost for electricity storage technologies
-#save(NewPPcost,StorageCost,regions,df.tech_generic,file="solveGen_data/PowerPlantCosts_20200413.Rdata")
 load("solveGen_data/PowerPlantCosts_20200413.Rdata")
 
 ## +++++++++
@@ -307,11 +244,8 @@ CSP_8760_profile <- CSP_profiles_multiplier*CSP_8760[,3:15]
 ## Load the 2050 hourly generation requirement from the "generate8760.R" code
 ## These data are an output from "generate8760.R".
 ## +++++++++
-#load("generate8760_output.Rdata")  ## Loads the hourly generation profile saved by "generate8760.R"
-#load("solveGen_data/Total_Hourly_MW_8760_CurrentRegion.Rdata")  ## Loads the hourly generation profile saved by "generate8760.R"
 data=data.frame(seq(1,8760),Total_Hourly_MW_8760_CurrentRegion,rowSums(wind_8760_profile[,]),rowSums(PV_8760_profile[,]),rowSums(CSP_8760_profile[,]))
 names(data)=c("Hour.ending","Load_MW","Wind_MW","SolarPV_MW","SolarCSP_MW")
-#assign('data',data,envir=.GlobalEnv)
 
 
 ## +++++++++
@@ -323,11 +257,7 @@ names(data)=c("Hour.ending","Load_MW","Wind_MW","SolarPV_MW","SolarCSP_MW")
 ## 1. The user's desired fraction for TOTAL Hydro goes into "Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("HydroNonDispatch"))]"
 ## 2. Then HydroNonDispatch is solved, and any remaining MWh from hydro is the assigned to: Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("HydroDispatch"))]
 ## +++++++++++++++
-#cat(paste0("User input goes into Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired for `HydroNonDispatch'."),sep="\n")
-#cat(paste0("Then any remaining MWh for total hydro is later assigned to Frac_MWhDesired_dispatchable$Fraction_MWhDesired for `HydroDispatch'."),sep="\n")
 
-#Frac_MWhDesired_dispatchable <- NewPPcost
-#Frac_MWhDesired_dispatchable <- Frac_MWhDesired_dispatchable[,-c(3:dim(Frac_MWhDesired_dispatchable)[2])]
 Frac_MWhDesired_dispatchable <- df.tech_generic
 Frac_MWhDesired_dispatchable <- Frac_MWhDesired_dispatchable[,-c(3:dim(Frac_MWhDesired_dispatchable)[2])]
 colnames(Frac_MWhDesired_dispatchable) <- c("Technology","Fraction_MWhDesired")
@@ -350,8 +280,6 @@ Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatcha
 Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology==c("Geothermal"))] <- geothermal_fraction  ## Geothermal
 
 # Initialize "Frac_MWhDesired" for non-dispatchable technologies
-#Frac_MWhDesired_Nondispatchable <- NewPPcost
-#Frac_MWhDesired_Nondispatchable <- Frac_MWhDesired_Nondispatchable[,-c(3:dim(Frac_MWhDesired_Nondispatchable)[2])]
 Frac_MWhDesired_Nondispatchable <- df.tech_generic
 Frac_MWhDesired_Nondispatchable <- Frac_MWhDesired_Nondispatchable[,-c(3:dim(Frac_MWhDesired_Nondispatchable)[2])]
 colnames(Frac_MWhDesired_Nondispatchable) <- c("Technology","Fraction_MWhDesired")
@@ -377,7 +305,6 @@ assign('Frac_MWhDesired_Nondispatchable',Frac_MWhDesired_Nondispatchable,envir=.
 if (Frac_MWhDesired_NG_total<0) {
   print("The inputs have specified a desired percentage of NG generation < 0%. Setting NG generation to 0%. Ensure the sum of each type of generation = 100%.")
   Frac_MWhDesired_NG_total=as.integer(0)
-  ##break
 }
 
 ## +++++++++++++++
@@ -437,15 +364,11 @@ nuclear_avg_CapacityFactor <- 0.95  ## a value < 1.0 implies that even if nukes 
 PP_MWneeded_NukeTemp <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
 data$Nuclear_MW <- rep(1,8760)*PP_MWneeded_NukeTemp
 PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- PP_MWneeded_NukeTemp/nuclear_avg_CapacityFactor
-#PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- sum(data$Load_MW)/8760*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Nuclear")]
-#data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
 if (max(data$Nuclear_MW) > min(data$Load_MW)) {  ## Then nuclear capacitiy is larger than the minimum load and the EIoF tool assumes this is not allowed
   Nuclear.MaxPct <- min(data$Load_MW)*8760/sum(data$Load_MW)
   PP_MWneeded_NukeTemp <- min(data$Load_MW)*.999
   data$Nuclear_MW <- rep(1,8760)*PP_MWneeded_NukeTemp
   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- PP_MWneeded_NukeTemp/nuclear_avg_CapacityFactor
-  # PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")] <- min(data$Load_MW)*.999
-  # data$Nuclear_MW <- rep(1,8760)*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]
   cat(paste0("Your choice leads to ",sprintf("%.1f", max(data$Nuclear_MW))," MW of nuclear.",sep="\n"))
   cat(paste0("The maximum allowed capacity for nuclear is ",sprintf("%.1f", min(data$Load_MW))," MW to achieve up to ",sprintf("%.1f", Nuclear.MaxPct*100)," % of generation.",sep="\n"))
   cat(paste0("Reduce your desired % of MWh from nuclear."))
@@ -480,10 +403,6 @@ if (max(data$Nuclear_MW) > min(data$Load_MW)) {  ## Then nuclear capacitiy is la
 ## capacity (MW) of the existing fleet per region.
 ## 
 ## ++++++++++++
-# cat("The HydroDispatch works if the user specifies MORE HydroDispatch than is possible.",sep="\n")
-# cat("The HydroNonDispatch works if the user specifies MORE HydroNonDispatch than is possible.",sep="\n")
-# cat("HydroNonDispatch and HydroDispatch works if user wants LESS than total possible hydro MWh.",sep="\n")
-# cat("Hydro programming does not allow ADDING hydro capacity (MW) and energy (MWh).",sep="\n")
 
 ##  First check if user wants more total hydro than allowed by existing energy budget.
 PPCost_CurrentRegion <- NewPPcost[which(NewPPcost$EIoF_region==regions[RegionNumber]),]
@@ -517,25 +436,12 @@ for (i in 1:5) {
   data$HydroNonDispatch_MW[start.ind:end.ind] <- rep(HydroNonDispatch_hourly_max[i],hour_per_season[i])
   start.ind <- end.ind + 1
 }
-## Calculate the maximum capacity factors (CFmax) for the existing hydropower fleet. 
-# index.temp<-which(NewPPcost$X=="HydroNonDispatch")
-# CFmax_HydroNonDispatch <- c(NewPPcost$MWh_max_WinterJanFeb[index.temp],NewPPcost$MWh_max_Spring[index.temp],NewPPcost$MWh_max_Summer[index.temp],NewPPcost$MWh_max_Fall[index.temp],NewPPcost$MWh_max_WinterNovDec[index.temp])/NewPPcost$MW_existing[index.temp]/hour_per_season
-# data$CFmax_HydroNonDispatch <- c(rep(CFmax_HydroNonDispatch[1],hour_per_season[1]),rep(CFmax_HydroNonDispatch[2],hour_per_season[2]),rep(CFmax_HydroNonDispatch[3],hour_per_season[3]),rep(CFmax_HydroNonDispatch[4],hour_per_season[4]),rep(CFmax_HydroNonDispatch[5],hour_per_season[5]))
-# index.temp<-which(NewPPcost$X=="HydroDispatch")
-# CFmax_HydroDispatch <- c(NewPPcost$MWh_max_WinterJanFeb[index.temp],NewPPcost$MWh_max_Spring[index.temp],NewPPcost$MWh_max_Summer[index.temp],NewPPcost$MWh_max_Fall[index.temp],NewPPcost$MWh_max_WinterNovDec[index.temp])/NewPPcost$MW_existing[index.temp]/hour_per_season
-# data$CFmax_HydroDispatch <- c(rep(CFmax_HydroDispatch[1],hour_per_season[1]),rep(CFmax_HydroDispatch[2],hour_per_season[2]),rep(CFmax_HydroDispatch[3],hour_per_season[3]),rep(CFmax_HydroDispatch[4],hour_per_season[4]),rep(CFmax_HydroDispatch[5],hour_per_season[5]))
-
-#PP_MWneeded_HydroNonDispatch <- min(HydroNonDispatch_hourly_max,PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")])  ## maximum hourly MW output from HydroNonDispatch
-#cat(paste0("Here still need to solve for whether hourly MW of HydroNonDispatch can increase with new capacity.",sep="\n"))
 
 ## Account for any possible curtailment. Here, there is NO adjustment of hydro capacity if there is curtailment.
 ## There is only a reduction in the hourly output as needed to ensure "Nuclear + HydroNonDispatch" generation <= total load.
 data$Load_minus_Nuclear_MW <- data$Load_MW - data$Nuclear_MW
 data$Load_minus_Nuclear_MW_and_NonDispatchHydro_MW <- data$Load_MW - data$Nuclear_MW - data$HydroNonDispatch_MW
 if ( length(which(data$Load_minus_Nuclear_MW_and_NonDispatchHydro_MW<0)) != 0 )  {
-  # if (max(data$HydroNonDispatch_MW) > min(data$Load_minus_Nuclear_MW)) {
-  #   cat(paste0("Your choice leads to ",sprintf("%.1f", max(data$HydroNonDispatch_MW))," MW of non-dispatchable hydro.",sep="\n"))
-  #   cat(paste0("The maximum amount of non-dispatchable hydro is ",sprintf("%.1f", min(data$Load_minus_Nuclear_MW))," MW.",sep="\n"))
   cat(paste0("There is too much capacity for the combination of non-dispatchable Hydro and Nuclear.",sep="\n"))
   cat(paste0("This program assumes the curtailment of non-dispatchable hydro to ameliorate the problem.",sep="\n"))
   cat(paste0("Alternatively, you can choose to reduce your desired % of MWh from non-dispatchable hydro or nuclear power.",sep="\n"))
@@ -558,14 +464,6 @@ if ( frac_HydroNonDispatch > Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired
 Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology=="HydroDispatch")] <- max(0,(Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("HydroNonDispatch"))] - frac_HydroNonDispatch))
 # Must update the desired fraction from HydroNonDispatch (by lowering it) because this is used for later calculations that determine HydroDipatch.
 Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="HydroNonDispatch")] <- frac_HydroNonDispatch
-
-## Check if HydroNonDispatch hourly MW output exceeds the maximum MW of capacity allowed to be installed.
-# if (max(data$HydroNonDispatch_MW/data$CFmax_HydroNonDispatch) > NewPPcost$MW_maximum[which(NewPPcost$X=="HydroNonDispatch")]) {
-#   cat(paste0("Your choice leads to ",sprintf("%.1f", max(data$HydroNonDispatch_MW/data$CFmax_HydroNonDispatch))," MW of non-dispatchable hydro.",sep="\n"))
-#   cat(paste0("The maximum amount of non-dispatchable hydro capacity is ",sprintf("%.1f", NewPPcost$MW_maximum[which(NewPPcost$X=="HydroNonDispatch")])," MW.",sep="\n"))
-#   cat(paste0("Reduce your desired % of MWh from non-dispatchable hydro."))
-#   break
-# }
 
 ## Check if annual HydroNonDispatch MWh output (now at its maximum) is greater than the desired output by the user. 
 ## If the user wants less HydroNonDispatch than is possible, then reduce HydroNonDispatch later 
@@ -607,11 +505,8 @@ function_dispatchable_generators <- function(multiplier){
   MWgeneration <- MWgeneration_temp + MWgeneration_to_subtract
   ## calculate the fraction of total load served by the current dispatchable generator
   frac.MWh <- sum(MWgeneration)/sum(data$Load_MW)
-  ## calculate how many MWh (if any) are being generated more than any maximum allowable MWh due to resource size limitations (only really applicale for biomass and geothermal)
-  #MWh_over_limit <- max((sum(MWgeneration)/MWh_max[PPnumber] - 1),0)  
   ## Objective function to minimize
   sum( 1e6*(frac.MWh-PP_MWneeded$Fraction_MWhDesired[PPnumber])^2 )
-  # sum( 1e6*(frac.MWh-PP_MWneeded$Fraction_MWhDesired[PPnumber])^2 + 1e4*MWh_over_limit)  ## use 1e4*MWh_over_limit with "MWh_over_limit" as a ratio
 } ## function_dispatchable_generators <- function(multiplier){
 
 ## ++++++++++++
@@ -685,9 +580,6 @@ function_Wind_PV_CSP_daily_storage_tiny <- function(multiplier){
   ## remove generation each hour that is above net load (generator must operate < 100% capacity)
   net_load_minus_MWgeneration_bottom <- net_load_storage_tiny - MWgeneration_bottom
   net_load_minus_MWgeneration_bottom[net_load_minus_MWgeneration_bottom<0] <- 0
-  # MWgeneration_to_subtract <- net_load_minus_MWgeneration
-  # MWgeneration_to_subtract[MWgeneration_to_subtract>0] <- 0
-  # MWgeneration <- MWgeneration_temp + MWgeneration_to_subtract
   ## Objective function to minimize
   sum( 1e6*(storage_budget_tiny - sum(net_load_minus_MWgeneration_bottom))^2 )
 } ## function_Wind_PV_CSP_daily_storage_tiny <- function(multiplier,storage_budget,net_load){
@@ -729,14 +621,8 @@ function_solve_hydro_dispatch <- function(hr_max,max_capacity,hydro_budget,net_l
         area1 = sum(net_load_duration_input$MW[1:hr_transition])
       }
       
-      ## Calculate area2
-      # hr_end_area2 <- min(which(net_load_duration_input$MW<(net_load_duration_input$MW[hr_transition] - NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")])) )  ## This returns "hr_end_area2 = Inf" if there are no hours when any of "net_load_duration_input$MW" are less than the quantity in question
-      # if ( (is.infinite(hr_end_area2)==TRUE) | (hr_end_area2>hours_in_season) ) {
-      #   hr_end_area2 = hours_in_season
-      # }
-      #hr_end_area2_vector <- which(net_load_duration_input$MW<(net_load_duration_input$MW[hr_transition] - max_capacity))
       hr_end_area2_vector <- which(net_load_duration_input$MW<(net_load_duration_input$MW[hr_transition] - max_hydro_dispatch_possible))
-      #hr_end_area2_vector <- 
+      
       if ( length(hr_end_area2_vector)==0 ) {
         hr_end_area2 = hours_in_season
       } else {
@@ -750,21 +636,15 @@ function_solve_hydro_dispatch <- function(hr_max,max_capacity,hydro_budget,net_l
       if ( (area1+area2)<=hydro_budget)  {  ## Then we are now successfully dispatching HydroDispatch as much as we can within capacity (MW) and energy (MWh) constraints
         ## NOTE: If we never reach the condition "(area1+area2)<=hydro_budget", "then net_load_duration_input$HydroDispatch_MW" remains all zeros as per it is input as all zeros.
         ## Then we can end this for loop because we have found the critical "hr_transition"
-        # net_load_duration_input$HydroDispatch_MW[1:hr_transition] <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
-        #net_load_duration_input$HydroDispatch_MW[1:hr_transition] <- max_capacity
         net_load_duration_input$HydroDispatch_MW[1:hr_transition] <- pmin(net_load_duration_input$MW[1:hr_transition],rep(max_hydro_dispatch_possible,hr_transition))
         if ( hr_end_area2 > (hr_transition+1) ) {
           ## Need to figure out how to detrmine dispatch each hour from "(hr_transition+1)" to "hr_end_area2"
           net_load_duration_input$HydroDispatch_MW[(hr_transition+1):hr_end_area2] <- net_load_duration_input$MW[(hr_transition+1):hr_end_area2] - net_load_duration_input$MW[hr_end_area2]
         } else {
           ## Have to individually specify the HydroDispatch for the last hour (lowest net load) for this season.
-          # if ( (hydro_budget-(area1+area2)) > NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")] ) {
-          #if ( (hydro_budget-(area1+area2)) > max_capacity ) {
           if ( (hydro_budget-(area1+area2)) > max_hydro_dispatch_possible ) {
             ## If this is the case, then there is more energy budget than can be dispatched at the maximum capacity.
             ## Thus, the HydroDispatch for this last hour of net load is dispatched at the exising MW cacpacity for HydroDispatch.
-            # net_load_duration_input$HydroDispatch_MW[hr_end_area2] <- NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")]
-            #net_load_duration_input$HydroDispatch_MW[hr_end_area2] <- max_capacity
             net_load_duration_input$HydroDispatch_MW[hr_end_area2] <- max_hydro_dispatch_possible
           } else {
             ## Then the hydro_budget that is left is less than the total capacity of existing HydroDispatch, so just dispatch all of the remaining energy budget.
@@ -787,8 +667,6 @@ function_solve_hydro_dispatch <- function(hr_max,max_capacity,hydro_budget,net_l
         net_load_minus_MWgeneration_bottom <- net_load_storage_tiny - MWgeneration_bottom
         net_load_minus_MWgeneration_bottom[net_load_minus_MWgeneration_bottom<0] <- 0
         net_load_duration_input$HydroDispatch_MW <- net_load_minus_MWgeneration_bottom
-        # rm(net_load_storage_tiny,storage_budget_tiny)
-        # net_load_duration_input$HydroDispatch_MW[i] <- hydro_budget  ## This is a simple answer that dispatches all of "hydro_budget" in the peak hour of net load (and no other hours)
       } else if ( hr_transition==2 & ((area1+area2)>hydro_budget) ) { ## minimum hr_transition = 2; 
         ## Then the hydro or other storage can never discharge at its maximum capacity.
         area1 <- 0
@@ -818,190 +696,6 @@ function_solve_hydro_dispatch <- function(hr_max,max_capacity,hydro_budget,net_l
 ## ++++++++++++
 
 
-# ## ++++++++++++
-# ## BEGIN: FUNCTION function_Wind_PV_CSP_daily_storage
-# ## FUNCTION for evaluationg the objective function to determine wind and solar capacity (both PV and CSP)
-# ## when assuming THERE IS DAILY DISPATCH OF STORAGE OF WIND AND SOLAR ELECTRICITY.
-# ## ++++++++++++
-# function_Wind_PV_CSP_daily_storage <- function(x){
-#   multiplier.wind <- x[1]
-#   multiplier.PV <- x[2]
-#   multiplier.CSP <- x[3]
-#   MW_capacity_DailyStorage <- x[4]
-#   SOC_initial <- x[5]     ## intial state of charge (charge on December 31 of previous year), in units of MWh
-# 
-#   multiplied.wind <- multiplier.wind*data$Wind_MW
-#   multiplied.PV <- multiplier.PV*data$SolarPV_MW
-#   multiplied.CSP <- multiplier.CSP*data$SolarCSP_MW
-#   ## "net load" here is = Load - Nuclear - HydroNonDispatch - Wind - PV
-#   net_load <- data$Load_MW - data$Nuclear_MW - data$HydroNonDispatch_MW - multiplied.wind - multiplied.PV - multiplied.CSP
-#   ind <- which(net_load<0)  ## These are the indices of the net load vector that are negative
-# 
-#   # ## +++++++++++++++++++++++++
-#   # ## Subroutine for storage dispatch - BEGIN
-#   # ## +++++++++++++++++++++++++
-#   # StorageDispatchDaily_bottom <- rep(0,dim(data)[1])  ## nrow = maximum number of days in any season
-#   # StorageDispatchDaily <- StorageDispatchDaily_bottom
-#   # ## Go through each day and assume that storage can distpatch to take the peak net load
-#   # ## that is left, but limited by (1) capacity (MW output at any hour) and (2) energy (MWh) state of charge (SOC).
-#   # StorageDispatchDaily_bottom <- rep((max(net_load[net_load>0])-MW_capacity_storage),length(net_load))
-#   # ## Start at peak net_load and add up all MWh generated if adding up the "area"
-#   # ## of the net_load curve from the top down, or between the net_load values as
-#   # ## bottom to top == (peak net_load - multiplier) to (peak net_load).
-#   # StorageDispatchDaily <- net_load - StorageDispatchDaily_bottom
-#   # ## calculate the fraction of total load served by dispatched storage
-#   # StorageDispatchDaily[StorageDispatchDaily<0] <- 0
-#   # frac_storage.MWh <- sum(StorageDispatchDaily)/sum(data$Load_MW)
-#   # ## +++++++++++++++++++++++++
-#   # ## Subroutine for storage dispatch - END
-#   # ## +++++++++++++++++++++++++
-# 
-#   ## +++++++++++++++++
-#   ## First: Calculate curtailed wind and solar (both PV and CSP) generation.
-#   ## This curtailment is what is potentially stored.
-#   ## Subtract a portion of curtailment from the current amount of wind and PV in "multiplied.wind"
-#   ## "multiplied.PV", and "multiplied.CSP".  The wind and solar are curtailed in proportion to how much they are generating.
-#   ## So if you have to curtail 1000 MW, and at that hour there is 10,000 MW of wind and 5,000 MW of PV,
-#   ## then PV is 33% of the total and wind is 67% of total "wind + solar", and wind will be curtailed
-#   ## 1000MW*67% = 667 MW and PV will be curtailed 1000MW*33% = 333 MW.
-#   ## +++++++++++++++++
-#   curtailed_WindSolar <- net_load
-#   curtailed_WindSolar[curtailed_WindSolar>0]=0
-#   curtailed_WindSolar <- -curtailed_WindSolar
-#   noncurtailed_WindSolar <- multiplied.wind+multiplied.PV+multiplied.CSP
-#   wind_fraction = multiplied.wind/noncurtailed_WindSolar
-#   PV_fraction = multiplied.PV/noncurtailed_WindSolar
-#   CSP_fraction = multiplied.CSP/noncurtailed_WindSolar
-#   curtailed_Wind <- curtailed_WindSolar*wind_fraction
-#   curtailed_PV   <- curtailed_WindSolar*PV_fraction
-#   curtailed_CSP  <- curtailed_WindSolar*CSP_fraction
-#   curtailed_Wind[is.na(curtailed_Wind)==TRUE] <- 0  ## ensure there are no NA from dividing by zero
-#   curtailed_PV[is.na(curtailed_PV)==TRUE] <- 0      ## ensure there are no NA from dividing by zero
-#   curtailed_CSP[is.na(curtailed_CSP)==TRUE] <- 0    ## ensure there are no NA from dividing by zero
-# 
-#   ## Second: calculate how much wind and PV is put onto grid after removing curtailed MW from their non-curtailed MW generation
-#   multiplied.wind_DirectToGrid <- multiplied.wind
-#   multiplied.wind_DirectToGrid <- multiplied.wind - curtailed_Wind
-#   # multiplied.wind_DirectToGrid[ind] <- multiplied.wind[ind] + net_load[ind]*wind_fraction[ind]
-#   multiplied.PV_DirectToGrid <- multiplied.PV
-#   multiplied.PV_DirectToGrid <- multiplied.PV - curtailed_PV
-#   multiplied.CSP_DirectToGrid <- multiplied.CSP
-#   multiplied.CSP_DirectToGrid <- multiplied.CSP - curtailed_CSP
-# 
-#   ## +++++++++++++++++
-#   ## Assume that we can neglect the initial state of charge (SOC_initial) by assuming that 
-#   ## 1. the storage system stores all curtailed wind and solar (= "curtailed_WindSolar")
-#   ## 2. the storage system, over the course of the year, cannot dispatches more than "curtailed_WindSolar*efficiency_OneWay_DailyStorage"
-#   ## 3. if the system needed an initial state of charge (say on January 1 at midnight), then this could be provided by carrying over 
-#   ##    storage from the previous year as long as it is not larger than the maximum total MWh storage capacity needed on any other day point during the year.
-#   ## The storage algorithm works as follows:
-#   ## 1. Assume that "charging" only occurs for wind and solar generation that would otherwise be curtailed.
-#   ##    Thus, storage "charging" cannot occur when net load is >= 0.
-#   ## 2. Storage "discharging" can only occur when net load is >= 0.
-#   ## 3. The MW capacity for "charging" equals the MW capacity for "discharging".
-#   ## 4. The MW capacity for "charging" is an optimized variable defined as the maximum amount of "otherwise curtailed wind and solar" (or negative net load) experienced.
-#   ## +++++++++++++++++
-#   capacity.wind <- MW_data_Wind*multiplier.wind
-#   capacity.PV <- MW_data_PV*multiplier.PV
-#   capacity.CSP <- MW_data_CSP*multiplier.CSP
-#   StoredWindSolar <- curtailed_WindSolar*efficiency_OneWay_DailyStorage^2                ## First, assume all curtailed wind and solar is stored, subtracting MWh due to efficiency loss
-#   StoredWindSolar[StoredWindSolar>MW_capacity_DailyStorage] <- MW_capacity_DailyStorage  ## Next, this says I can't store energy faster in any given hour, due to power constraint, than the MW power capacity of the storage system
-#   StoredWind <- StoredWindSolar*curtailed_Wind/(curtailed_Wind+curtailed_PV+curtailed_CSP)
-#   StoredPV <- StoredWindSolar*curtailed_PV/(curtailed_Wind+curtailed_PV+curtailed_CSP)
-#   StoredCSP <- StoredWindSolar*curtailed_CSP/(curtailed_Wind+curtailed_PV+curtailed_CSP)
-#   StoredWind[is.nan(StoredWind)=="TRUE"]=0
-#   StoredPV[is.nan(StoredPV)=="TRUE"]=0
-#   StoredCSP[is.nan(StoredCSP)=="TRUE"]=0
-#   
-#   ## Go through each day "day_now" to determine storage dispatch that can only come from electricity
-#   ## that was already stored on day "day_now - 1".  This mimics the idea of day-ahead committment of generation.
-#   # SOC_initial <- StoredWindSolar[length(StoredWindSolar)]  ## assume final storage left on Dec. 31 is carried over to be used on January 1.
-#   # StoredWindSolar_cumulative <- SOC_initial + cumsum(StoredWindSolar)
-#   # Dispatched_StoredWindSolar <- positive_net_load  ## This is all times when net load is positive, and thus during which storage can potentially be dispatched
-#   # Dispatched_StoredWindSolar[Dispatched_StoredWindSolar>MW_capacity_DailyStorage] <- MW_capacity_DailyStorage  ## This limits discharge any hour to the MW capacity of the storage technology
-#   ##
-#   ## Dispatch storage on "day_now" using storage existing on previous "day_now - 1" to reduce the peak load hours on "day_now"
-#   ## using as much energy as is stored or until all net_load has been dispatched using storage.
-#   ## Use the function "function_solve_hydro_dispatch" that was derived for dispatching seasonal HydroDispatch
-#   ## because we can use the same algorithm (e.g., a limited storage budget dispatched ideally for a given net load)
-#   hrs_per_day = 24
-#   positive_net_load <- net_load
-#   positive_net_load[positive_net_load<0] <- 0
-#   Dispatched_StoredWindSolar <- rep(0,dim(data)[1])  ## Initialize a data frame of hourly storage dispatch
-#   Dispatched_StoredWindSolar <- matrix(0, ncol = 1, nrow = dim(data)[1])  
-#   Dispatched_StoredWindSolar <- data.frame(Dispatched_StoredWindSolar)
-#   names(Dispatched_StoredWindSolar) <- c("MW")
-#   Dispatched_StoredWindSolar$Hrs <- seq(1,dim(data)[1])
-#   StorageBudget_day_now = rep(0,length(positive_net_load)/hrs_per_day)  ## Initialize a data frame of daily storage budget (same idea as seasonal storage budget for HydroDispatch)
-#   StorageBudget_day_now[1] = SOC_initial
-#   net_load_duration_day <- matrix(0, ncol = 1, nrow = hrs_per_day)  ## Initialize a data frame that will be the daily net load duration curve that is updated as the dispatch function is called for each day of the year
-#   net_load_duration_day <- data.frame(net_load_duration_day)
-#   names(net_load_duration_day) <- c("MW")
-#   net_load_duration_day$Hrs <- seq(1,hrs_per_day)
-#   net_load_duration_day$HydroDispatch_MW <- rep(0,dim(net_load_duration_day)[1])  ## here the term "HydroDispatch" is used becuase we use the "function_solve_hydro_dispatch" that already assumed that terminology
-#   net_load_duration_day$MW <- positive_net_load[1:hrs_per_day]
-#   net_load_duration_day <- net_load_duration_day[order(-net_load_duration_day$MW),]
-#   hr_max <- min((hrs_per_day-1),ceiling(StorageBudget_day_now[1]/MW_capacity_DailyStorage)) ## Here we need to make the function "function_solve_hydro_dispatch" start at an hour that is lower than the maximum hours in the day
-#   ## Solve storage dispatch each day
-#   for (i in 2:(length(positive_net_load)/hrs_per_day)) {  ## Go through each day
-#     ## Determine dispatch in day "i-1"
-#     if (StorageBudget_day_now[i-1]>0) {
-#       storage_day_now_outputs <- function_solve_hydro_dispatch(hr_max,MW_capacity_DailyStorage,StorageBudget_day_now[i-1],net_load_duration_day,hrs_per_day)
-#       Dispatched_StoredWindSolar$MW[((i-2)*hrs_per_day+1):((i-1)*hrs_per_day)] <- storage_day_now_outputs$HydroDispatch_MW
-#       ## Now items are being updated to determine dispatch in day "i"
-#       StorageBudget_day_now[i] = StorageBudget_day_now[i-1] + sum(StoredWindSolar[((i-1)*hrs_per_day+1):(i*hrs_per_day)]) - sum(storage_day_now_outputs$HydroDispatch_MW) ## budget from yesterdaty + what you stored today - what you dispatched today
-#     } else {
-#       Dispatched_StoredWindSolar$MW[((i-2)*hrs_per_day+1):((i-1)*hrs_per_day)] <- rep(0,hrs_per_day)
-#       ## Now items are being updated to determine dispatch in day "i"
-#       StorageBudget_day_now[i] = StorageBudget_day_now[i-1] + sum(StoredWindSolar[((i-1)*hrs_per_day+1):(i*hrs_per_day)]) ## budget from yesterdaty + what you stored today - what you dispatched today
-#     } ##END: else with ... if (StorageBudget_day_now[i]>0) {
-#       ## Create next day's net load duration curve
-#       net_load_duration_day$MW <- positive_net_load[((i-1)*hrs_per_day+1):(i*hrs_per_day)]
-#       net_load_duration_day$Hrs <- seq(((i-1)*hrs_per_day+1),(i*hrs_per_day))
-#       net_load_duration_day$HydroDispatch_MW <- rep(0,dim(net_load_duration_day)[1])  ## Reset this to zeros. Here the term "HydroDispatch" is used becuase we use the "function_solve_hydro_dispatch" that already assumed that terminology
-#       net_load_duration_day <- net_load_duration_day[order(-net_load_duration_day$MW),]
-#       hr_max <- max((hrs_per_day-1),ceiling(StorageBudget_day_now[i]/MW_capacity_DailyStorage)) ## Here we need to make the function "function_solve_hydro_dispatch" start at an hour that is lower than the maximum hours in the day
-#   } ##END: for (i in 2:(length(positive_net_load)/hrs_per_day)) {
-#   ## Figure out how much of wind, PV, and CSP were dispatched as storage.
-#   ## For simplicity, assume storage dispatched from each of wind, PV, and CSP
-#   ## occurs at the same fraction each was curtailed each day. This should be close enough.
-#   Dispatched_StoredWindSolar_cumulative <- cumsum(Dispatched_StoredWindSolar$MW)
-#   StoredWind_cumulative <- cumsum(StoredWind)
-#   StoredPV_cumulative <- cumsum(StoredPV)
-#   StoredCSP_cumulative <- cumsum(StoredCSP)
-#   last_yr <- length(Dispatched_StoredWindSolar_cumulative)
-#   Dispatched_StoredWind <- StoredWind_cumulative[last_yr]*(StoredWind_cumulative[last_yr]+StoredPV_cumulative[last_yr]+StoredCSP_cumulative[last_yr])/Dispatched_StoredWindSolar_cumulative[last_yr]
-#   Dispatched_StoredPV <- StoredPV_cumulative[last_yr]*(StoredWind_cumulative[last_yr]+StoredPV_cumulative[last_yr]+StoredCSP_cumulative[last_yr])/Dispatched_StoredWindSolar_cumulative[last_yr]
-#   Dispatched_StoredCSP <- StoredCSP_cumulative[last_yr]*(StoredWind_cumulative[last_yr]+StoredPV_cumulative[last_yr]+StoredCSP_cumulative[last_yr])/Dispatched_StoredWindSolar_cumulative[last_yr]
-# 
-#   # ## +++++++++++++++++++++
-#   # ## TESTING STORAGE FUNCTION
-#   # ## +++++++++++++++++++++
-#   # plot(cumsum(StorageDispatch),type = "l",lty=1,col="black")
-#   # #  plot(cumsum(StorageDispatch),type = "l",ylim = c(0,1e6),lty=1,col="black")
-#   # par(new=TRUE)
-#   # plot(cumsum(curtailed_WindSolar),type = "l",ylim = c(0,1e6),lty=1,col="blue")
-#   # par(new=TRUE)
-#   # plot(cumsum(StoredElectricity_max),type = "l",ylim = c(0,1e6),lty=2,col="red")
-# 
-#   ## +++++++++++++++++
-#   ## Calculate the fraction of total load served by wind and solar to use
-#   ## in the objective function.
-#   ## +++++++++++++++++
-#   frac.wind <- sum(multiplied.wind_DirectToGrid,Dispatched_StoredWind)/sum(data$Load_MW)
-#   frac.PV <- sum(multiplied.PV_DirectToGrid,Dispatched_StoredPV)/sum(data$Load_MW)
-#   frac.CSP <- sum(multiplied.CSP_DirectToGrid,Dispatched_StoredCSP)/sum(data$Load_MW)
-#   ## Calculate capital cost of wind, PV, CSP, and storage to target minimum capital cost alongside meeting the user target for the % of wind, PV, and CSP
-#   capital_cost <- max(MW_capacity_DailyStorage*StorageCost$CAPEX_DollarsPerkW[which(StorageCost$X=="DailyStorage")],sum(Dispatched_StoredWindSolar$MW)*StorageCost$CAPEX_DollarsPerkWh[which(StorageCost$X=="DailyStorage")]) + 
-#     capacity.wind*NewPPcost$AnnualizedCapitalCost_k..MWyear[which(NewPPcost$X=="Wind")]+capacity.PV*NewPPcost$AnnualizedCapitalCost_k..MWyear[which(NewPPcost$X=="PV")]+capacity.CSP*NewPPcost$AnnualizedCapitalCost_k..MWyear[which(NewPPcost$X=="CSP")]
-#   return(1e-8*capital_cost + sum(1e7*( (frac.wind-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="Wind")])^2 + (frac.PV-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="PV")])^2 + (frac.CSP-Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="CSP")])^2 ) ))
-# }
-# ## ++++++++++++
-# ## END: FUNCTION function_Wind_PV_CSP_daily_storage
-# ## FUNCTION for evaluationg the objective function to determine wind and solar capacity (both PV and CSP)
-# ## when assuming THERE IS DAILY DISPATCH OF STORAGE OF WIND AND SOLAR ELECTRICITY.
-# ## ++++++++++++
-
 ## ****************************************
 ## ++++++++++++
 ## BEGIN: FUNCTION function_Wind_PV_CSP_annual_storage
@@ -1012,34 +706,13 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   multiplier.wind <- x[1]
   multiplier.PV <- x[2]
   multiplier.CSP <- x[3]
-  #MW_capacity_AnnualStorage <- x[4]
-  #SOC_initial <- x[5]     ## intial state of charge (charge on December 31 of previous year), in units of MWh
-  
+
   multiplied.wind <- multiplier.wind*data$Wind_MW
   multiplied.PV <- multiplier.PV*data$SolarPV_MW
   multiplied.CSP <- multiplier.CSP*data$SolarCSP_MW
   ## "net load" here is = Load - Nuclear - HydroNonDispatch - Wind - PV
   net_load <- data$Load_MW - data$Nuclear_MW - data$HydroNonDispatch_MW - multiplied.wind - multiplied.PV - multiplied.CSP
   ind <- which(net_load<0)  ## These are the indices of the net load vector that are negative
-  
-  # ## +++++++++++++++++++++++++
-  # ## Subroutine for storage dispatch - BEGIN
-  # ## +++++++++++++++++++++++++
-  # StorageDispatchDaily_bottom <- rep(0,dim(data)[1])  ## nrow = maximum number of days in any season
-  # StorageDispatchDaily <- StorageDispatchDaily_bottom
-  # ## Go through each day and assume that storage can distpatch to take the peak net load
-  # ## that is left, but limited by (1) capacity (MW output at any hour) and (2) energy (MWh) state of charge (SOC).
-  # StorageDispatchDaily_bottom <- rep((max(net_load[net_load>0])-MW_capacity_storage),length(net_load))
-  # ## Start at peak net_load and add up all MWh generated if adding up the "area"
-  # ## of the net_load curve from the top down, or between the net_load values as
-  # ## bottom to top == (peak net_load - multiplier) to (peak net_load).
-  # StorageDispatchDaily <- net_load - StorageDispatchDaily_bottom
-  # ## calculate the fraction of total load served by dispatched storage
-  # StorageDispatchDaily[StorageDispatchDaily<0] <- 0
-  # frac_storage.MWh <- sum(StorageDispatchDaily)/sum(data$Load_MW)
-  # ## +++++++++++++++++++++++++
-  # ## Subroutine for storage dispatch - END
-  # ## +++++++++++++++++++++++++
   
   ## +++++++++++++++++
   ## First: Calculate curtailed wind and solar (both PV and CSP) generation.
@@ -1096,7 +769,6 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   StoredWindSolar <- curtailed_WindSolar*efficiency_OneWay_DailyStorage^2                ## First, assume all curtailed wind and solar is stored, subtracting MWh due to efficiency loss
   StoredWindSolar[StoredWindSolar>MW_capacity_AnnualStorage] <- MW_capacity_AnnualStorage  ## Next, this says I can't store energy faster in any given hour, due to power constraint, than the MW power capacity of the storage system
   StoredWindSolar_cumulative <- cumsum(StoredWindSolar) ## Cumulative storage of wind and solar MWh
-  #StoredWindSolar_cumulative <- SOC_initial + StoredWindSolar_cumulative        ## Set intial cumulative storage as the initial State of Charge
   StoredWind <- StoredWindSolar*curtailed_Wind/(curtailed_Wind+curtailed_PV+curtailed_CSP)
   StoredPV <- StoredWindSolar*curtailed_PV/(curtailed_Wind+curtailed_PV+curtailed_CSP)
   StoredCSP <- StoredWindSolar*curtailed_CSP/(curtailed_Wind+curtailed_PV+curtailed_CSP)
@@ -1104,13 +776,6 @@ function_Wind_PV_CSP_annual_storage <- function(x){
   StoredPV[is.nan(StoredPV)=="TRUE"]=0
   StoredCSP[is.nan(StoredCSP)=="TRUE"]=0
   
-  ## Go through each day "day_now" to determine storage dispatch that can only come from electricity
-  ## that was already stored on day "day_now - 1".  This mimics the idea of day-ahead committment of generation.
-  # SOC_initial <- StoredWindSolar[length(StoredWindSolar)]  ## assume final storage left on Dec. 31 is carried over to be used on January 1.
-  # StoredWindSolar_cumulative <- SOC_initial + cumsum(StoredWindSolar)
-  # Dispatched_StoredWindSolar <- positive_net_load  ## This is all times when net load is positive, and thus during which storage can potentially be dispatched
-  # Dispatched_StoredWindSolar[Dispatched_StoredWindSolar>MW_capacity_AnnualStorage] <- MW_capacity_AnnualStorage  ## This limits discharge any hour to the MW capacity of the storage technology
-  ##
   ## Dispatch storage on "day_now" using storage existing on previous "day_now - 1" to reduce the peak load hours on "day_now"
   ## using as much energy as is stored or until all net_load has been dispatched using storage.
   ## Use the function "function_solve_hydro_dispatch" that was derived for dispatching seasonal HydroDispatch
@@ -1203,22 +868,16 @@ multiplier_init.PV <- 1e3*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[wh
 multiplier_init.CSP <- 1e3*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("CSP"))] ## Solar CSP
 multipliers <- c(multiplier_init.wind,multiplier_init.PV)  ## initial guesses into optimization to find multipliers for wind and solar profiles
 lb = c(0,0,0)   ## lower bound on multipliers for wind and solar profiles
-#ub = rep(1e9,3)   ## upper bound on multipliers for wind and solar profiles
 ub = c(constrained_capacity_NoStorage.Wind,constrained_capacity_NoStorage.PV,constrained_capacity_NoStorage.CSP)   ## upper bound on multipliers for wind and solar profiles
 init_guesses <- c(multiplier_init.wind,multiplier_init.PV,multiplier_init.CSP)
 max_iters <- 200
 tolerance_NoStorage <- 1e10
-##wind_solar_multipliers <- Rcgmin(fn=function_Wind_PV_CSP,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
-#wind_solar_multipliers <- optimr(par=init_guesses,fn=function_Wind_PV_CSP,gr=NULL,lower=lb,upper=ub,method=NULL,hessian=NULL,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_NoStorage))
 print("In solveGEN.R: Start optimize wind and solar capacity (no storage).")
 wind_solar_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_NoStorage))
 print("In solveGEN.R: Completed optimize wind and solar capacity (no storage).")
-# cat(paste0("wind_solar_multipliers (no storage) convergence code is: ",wind_solar_multipliers$convergence),sep = "\n")
-# cat(paste0("wind_solar_multipliers (no storage) 'counts' to call function is: ",wind_solar_multipliers$counts),sep = "\n")
 multiplier.wind <- wind_solar_multipliers$par[1]
 multiplier.PV <- wind_solar_multipliers$par[2]
 multiplier.CSP <- wind_solar_multipliers$par[3]
-#browser()  ## Forces debugging to stop here
 
 
 ## +++++++++++++++
@@ -1273,7 +932,6 @@ for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NG
       ub = c(geothermal_MW_max)
     }
     ## Run optimization to solve each dispatchable capacity except for HydroDispatch which is assumed to remove peaks as much as possible later in the code.
-    #MWcapacity_multiplier <- Rcgmin(fn=function_dispatchable_generators,lower=lb,par=init_guesses,control=list(dowarn=FALSE))
     MWcapacity_multiplier <- Rcgmin(fn=function_dispatchable_generators,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE))
 
     # Make any PP_MWneeded$MW_needed < a certain threshold just become zero.
@@ -1324,7 +982,6 @@ print("In solveGEN.R: End of solve dispatch of dispatchable technologies (no sto
 PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")] <- MW_data_Wind*multiplier.wind
 PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")] <- MW_data_PV*multiplier.PV
 PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")] <- MW_data_CSP*multiplier.CSP
-#browser()  ## stops code here when running
 
 ## +++++++++++++++++
 ## Calculate curtailed wind and solar (both PV and CSP) generation.
@@ -1433,8 +1090,6 @@ if (hr_max_fall >sum(hour_per_season[c(4)])) {
 }
 max_capacity_fall <- PPCost_CurrentRegion$MW_existing[which(PPCost_CurrentRegion$Technology=="HydroDispatch")]
 
-#if (NotEnoughHydro == 1) { 
-## NotEnoughHydro == 1.
 ## Here we solve for hydro dispatch by reducing the peak net loads each season as much as possible usign HydroDispatch.
 ## This is done by analyzing the net load duration curve for each season.
 
@@ -1475,18 +1130,11 @@ HydroOutputs_fall$HydroDispatch_MW <- HydroOutputs_fall$HydroDispatch_MW + Hydro
 data$HydroDispatch_MW <- c(HydroOutputs_winter$HydroDispatch_MW[1:hour_per_season[1]],HydroOutputs_spring$HydroDispatch_MW[1:hour_per_season[2]],HydroOutputs_summer$HydroDispatch_MW[1:hour_per_season[3]],HydroOutputs_fall$HydroDispatch_MW[1:hour_per_season[4]],HydroOutputs_winter$HydroDispatch_MW[(hour_per_season[1]+1):(hour_per_season[1]+hour_per_season[5])])
 
 if (NotEnoughHydro == 0) { 
-  # ## Then solve for some level of HydroDispatch that is < total energy budget possible
-  # init_guesses <- rep(0.5*NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")],5)  ## initial guess at how much to multiply existing PV profile
-  # lb = rep(0,5)   ## lower bound on MW capacity for dispatchable hydro
-  # ub = rep(NewPPcost$MW_maximum[which(NewPPcost$X=="HydroDispatch")],5)   ## upper bound on MW capacity for dispatchable hydro
-  # ## Run optimization to solve each dispatchable capacity except for HydroDispatch which is assumed to remove peaks as much as possible.
-  # MWcapacity_multiplier <- Rcgmin(fn=function_dispatchable_hydro_seasonally,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE))
-  
+
   ## Here, if the user does not want to have as much total hydro MWh, HydroDispatch + HydroNonDispatch,
   ## then to meet the user's requirements, we subtract some amount of hydro generation from that already 
   ## solved as if the total amount of hydro energy (MWh) budget were used.
   user_hydro_budget <- sum(data$Load_MW)*(Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology=="HydroDispatch")] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="HydroNonDispatch")])
-  #HydroNonDispatch_budget <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]
   HydroNonDispatch_budget <- PPCost_CurrentRegion$MWh_max_WinterJanFeb[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_WinterNovDec[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Spring[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Summer[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Fall[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]
   if (user_hydro_budget <= HydroNonDispatch_budget) {
     data$HydroDispatch_MW <- rep(0,dim(data)[1])  ## there is no HydroDispatch if the user wants less than the energy budget of HydroNonDispatch
@@ -1507,7 +1155,7 @@ if (NotEnoughHydro == 0) {
     data_hydro_dispatch_temp <- data_hydro_dispatch_temp[order(-data_hydro_dispatch_temp$HydroDispatch_MW),]  ## rank the "data_hydro_dispatch_temp" from highest to lowest MW of dispatch
     hr_end <- max(which(data_hydro_dispatch_temp$HydroDispatch_MW>0))
     HydroDispatch_toRemove <- sum(data$HydroDispatch_MW) - HydroDispatch_budget_total 
-    for (i in 1:hr_end) { ## 
+    for (i in 1:hr_end) {  
       HydroDispatch_removed <- sum(data_hydro_dispatch_temp$HydroDispatch_MW)-sum(data_hydro_dispatch_temp$HydroDispatch_MW[1:(hr_end-1)])
       if (HydroDispatch_removed < HydroDispatch_toRemove) {
         hr_end = hr_end-1
@@ -1550,10 +1198,6 @@ data$net_load_solveNG <- data$Load_MW - data$generation_non_NG
 net_load_duration_solveNG <- data$net_load_solveNG
 net_load_duration_solveNG <- net_load_duration_solveNG[order(-net_load_duration_solveNG)]
 ## find range of data$hour.ending when NGCC is lowest cost and/or NGCT is lowest cost.
-#ind.NGCC <- which(NewPPcost$X==c("NGCC"))
-#ind.NGCT <- which(NewPPcost$X==c("NGCT"))
-#data$NGCC_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-#data$NGCT_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 ind.NGCC <- which(PPCost_US$Technology==c("NGCC"))
 ind.NGCT <- which(PPCost_US$Technology==c("NGCT"))
 data$NGCC_Cost_8760 <- PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((PPCost_US$VariableOMCost_..MWh[ind.NGCC]+PPCost_US$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
@@ -1644,30 +1288,19 @@ PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="HydroNonDispatch")
 ## Solve for PV and Wind using gradient based search
 ## To make the gradient-based optimization work well, the initial conditions 
 ## need to be scaled with the desired fractions of wind and solar.
-# multiplier_init.wind <- 0.5*multiplier.wind
-# multiplier_init.PV <- 0.5*multiplier.PV
-# multiplier_init.CSP <- 0.5*multiplier.CSP
+
 multiplier_init.wind <- 1e3*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("Wind"))]  ## Wind
 multiplier_init.PV <- 1e3*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("PV"))] ## Solar PV
 multiplier_init.CSP <- 1e3*Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology==c("CSP"))] ## Solar CSP
 assign('efficiency_OneWay_DailyStorage',sqrt(.85))  ## Make the storage efficiency a global variable
 lb = c(0,0,0)   ## lower bound on multipliers for wind and solar profiles and storage parameters
-# ub = c(3*max(data$Load_MW)/MW_data_Wind,10*max(data$Load_MW)/MW_data_PV,10*max(data$Load_MW)/MW_data_CSP)   ## upper bound on multipliers for wind and solar profiles and storage parameters
-#ub = c(multiplier.wind,multiplier.PV,multiplier.CSP)   ## upper bound on multipliers for wind and solar profiles and storage parameters
-#ub = rep(1e9,3)   ## lower bound on multipliers for wind and solar profiles
 ub = c(constrained_capacity_NoStorage.Wind,constrained_capacity_NoStorage.PV,constrained_capacity_NoStorage.CSP)   ## upper bound on multipliers for wind and solar profiles
 init_guesses <- c(multiplier_init.wind,multiplier_init.PV,multiplier_init.CSP)
 max_iters <- 200
 tolerance_AnnualStorage <- 1e10
-# ####wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
-# wind_solar_AnnualStorage_multipliers <- Rcgmin(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters))
-#wind_solar_AnnualStorage_multipliers <- optimr(fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE,maxit=max_iters,abstol=tolerance_AnnualStorage))
-#browser() ## stops here for debugging when running code
 print("In solveGEN.R: Start optimize wind and solar capacity (annual storage).")
 wind_solar_AnnualStorage_multipliers <- optim(par=init_guesses,fn=function_Wind_PV_CSP_annual_storage,lower=lb,upper=ub,method = c("L-BFGS-B"),control=list(maxit=max_iters,factr=tolerance_AnnualStorage))
 print("In solveGEN.R: Completed optimize wind and solar capacity (annual storage).")
-# cat(paste0("wind_solar_multipliers (annual storage) convergence code is: ",wind_solar_AnnualStorage_multipliers$convergence),sep = "\n")
-# cat(paste0("wind_solar_multipliers (annual storage) 'counts' to call function is: ",wind_solar_AnnualStorage_multipliers$counts),sep = "\n")
 multiplier_WithAnnualStorage.wind <- wind_solar_AnnualStorage_multipliers$par[1]
 multiplier_WithAnnualStorage.PV   <- wind_solar_AnnualStorage_multipliers$par[2]
 multiplier_WithAnnualStorage.CSP  <- wind_solar_AnnualStorage_multipliers$par[3] # make these zero if desired fraction is zero
@@ -1688,10 +1321,6 @@ data$net_load_WithAnnualStorageNoCurtailment <- data$Load_MW - data$Nuclear_MW -
 data$net_load_WithAnnualStorageWithCurtailment <- data$net_load_WithAnnualStorageNoCurtailment
 data$net_load_WithAnnualStorageWithCurtailment[data$net_load_WithAnnualStorageWithCurtailment<0]=0
 
-###SOC_initial_init <- 1e5                   ## Assumed initial state of charge (MWh) of the daily storage system
-###MW_capacity_WithAnnualStorage_init <- 2e3  ## Assumed initial guess of the MW capacity of the daily storage system
-###xx <- c(multiplier_WithAnnualStorage.wind,multiplier_WithAnnualStorage.PV,multiplier_WithAnnualStorage.CSP,MW_capacity_WithAnnualStorage,SOC_initial_WithAnnualStorage)
-###output_temp <- function_Wind_PV_CSP_annual_storage(xx)
 hrs_per_year <- 8760
 net_load_duration <- matrix(0, ncol = 1, nrow = hrs_per_year)  ## Initialize a data frame that will be the daily net load duration curve that is updated as the dispatch function is called for each day of the year
 net_load_duration <- data.frame(net_load_duration)
@@ -1799,7 +1428,6 @@ for (i in 1:(dim(Frac_MWhDesired_dispatchable)[1]-2)) {  ## Subtract 2 for 1) NG
       ub = c(geothermal_MW_max)
     }
     ## Run optimization to solve each dispatchable capacity except for HydroDispatch which is assumed to remove peaks as much as possible later in the code.
-    #MWcapacity_multiplier <- Rcgmin(fn=function_dispatchable_generators_AnnualStorage,lower=lb,par=init_guesses,control=list(dowarn=FALSE))
     MWcapacity_multiplier <- Rcgmin(fn=function_dispatchable_generators_AnnualStorage,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE))
     
     # Make any PP_MWneeded$MW_needed < a certain threshold just become zero.
@@ -1849,9 +1477,6 @@ print("In solveGEN.R: End of solve dispatch of dispatchable technologies (annual
 ## Solving for data$HydroDispatch_AnnualStorage_MW -- BEGIN
 ## +++++++++++++++++
 data$HydroDispatch_AnnualStorage_MW <- 0*data$HydroDispatch_MW
-# cat("CODE NEEDS TO BE INSERTED: SOLVING FOR `HYDRODISPATCH' WITH ANNUAL ELECTRICITY STORAGE.",sep="\n")
-# cat("REALLY? IT SEEMS THAT HYDRODISPATCH' WITH ANNUAL ELECTRICITY STORAGE WORKS (6/24/19).",sep="\n")
-# cat("NOTE THAT data$HydroDispatch_AnnualStorage_MW = data$HydroDispatch_MW, as it is only based on NUCLEAR and water availability.",sep="\n")
 
 ## ++++++++++++
 ## Solving for DispatchableHydro JUST BEFORE solving for NG power plants but AFTER solving for 
@@ -1922,7 +1547,6 @@ HydroOutputs_summer[,] <- 0  ## reset this variable for when it was solved witho
 HydroOutputs_fall[,] <- 0    ## reset this variable for when it was solved without assuming Annual Electricity Storage
 ## Winter
 HydroOutputs_winter <- function_solve_hydro_dispatch(hr_max_winter,max_capacity_winter,HydroDispatch_budget_winter,net_load_duration_winter,(hour_per_season[1]+hour_per_season[5]))
-##HydroOutputs_winter <- HydroOutputs_winter[-which(HydroOutputs_winter$Hrs==0),]
 ## Spring
 HydroOutputs_spring <- function_solve_hydro_dispatch(hr_max_spring,max_capacity_spring,HydroDispatch_budget_spring,net_load_duration_spring,hour_per_season[2])
 HydroOutputs_spring <- HydroOutputs_spring[-which(HydroOutputs_spring$Hrs==0),]
@@ -1954,9 +1578,6 @@ data$HydroDispatch_AnnualStorage_MW <- c(HydroOutputs_winter$HydroDispatch_MW[1:
 
 if (NotEnoughHydro == 0) { 
   # ## Then solve for some level of HydroDispatch that is < total energy budget possible
-  # init_guesses <- rep(0.5*NewPPcost$MW_existing[which(NewPPcost$X=="HydroDispatch")],5)  ## initial guess at how much to multiply existing PV profile
-  # lb = rep(0,5)   ## lower bound on MW capacity for dispatchable hydro
-  # ub = rep(NewPPcost$MW_maximum[which(NewPPcost$X=="HydroDispatch")],5)   ## upper bound on MW capacity for dispatchable hydro
   # ## Run optimization to solve each dispatchable capacity except for HydroDispatch which is assumed to remove peaks as much as possible.
   # MWcapacity_multiplier <- Rcgmin(fn=function_dispatchable_hydro_seasonally,lower=lb,upper=ub,par=init_guesses,control=list(dowarn=FALSE))
   
@@ -1964,7 +1585,6 @@ if (NotEnoughHydro == 0) {
   ## then to meet the user's requirements, we subtract some amount of hydro generation from that already 
   ## solved as if the total amount of hydro energy (MWh) budget were used.
   user_hydro_budget <- sum(data$Load_MW)*(Frac_MWhDesired_dispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_dispatchable$Technology=="HydroDispatch")] + Frac_MWhDesired_Nondispatchable$Fraction_MWhDesired[which(Frac_MWhDesired_Nondispatchable$Technology=="HydroNonDispatch")])
-  #HydroNonDispatch_budget <- NewPPcost$MWh_max_WinterJanFeb[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_WinterNovDec[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Spring[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Summer[which(NewPPcost$X=="HydroNonDispatch")]+NewPPcost$MWh_max_Fall[which(NewPPcost$X=="HydroNonDispatch")]
   HydroNonDispatch_budget <- PPCost_CurrentRegion$MWh_max_WinterJanFeb[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_WinterNovDec[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Spring[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Summer[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]+PPCost_CurrentRegion$MWh_max_Fall[which(PPCost_CurrentRegion$Technology=="HydroNonDispatch")]
   if (user_hydro_budget <= HydroNonDispatch_budget) {
     data$HydroDispatch_AnnualStorage_MW <- rep(0,dim(data)[1])  ## there is no HydroDispatch if the user wants less than the energy budget of HydroNonDispatch
@@ -1985,7 +1605,7 @@ if (NotEnoughHydro == 0) {
     data_hydro_dispatch_temp <- data_hydro_dispatch_temp[order(-data_hydro_dispatch_temp$HydroDispatch_MW),]  ## rank the "data_hydro_dispatch_temp" from highest to lowest MW of dispatch
     hr_end <- max(which(data_hydro_dispatch_temp$HydroDispatch_MW>0))
     HydroDispatch_toRemove <- sum(data$HydroDispatch_AnnualStorage_MW) - HydroDispatch_budget_total 
-    for (i in 1:hr_end) { ## 
+    for (i in 1:hr_end) {  
       HydroDispatch_removed <- sum(data_hydro_dispatch_temp$HydroDispatch_MW)-sum(data_hydro_dispatch_temp$HydroDispatch_MW[1:(hr_end-1)])
       if (HydroDispatch_removed < HydroDispatch_toRemove) {
         hr_end = hr_end-1
@@ -2002,7 +1622,6 @@ if (NotEnoughHydro == 0) {
     data$HydroDispatch_AnnualStorage_MW <- data_hydro_dispatch_temp$HydroDispatch_MW  ## put curtailed HydroDispatch_MW into data$HydroDispatch_MW
   }
 } ## if (NotEnoughHydro == 0) { 
-#cat("NEED TO ADD MORE HYDRO DISPATCH WITH STORAGE PROGRAMMING HERE ... BUT as of 6/24/19 I DON'T RECALL WHY THIS NOTE. WHAT IS MISSING?",sep="\n")
 ## +++++++++++++++++
 ## Solving for data$HydroDispatch_AnnualStorage_MW -- END
 ## +++++++++++++++++
@@ -2032,10 +1651,6 @@ data$net_load_solveNG_AnnualStorage <- data$Load_MW - data$generation_non_NG_Ann
 net_load_duration_solveNG_AnnualStorage <- data$net_load_solveNG_AnnualStorage
 net_load_duration_solveNG_AnnualStorage <- net_load_duration_solveNG_AnnualStorage[order(-net_load_duration_solveNG_AnnualStorage)]
 ## find range of data$hour.ending when NGCC is lowest cost and/or NGCT is lowest cost.
-#ind.NGCC <- which(NewPPcost$X==c("NGCC"))
-#ind.NGCT <- which(NewPPcost$X==c("NGCT"))
-#data$NGCC_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-#data$NGCT_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 ind.NGCC <- which(PPCost_US$Technology==c("NGCC"))
 ind.NGCT <- which(PPCost_US$Technology==c("NGCT"))
 data$NGCC_Cost_8760 <- PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC] + data$Hour.ending*((PPCost_US$VariableOMCost_..MWh[ind.NGCC]+PPCost_US$VariableFuelCost_..MWh[ind.NGCC])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
@@ -2116,7 +1731,6 @@ PP_MWneeded[,6] <- rep(0,dim(PP_MWneeded)[1])
 names(PP_MWneeded)[6] <- c("MWh_Needed_StorageCapacity")
 PP_MWneeded_temp$MWh_Needed_StorageCapacity[which(PP_MWneeded_temp$Technology=="AnnualStorage_Total")] <- max(SOC_hourly_WithAnnualStorage)  ## This records the MWh (energy) storage capacity needed
 PP_MWneeded <- rbind(PP_MWneeded,PP_MWneeded_temp)
-#rm(PP_MWneeded_temp)
 
 
 ## +++++++++++++++
@@ -2158,18 +1772,7 @@ PP_MWneeded_AnnualStorage$Fraction_MWhActual[which(PP_MWneeded_AnnualStorage$Tec
 ## Example: data$Coal_Cost_8760 is the fixed plus variable cost to operate a coal plant for 0 to 8760 hours of the year.
 ## Here the costs are without any type of electricity storage.
 ## +++++++++++++++
-# ind.Coal <- which(NewPPcost$X==c("Coal"))
-# ind.Nuclear <- which(NewPPcost$X==c("Nuclear"))
-# ind.UserTech1 <- which(NewPPcost$X==c("UserTech1"))
-# ind.UserTech2 <- which(NewPPcost$X==c("UserTech2"))
-# ind.Wind <- which(NewPPcost$X==c("Wind"))
-# ind.PV <- which(NewPPcost$X==c("PV"))
-# ind.CSP <- which(NewPPcost$X==c("CSP"))
-# ind.Biomass <- which(NewPPcost$X==c("Biomass"))
-# ind.Geothermal <- which(NewPPcost$X==c("Geothermal"))
-# ind.Petroleum <- which(NewPPcost$X==c("PetroleumCC"))
-# ind.HydroDispatch <- which(NewPPcost$X==c("HydroDispatch"))
-# ind.HydroNonDispatch <- which(NewPPcost$X==c("HydroNonDispatch"))
+
 ind.Coal <- which(PPCost_US$Technology==c("Coal"))
 ind.Nuclear <- which(PPCost_US$Technology==c("Nuclear"))
 ind.UserTech1 <- which(PPCost_US$Technology==c("UserTech1"))
@@ -2182,17 +1785,6 @@ ind.Geothermal <- which(PPCost_US$Technology==c("Geothermal"))
 ind.Petroleum <- which(PPCost_US$Technology==c("PetroleumCC"))
 ind.HydroDispatch <- which(PPCost_US$Technology==c("HydroDispatch"))
 ind.HydroNonDispatch <- which(PPCost_US$Technology==c("HydroNonDispatch"))
-# data$Coal_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$Nuclear_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$UserTech1_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$UserTech2_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$Wind_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$PV_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$CSP_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$Biomass_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$Petroleum_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
-# data$Hydro_Cost_8760 <- NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000) + 
-#                         NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch] + data$Hour.ending*((NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000)  ## cost [$1000/MWh] to operate power plant for a given number of hours/yr
 
 ## +++++++++++++++++
 ## Calculate Variable operating cost for each generator type for each hour
@@ -2201,20 +1793,6 @@ ind.HydroNonDispatch <- which(PPCost_US$Technology==c("HydroNonDispatch"))
 ## +++++++++++++++++
 Cost_VariableOnly_8760 <- data.frame(rep(0,8760))
 names(Cost_VariableOnly_8760)=c("Coal")
-# Cost_VariableOnly_8760$Coal <- data$Coal_MW*(NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$Nuclear <- data$Nuclear_MW*(NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$UserTech1 <- data$UserTech1_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$UserTech2 <- data$UserTech2_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$Wind <- data$Wind_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$PV <- data$PV_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$NGCC <- data$NGCC_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$NGCT <- data$NGCT_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$CSP <- data$CSP_MW_total*(NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$Biomass <- data$Biomass_MW*(NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$Petroleum <- data$PetroleumCC_MW*(NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760$Hydro <- data$HydroDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
-#   data$HydroNonDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
-# Cost_VariableOnly_8760$Geothermal <- data$Geothermal_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 Cost_VariableOnly_8760$Coal <- data$Coal_MW*(PPCost_US$VariableOMCost_..MWh[ind.Coal]+PPCost_US$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 Cost_VariableOnly_8760$Nuclear <- data$Nuclear_MW*(PPCost_US$VariableOMCost_..MWh[ind.Nuclear]+PPCost_US$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 Cost_VariableOnly_8760$UserTech1 <- data$UserTech1_MW*(PPCost_US$VariableOMCost_..MWh[ind.UserTech1]+PPCost_US$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
@@ -2253,20 +1831,6 @@ data$Grid_Cost_8760_VariableOnly <- Cost_VariableOnly_8760$Coal +
 ## +++++++++++++++++
 Cost_VariableOnly_8760_AnnualStorage <- data.frame(rep(0,8760))
 names(Cost_VariableOnly_8760_AnnualStorage)=c("Coal")
-# Cost_VariableOnly_8760_AnnualStorage$Coal <- data$Coal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Coal]+NewPPcost$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$Nuclear <- data$Nuclear_MW*(NewPPcost$VariableOMCost_..MWh[ind.Nuclear]+NewPPcost$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$UserTech1 <- data$UserTech1_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech1]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$UserTech2 <- data$UserTech2_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.UserTech2]+NewPPcost$VariableFuelCost_..MWh[ind.UserTech2])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$Wind <- data$Wind_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.Wind]+NewPPcost$VariableFuelCost_..MWh[ind.Wind])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$PV <- data$PV_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.PV]+NewPPcost$VariableFuelCost_..MWh[ind.PV])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$NGCC <- data$NGCC_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCC]+NewPPcost$VariableFuelCost_..MWh[ind.NGCC])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$NGCT <- data$NGCT_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.NGCT]+NewPPcost$VariableFuelCost_..MWh[ind.NGCT])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$CSP <- data$CSP_MW_WithAnnualStorage_total*(NewPPcost$VariableOMCost_..MWh[ind.CSP]+NewPPcost$VariableFuelCost_..MWh[ind.CSP])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$Biomass <- data$Biomass_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Biomass]+NewPPcost$VariableFuelCost_..MWh[ind.Biomass])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$Petroleum <- data$PetroleumCC_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Petroleum]+NewPPcost$VariableFuelCost_..MWh[ind.Petroleum])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
-# Cost_VariableOnly_8760_AnnualStorage$Hydro <- data$HydroDispatch_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroDispatch])/1000+
-#   data$HydroNonDispatch_MW*(NewPPcost$VariableOMCost_..MWh[ind.HydroNonDispatch]+NewPPcost$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
-# Cost_VariableOnly_8760_AnnualStorage$Geothermal <- data$Geothermal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 Cost_VariableOnly_8760_AnnualStorage$Coal <- data$Coal_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.Coal]+PPCost_US$VariableFuelCost_..MWh[ind.Coal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 Cost_VariableOnly_8760_AnnualStorage$Nuclear <- data$Nuclear_MW*(PPCost_US$VariableOMCost_..MWh[ind.Nuclear]+PPCost_US$VariableFuelCost_..MWh[ind.Nuclear])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 Cost_VariableOnly_8760_AnnualStorage$UserTech1 <- data$UserTech1_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.UserTech1]+PPCost_US$VariableFuelCost_..MWh[ind.UserTech1])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
@@ -2282,9 +1846,7 @@ Cost_VariableOnly_8760_AnnualStorage$Hydro <- data$HydroDispatch_AnnualStorage_M
   data$HydroNonDispatch_MW*(PPCost_US$VariableOMCost_..MWh[ind.HydroNonDispatch]+PPCost_US$VariableFuelCost_..MWh[ind.HydroNonDispatch])/1000
 Cost_VariableOnly_8760_AnnualStorage$Geothermal <- data$Geothermal_AnnualStorage_MW*(PPCost_US$VariableOMCost_..MWh[ind.Geothermal]+PPCost_US$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 
-#cat("Still need to calculate variable cost of Annual Storage. Based on charging and discharging?",sep="\n")
 Cost_VariableOnly_8760_AnnualStorage$AnnualStorage <- 0*Cost_VariableOnly_8760_AnnualStorage$Geothermal
-#Cost_VariableOnly_8760_AnnualStorage$AnnualStorage <- data$Geothermal_AnnualStorage_MW*(NewPPcost$VariableOMCost_..MWh[ind.Geothermal]+NewPPcost$VariableFuelCost_..MWh[ind.Geothermal])/1000  ## cost [$1000/MWh] to operate power plant for each hour of the year based on the MW needed
 
 data$Grid_Cost_8760_VariableOnly_AnnualStorage <- data$Load_MW*0  ## initialize the cost to run most expensive power plant each hour
 data$Grid_Cost_8760_VariableOnly_AnnualStorage <- Cost_VariableOnly_8760_AnnualStorage$Coal +
@@ -2302,139 +1864,11 @@ data$Grid_Cost_8760_VariableOnly_AnnualStorage <- Cost_VariableOnly_8760_AnnualS
   Cost_VariableOnly_8760_AnnualStorage$Petroleum +
   Cost_VariableOnly_8760_AnnualStorage$AnnualStorage
 
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-## PLOTTING - BEGIN
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-# library(ggplot2)
-# start.hour <- 4350 ## minimum is 1, maximum is 8760
-# end.hour <- start.hour+24*5   ## minimum is 1, maximum is 8760
-# num_PPtech <- dim(PP_MWneeded)[1]-1-dim(PP_MWneeded_temp)[1]  ##  Total number of Power Plant technologies. Subract 1 (for 2 types of hydro plotted as one). Subtract those associated with plotting Annual Storage information
-# 
-# ## +++++++++++++++
-# ## Stacked Area Chart of Variable Cost each Hour ($/MWh) (NO ELECTRICITY STORAGE OF ANY KIND)
-# ## +++++++++++++++
-# Generator_Cost <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro"),times=(end.hour-start.hour+1)))
-# Generator_Cost = factor(Generator_Cost,levels=levels(Generator_Cost)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
-# Hour_Cost <- rep(data$Hour.ending[start.hour:end.hour],each=num_PPtech)
-# Cost_Variable <- rep(0,(end.hour-start.hour+1)*num_PPtech)
-# for (i in 1:(end.hour-start.hour+1)) {
-#   ## Plot method 1
-#   Cost_Variable[(num_PPtech*(i-1)+1):(num_PPtech*i)] <- c(Cost_VariableOnly_8760$Nuclear[start.hour+i],Cost_VariableOnly_8760$Wind[start.hour+i],Cost_VariableOnly_8760$PV[start.hour+i],Cost_VariableOnly_8760$CSP[start.hour+i],Cost_VariableOnly_8760$Coal[start.hour+i],Cost_VariableOnly_8760$NGCC[start.hour+i],Cost_VariableOnly_8760$NGCT[start.hour+i],Cost_VariableOnly_8760$UserTech1[start.hour+i],Cost_VariableOnly_8760$UserTech2[start.hour+i],Cost_VariableOnly_8760$Biomass[start.hour+i],Cost_VariableOnly_8760$Geothermal[start.hour+i],Cost_VariableOnly_8760$Petroleum[start.hour+i],Cost_VariableOnly_8760$Hydro[start.hour+i])*1000/data$Load_MW[start.hour+i]
-#   ## Plot method 2
-#   #### Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i],Cost_VariableOnly_8760$Wind[i],Cost_VariableOnly_8760$PV[i],Cost_VariableOnly_8760$Coal[i],Cost_VariableOnly_8760$NGCC[i],Cost_VariableOnly_8760$NGCT[i],Cost_VariableOnly_8760$UserTech1[i],Cost_VariableOnly_8760$UserTech2[i])*1000
-#   #### Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i]/data$Nuclear_MW[i],Cost_VariableOnly_8760$Wind[i]/data$Wind_MW_total[i],Cost_VariableOnly_8760$PV[i]/data$PV_MW_total[i],Cost_VariableOnly_8760$Coal[i]/data$Coal_MW[i],Cost_VariableOnly_8760$NGCC[i]/data$NGCC_MW[i],Cost_VariableOnly_8760$NGCT[i]/data$NGCT_MW[i],Cost_VariableOnly_8760$UserTech1[i]/data$UserTech1_MW[i],Cost_VariableOnly_8760$UserTech2[i]/data$UserTech2_MW[i])*1000
-#   ## Plot method 3
-#   #Cost_Variable[(8*(i-1)+1):(8*i)] <- c(Cost_VariableOnly_8760$Nuclear[i],Cost_VariableOnly_8760$Wind[i],Cost_VariableOnly_8760$PV[i],Cost_VariableOnly_8760$Coal[i],Cost_VariableOnly_8760$NGCC[i],Cost_VariableOnly_8760$NGCT[i],Cost_VariableOnly_8760$UserTech1[i],Cost_VariableOnly_8760$UserTech2[i])*1000
-#   #Cost_Variable[(8*(i-1)+1):(8*i)] <- Cost_Variable[(8*(i-1)+1):(8*i)]/c(data$Nuclear_MW[i],data$Wind_MW_total[i],data$PV_MW_total[i],data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i])
-# }
-# Cost_Variable[is.infinite(Cost_Variable)=="TRUE"]=0
-# Cost_Variable[is.na(Cost_Variable)=="TRUE"]=0
-# data_stacked_area2 <- data.frame(Cost_Variable,Hour_Cost,Generator_Cost)
-# p2<-ggplot(data_stacked_area2, aes(x=Hour_Cost, y=Cost_Variable, fill=Generator_Cost)) +     geom_area() +
-#   labs(x = "Hour") + labs(y = "Variable Cost ($/MWh)") + guides(fill=guide_legend(title="Generator"))
-# print(p2)
-# 
-# 
-# ## +++++++++++++++
-# ## Stacked Area Chart of Variable Cost each Hour ($/MWh) (WITH ANNUAL ELECTRICITY STORAGE)
-# ## +++++++++++++++
-# Generator_Cost2a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
-# Generator_Cost2a = factor(Generator_Cost2a,levels=levels(Generator_Cost2a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
-# num_PPtech1a <- dim(PP_MWneeded)[1]-1-dim(PP_MWneeded_temp)[1]+1  ##  Total number of Power Plant technologies. Subract 1 (for 2 types of hydro plotted as one). Subtract those associated with plotting Annual Storage information + 1 to add back storage
-# Hour_Cost <- rep(data$Hour.ending[start.hour:end.hour],each=num_PPtech1a)
-# Cost_Variable2a <- rep(0,(end.hour-start.hour+1)*num_PPtech1a)
-# for (i in 1:(end.hour-start.hour+1)) {
-#   ## Plot method 1
-#   Cost_Variable2a[(num_PPtech1a*(i-1)+1):(num_PPtech1a*i)] <- c(Cost_VariableOnly_8760_AnnualStorage$Nuclear[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Wind[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$PV[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$CSP[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Coal[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$NGCC[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$NGCT[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$UserTech1[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$UserTech2[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Biomass[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Geothermal[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Petroleum[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$Hydro[start.hour+i],Cost_VariableOnly_8760_AnnualStorage$AnnualStorage[start.hour+i])*1000/data$Load_MW[start.hour+i]
-# }
-# # Generator1a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
-# # Generator1a = factor(Generator1a,levels=levels(Generator1a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
-# # data_stacked_area1a <- data.frame(Generation_MW,Hour,Generator1a)
-# Cost_Variable2a[is.infinite(Cost_Variable)=="TRUE"]=0
-# Cost_Variable2a[is.na(Cost_Variable)=="TRUE"]=0
-# data_stacked_area2a <- data.frame(Cost_Variable2a,Hour_Cost,Generator_Cost2a)
-# p2a<-ggplot(data_stacked_area2a, aes(x=Hour_Cost, y=Cost_Variable2a, fill=Generator_Cost2a)) +     geom_area() +
-#   labs(x = "Hour") + labs(y = "Variable Cost ($/MWh)") + guides(fill=guide_legend(title="Generator"))
-# print(p2a)
-# 
-# 
-# ## +++++++++++++++
-# ## Stacked Area Chart of MW generation each hour -- NO ANNUAL STORAGE CONSIDERED
-# ## +++++++++++++++
-# #library(ggplot2)
-# Hour <- rep(data$Hour.ending[start.hour:end.hour],each=(num_PPtech))  ## 
-# Generation_MW <- rep(0,(end.hour-start.hour+1)*(num_PPtech))
-# for (i in 1:(end.hour-start.hour+1)) {
-#   # Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[i],(data$Wind_MW_total[i]-curtailed_Wind[i]),(data$PV_MW_total[i]-curtailed_PV[i]),(data$CSP_MW_total[i]-curtailed_CSP[i]),data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i],data$Biomass_MW[i],data$Geothermal_MW[i],data$PetroleumCC_MW[i],data$HydroDispatch_MW[i])
-#   Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[start.hour+i],(data$Wind_MW_total[start.hour+i]-curtailed_Wind[start.hour+i]),(data$PV_MW_total[start.hour+i]-curtailed_PV[start.hour+i]),(data$CSP_MW_total[start.hour+i]-curtailed_CSP[start.hour+i]),data$Coal_MW[start.hour+i],data$NGCC_MW[start.hour+i],data$NGCT_MW[start.hour+i],data$UserTech1_MW[start.hour+i],data$UserTech2_MW[start.hour+i],data$Biomass_MW[start.hour+i],data$Geothermal_MW[start.hour+i],data$PetroleumCC_MW[start.hour+i],(data$HydroDispatch_MW[start.hour+i]+data$HydroNonDispatch_MW[start.hour+i]))
-# }
-# ##Generator1 <- factor(rep(c("Nuclear","Wind","PV","Coal","NGCC","NGCT","UserTech1","UserTech2"),times=(end.hour-start.hour+1)))
-# ##Generator1 = factor(Generator1,levels=levels(Generator1)[c(7,6,3,2,1,8,5,4)]) #reorder
-# Generator1 <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro"),times=(end.hour-start.hour+1)))
-# Generator1 = factor(Generator1,levels=levels(Generator1)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
-# data_stacked_area1 <- data.frame(Generation_MW,Hour,Generator1)
-# p1<-ggplot(data_stacked_area1, aes(x=Hour, y=Generation_MW, fill=Generator1)) +     geom_area() +
-#   labs(x = "Hour") + labs(y = "Generation (MW)") + guides(fill=guide_legend(title="Generator"))
-# print(p1)
-# 
-# ## +++++++++++++++
-# ## Stacked Area Chart of MW generation each hour -- WITH ANNUAL STORAGE CONSIDERED
-# ## +++++++++++++++
-# #start.hour <- start.hour#3500 ## minimum is 1, maximum is 8760
-# #end.hour <- start.hour+24*7   ## minimum is 1, maximum is 8760
-# Hour <- rep(data$Hour.ending[start.hour:end.hour],each=(num_PPtech1a))  ## 
-# Generation_MW <- rep(0,(end.hour-start.hour+1)*(num_PPtech1a))
-# for (i in 1:(end.hour-start.hour+1)) {
-#   # Generation_MW[((num_PPtech)*(i-1)+1):((num_PPtech)*i)] <- c(data$Nuclear_MW[i],(data$Wind_MW_total[i]-curtailed_Wind[i]),(data$PV_MW_total[i]-curtailed_PV[i]),(data$CSP_MW_total[i]-curtailed_CSP[i]),data$Coal_MW[i],data$NGCC_MW[i],data$NGCT_MW[i],data$UserTech1_MW[i],data$UserTech2_MW[i],data$Biomass_MW[i],data$Geothermal_MW[i],data$PetroleumCC_MW[i],data$HydroDispatch_MW[i])
-#   Generation_MW[((num_PPtech1a)*(i-1)+1):((num_PPtech1a)*i)] <- c(data$Nuclear_MW[start.hour+i],(data$Wind_MW_DirectToGrid_AnnualStorage[start.hour+i]),(data$PV_MW_DirectToGrid_AnnualStorage[start.hour+i]),(data$CSP_MW_DirectToGrid_AnnualStorage[start.hour+i]),data$Coal_AnnualStorage_MW[start.hour+i],data$NGCC_AnnualStorage_MW[start.hour+i],data$NGCT_AnnualStorage_MW[start.hour+i],data$UserTech1_AnnualStorage_MW[start.hour+i],data$UserTech2_AnnualStorage_MW[start.hour+i],data$Biomass_AnnualStorage_MW[start.hour+i],data$Geothermal_AnnualStorage_MW[start.hour+i],data$PetroleumCC_AnnualStorage_MW[start.hour+i],(data$HydroDispatch_AnnualStorage_MW[start.hour+i]+data$HydroNonDispatch_MW[start.hour+i]),data$Dispatched_StoredWindSolar_MW[start.hour+i])
-# }
-# Generator1a <- factor(rep(c("Nuclear","Wind","PV","CSP","Coal","NGCC","NGCT","UserTech1","UserTech2","Biomass","Geothermal","Petroleum","Hydro","Annual Storage"),times=(end.hour-start.hour+1)))
-# #Generator1a = factor(Generator1,levels=levels(Generator1)[c(5,12,11,7,6,9,2,1,4,3,10,13,8)]) #reorder
-# Generator1a = factor(Generator1a,levels=levels(Generator1a)[c(1,6,13,12,8,7,10,3,2,5,4,11,14,9)]) #reorder
-# data_stacked_area1a <- data.frame(Generation_MW,Hour,Generator1a)
-# p1a<-ggplot(data_stacked_area1a, aes(x=Hour, y=Generation_MW, fill=Generator1a)) +     geom_area() +
-#   labs(x = "Hour") + labs(y = "Generation (MW)") + guides(fill=guide_legend(title="Generator"))
-# print(p1a)
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-## PLOTTING - END
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-
-
-## +++++++++++++++++
-## Calculate start-up (and shut-down?) costs for dispatchable generators.
-## What assumption to make for nuclear?????  
-## 1) Nuclear is always on so we have to add the cost of keeping it going at some minimum level even when it is not needed?
-## 2) It shuts down for part of the year and is on 100% Capacity Factor for a continuous time of the year ...
-## 3) ???
-## +++++++++++++++++
-# Cost_Startup_8760 <- data.frame(rep(0,8760))
-# data$Startup_Coal <- rep(0,8760)
-# data$Startup_Total <- rep(0,8760)
 
 ## +++++++++++++++++
 ## Calcualte fixed cost in $/MWh for the mix of generators chosen by the user in the final year for which the user has chosen the mix
 ## "AnnualGridCost_fixed" = MW of capacity * $k/MW-year = 1000s of $ per year to pay fixed costs
 ## +++++++++++++++++
-# cat("Still need to assess capital and O&M cost for HydroDispatch & HydroNonDispatch to AnnualGridCost_fixed based on",sep="\n")
-# cat("if adding new hydro or using existing hydro, since exsiting hydro likely has no annual capital cost.",sep="\n")
-# AnnualGridCost_fixed = PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
-#   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + NewPPcost$FixedOMCost_k..MWyear[ind.Geothermal])
 AnnualGridCost_fixed = PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Coal] + PPCost_US$FixedOMCost_k..MWyear[ind.Coal]) +
   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC]) +
   PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCT]) +
@@ -2458,21 +1892,6 @@ PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="CSP")] <- PP_
 AnnualStorage_AnnualizedCAPEX <- max(StorageCost$AnnualizedCapitalCost_k..MWyear[which(StorageCost$X=="AnnualStorage")]*PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="AnnualStorage_Total")],
                                      StorageCost$AnnualizedCapitalCost_k..MWhyear[which(StorageCost$X=="AnnualStorage")]*PP_MWneeded$MWh_Needed_StorageCapacity[which(PP_MWneeded$Technology=="AnnualStorage_Total")])
 
-# AnnualGridCost_fixed_AnnualStorage = PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Coal] + NewPPcost$FixedOMCost_k..MWyear[ind.Coal]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCC]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + NewPPcost$FixedOMCost_k..MWyear[ind.NGCT]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Nuclear] + NewPPcost$FixedOMCost_k..MWyear[ind.Nuclear]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PV")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.PV] + NewPPcost$FixedOMCost_k..MWyear[ind.PV]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Wind")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Wind] + NewPPcost$FixedOMCost_k..MWyear[ind.Wind]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech1")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech1] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech1]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="UserTech2")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.UserTech2] + NewPPcost$FixedOMCost_k..MWyear[ind.UserTech2]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="CSP")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.CSP] + NewPPcost$FixedOMCost_k..MWyear[ind.CSP]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Biomass")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Biomass] + NewPPcost$FixedOMCost_k..MWyear[ind.Biomass]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="PetroleumCC")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Petroleum] + NewPPcost$FixedOMCost_k..MWyear[ind.Petroleum]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroDispatch]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="HydroNonDispatch")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.HydroNonDispatch] + NewPPcost$FixedOMCost_k..MWyear[ind.HydroNonDispatch]) +
-#   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Geothermal")]*(NewPPcost$AnnualizedCapitalCost_k..MWyear[ind.Geothermal] + NewPPcost$FixedOMCost_k..MWyear[ind.Geothermal])+
-#   AnnualStorage_AnnualizedCAPEX
 AnnualGridCost_fixed_AnnualStorage = PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.Coal] + PPCost_US$FixedOMCost_k..MWyear[ind.Coal]) +
   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCC] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCC]) +
   PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]*(PPCost_US$AnnualizedCapitalCost_k..MWyear[ind.NGCT] + PPCost_US$FixedOMCost_k..MWyear[ind.NGCT]) +
@@ -2506,26 +1925,6 @@ AnnualGridCost_Total_MWh_AnnualStorage <- AnnualGridCost_Total_AnnualStorage*100
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
 
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-## PRINT SUMMARY RESULTS
-## ++++++++++++++++++++++++++++
-## ++++++++++++++++++++++++++++
-# cat(paste0("  "),sep="\n")
-# cat(paste0("NO STORAGE:"),sep="\n")
-# cat(paste0("Total cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_Total_MWh),", Variable cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_variable_MWh),sep="\n"))
-# cat(paste0("% Wind: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Wind")]*100),", % PV: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="PV")]*100),", % CSP: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="CSP")]*100)),sep="\n")
-# cat(paste0("% Coal: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Coal")]*100),", % Nuke: ",sprintf("%.2f", PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="Nuclear")]*100),", % NG: ",sprintf("%.2f", (PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="NGCC")]*100+PP_MWneeded$Fraction_MWhActual[which(PP_MWneeded$Technology=="NGCT")]*100))),sep="\n")
-# cat(paste0("MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP")]), 0), nsmall=0, big.mark=","),", MW NGCC: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
-# cat(paste0("  "),sep="\n")
-# 
-# cat(paste0("WITH ANNUAL STORAGE:"),sep="\n")
-# #cat(paste0("WITH ANNUAL STORAGE --> MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW NGCC: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
-# cat(paste0("Total cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_Total_MWh_AnnualStorage),", Variable cost ($/MWh): ",sprintf("%.2f", AnnualGridCost_variable_MWh_AnnualStorage),sep="\n"))
-# cat(paste0("MW Wind: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Wind_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW PV: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="PV_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=","),", MW CSP: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="CSP_DirectToGrid_WithAnnualStorage")]), 0), nsmall=0, big.mark=",") ),sep="\n")
-# cat(paste0("MW NGCC: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCC")]), 0), nsmall=0, big.mark=","),", MW NGCT: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="NGCT")]), 0), nsmall=0, big.mark=","),", MW Nuclear: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="Nuclear")]), 0), nsmall=0, big.mark=","),", MW Coal: ",format(round(as.numeric(PP_MWneeded_AnnualStorage$MW_needed[which(PP_MWneeded$Technology=="Coal")]), 0), nsmall=0, big.mark=",") ),sep="\n")
-# cat(paste0("% Wind: ",sprintf("%.2f", frac.wind_WithAnnualStorage*100),", % PV: ",sprintf("%.2f", frac.PV_WithAnnualStorage*100),", % CSP: ",sprintf("%.2f", frac.CSP_WithAnnualStorage*100)),sep="\n")
-# cat(paste0("MW Storage Capacity: ",format(round(as.numeric(PP_MWneeded$MW_needed[which(PP_MWneeded$Technology=="AnnualStorage_Total")]), 0), nsmall=0, big.mark=","),", TWh Storage Capacity: ",format(round(as.numeric(PP_MWneeded$MWh_Needed_StorageCapacity[which(PP_MWneeded$Technology=="AnnualStorage_Total")]/1e6), 1), nsmall=0, big.mark=",")),sep="\n")
 
 ## ++++++++++++++++++++++++++++
 ## ++++++++++++++++++++++++++++
@@ -2562,7 +1961,6 @@ PPdata_NoStorage <- PPdata_NoStorage[-which(PPdata_NoStorage$Technology=="Wind_D
 PPdata_NoStorage <- PPdata_NoStorage[-which(PPdata_NoStorage$Technology=="PV_DirectToGrid_WithAnnualStorage"),]
 PPdata_NoStorage <- PPdata_NoStorage[-which(PPdata_NoStorage$Technology=="CSP_DirectToGrid_WithAnnualStorage"),]
 PPdata_NoStorage <- PPdata_NoStorage[-which(PPdata_NoStorage$Technology=="AnnualStorage_Total"),]
-#[which(PP_MWneeded_temp$Technology=="PV_StoredToGrid_WithAnnualStorage")]
 
 ## +++++
 ## With "annual" storage
@@ -2721,9 +2119,6 @@ ind_NoStorage <-     which(geo_supply_curve_cumulative_MW < max_geo_capacity_tol
 ind_AnnualStorage <- which(geo_supply_curve_cumulative_MW < max_geo_capacity_tolerance*PPdata_AnnualStorage_solveGen_output$MW_needed[which(PPdata_AnnualStorage_solveGen_output$Technology=="Geothermal")])
 ind_NoStorage <- c(ind_NoStorage,(ind_NoStorage[length(ind_NoStorage)]+1))
 ind_AnnualStorage <- c(ind_AnnualStorage,(ind_AnnualStorage[length(ind_AnnualStorage)]+1))
-# print(paste0("Geo CAPEX NoStorage max index on supply curve: ",max(ind_NoStorage)))
-# print(paste0("Geo CAPEX NoStorage at end point of needed capacity on supply curve ($2017/kW): ",geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cost_2017USD_per_kW[max(ind_NoStorage)]))
-# print(paste0("Geo capacity NoStorage at end point of needed capacity on supply curve (MW): ",geo_supply_curve_cumulative_MW[max(ind_NoStorage)]))
 if ( length(ind_NoStorage)>0 ) {
   geo_2017USD_per_kW_NoStorage <- sum( 1000*geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cap_MW[ind_NoStorage]*geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cost_2017USD_per_kW[ind_NoStorage] ) / sum( 1000*geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cap_MW[ind_NoStorage] )
   geo_FOM_2017USD_per_kWyr_NoStorage <- sum( 1000*geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cap_MW[ind_NoStorage]*geo_CostSupplyCurve_byEIoF[[RegionNumber]]$FOM_2017USD_per_kWyear[ind_NoStorage] ) / sum( 1000*geo_CostSupplyCurve_byEIoF[[RegionNumber]]$Cap_MW[ind_NoStorage] )
@@ -2754,11 +2149,6 @@ PPdata_NoStorage_solveGen_output$Land_1000acres_direct <- rep(0,dim(PPdata_NoSto
 PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="PV")] <- (1/1000)*acre_perMW_PV_direct*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="PV")]
 PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")] <- (1/1000)*acre_perMW_CSP_direct*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="CSP")]
 PPdata_NoStorage_solveGen_output$Land_1000acres_direct[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")] <- (1/1000)*acre_perMW_wind_direct*PPdata_NoStorage_solveGen_output$MW_needed[which(PPdata_NoStorage_solveGen_output$Technology=="Wind")]
-#levels(PPdata_NoStorage_solveGen_output$Technology)[length(levels(PPdata_NoStorage_solveGen_output$Technology))+1] <- c("LandTotal")
-# PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1]+1,] <- PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1],]  ## Create a new row by copying an existing row
-# PPdata_NoStorage_solveGen_output$Technology[dim(PPdata_NoStorage_solveGen_output)[1]] <- c("LandTotal")   ## relable the "Technology" of the row to "LandTotal"
-# PPdata_NoStorage_solveGen_output[(dim(PPdata_NoStorage_solveGen_output)[1]),(2:dim(PPdata_NoStorage_solveGen_output)[2])] <- rep(0,(dim(PPdata_NoStorage_solveGen_output)[2]-1))  ## Make add data for this "LandTotal" Technology = 0
-# PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology=="LandTotal")] <- sum(PPdata_NoStorage_solveGen_output$Land_1000acres[which(PPdata_NoStorage_solveGen_output$Technology!="LandTotal")])  ## Now add the total land area for all power plants, in acres, to this "LandArea" row
 levels(PPdata_NoStorage_solveGen_output$Technology)[length(levels(PPdata_NoStorage_solveGen_output$Technology))+1] <- c("LandTotal")
 levels(PPdata_NoStorage_solveGen_output$Technology)[length(levels(PPdata_NoStorage_solveGen_output$Technology))+1] <- c("LandDirect")
 PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1]+1,] <- PPdata_NoStorage_solveGen_output[dim(PPdata_NoStorage_solveGen_output)[1],]  ## Create a new row by copying an existing row
@@ -2784,8 +2174,6 @@ PPdata_AnnualStorage_solveGen_output$Land_1000acres_direct[which(PPdata_AnnualSt
 
 ## Calculate the percent of "applicable" land (= includes regions that import electricity to RegionNumber) taken by PV, wind, and CSP
 LandAcres_byTech_NoStorage <- 0*MaxCapacity_perRegion_perTech_MW
-# LandAcres_byTech_NoStorage[,6:7] <- LandAcres_byTech_NoStorage[,1:2]  ## add 2 new columns
-# names(LandAcres_byTech_NoStorage) <- c("Wind","PV","CSP","Biomass","Geothermal","AcresTotal","PctLandTotal")
 LandAcres_byTech_NoStorage[,6:14] <- c(LandAcres_byTech_NoStorage[,1:5],LandAcres_byTech_NoStorage[,1:4])  ## add 9 new columns
 names(LandAcres_byTech_NoStorage) <- c("WindTotal","PVTotal","CSPTotal","BiomassTotal","GeothermalTotal","WindDirect","PVDirect","CSPDirect","BiomassDirect","GeothermalDirect","LandAcresTotal","PctLandTotal","LandAcresDirect","PctLandDirect")
 LandAcres_byTech_AnnualStorage <- LandAcres_byTech_NoStorage
@@ -2822,10 +2210,6 @@ PPdata_NoStorage_solveGen_output$PctLandDirect[which(PPdata_NoStorage_solveGen_o
 PPdata_AnnualStorage_solveGen_output$PctLand[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresTotal*LandAcres_byTech_AnnualStorage$PctLandTotal)/sum(LandAcres_byTech_AnnualStorage$LandAcresTotal),1)
 PPdata_AnnualStorage_solveGen_output$PctLandDirect[which(PPdata_AnnualStorage_solveGen_output$Technology=="LandTotal")] <- round(sum(LandAcres_byTech_AnnualStorage$LandAcresDirect*LandAcres_byTech_AnnualStorage$PctLandDirect)/sum(LandAcres_byTech_AnnualStorage$LandAcresDirect),1)
 #browser()
-
-## Now calculate the percentage of land taken by PV, wind and CSP while accounting for how much is assumed installed in the current and neighboring regions
-# land_area_AllRegionsWithRenewables <- max(sum(land_area_EIoF$LandArea_Acre[regions_with_Wind]),sum(land_area_EIoF$LandArea_Acre[regions_with_PV]),sum(land_area_EIoF$LandArea_Acre[regions_with_CSP]))
-# PPdata_NoStorage_solveGen_output$PctLand <- 100*PPdata_NoStorage_solveGen_output$Land_1000acres/(land_area_AllRegionsWithRenewables/1000)
 
 print("In solveGEN.R: end of all calculations.")
 
