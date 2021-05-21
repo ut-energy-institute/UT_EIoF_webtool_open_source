@@ -23,29 +23,6 @@ data_generate <- function(U, V, Y){
   ## new ones
   eta_Ethanol_T <- 0.21
   
-  ## set efficiency for electricity generation
-  # eta_solar <-  # Solar-Electricity
-  # eta_nuclear <- # Nuclear-Electricity
-  # eta_hydro <-  # Hydro-Electricity
-  # eta_wind <-  # Wind-Electricity
-  # eta_geo <-  # Geothermal-Electricity
-  # eta_ng <-  # NaturalGas-Electricity
-  # eta_coal <-  # Coal-Electricity
-  # eta_bio <-  # Biomass-Electricity
-  # eta_petrol <-  # Petroleum-Electricity
-  
-  ## precalculation - U
-  ### electricity generation
-  # U["Solar_Electricity", "Electricity_Grid"] <- eta_solar*U["Solar_Flow", "Solar_Plant"]
-  # U["Nuclear_Electricity", "Electricity_Grid"] <- eta_nuclear*U["Nuclear_Flow", "Nuclear_Plant"]
-  # U["Hydro_Electricity", "Electricity_Grid"] <- eta_hydro*U["Hydro_Flow", "Hydro_Plant"]
-  # U["Wind_Electricity", "Electricity_Grid"] <- eta_wind*U["Wind_Flow", "Wind_Plant"]
-  # U["Geothermal_Electricity", "Electricity_Grid"] <- eta_geo*U["Geothermal_Flow", "Geothermal_Plant"]
-  # U["NaturalGas_Electricity", "Electricity_Grid"] <- eta_ng*U["NaturalGas_Flow", "Natural_Gas_Plant"]
-  # U["Coal_Electricity", "Electricity_Grid"] <- eta_coal*U["Coal_Flow", "Coal_Plant"]
-  # U["Biomass_Electricity", "Electricity_Grid"] <- eta_bio*U["Biomass_Flow", "Biomass_Plant"]
-  # U["Petroleum_Electricity", "Electricity_Grid"] <- eta_petrol*U["Petroleum_Flow", "Petroleum_Plant"]
-  
   # pre-calculation - V
   ## total energy of each primary energy source
   V["Solar", "Solar_Flow"] <- sum(U["Solar_Flow",])
