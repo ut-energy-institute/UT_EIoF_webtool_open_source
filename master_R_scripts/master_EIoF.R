@@ -13,6 +13,18 @@
 library(lubridate)
 library(jsonlite)
 library(readr)
+library(jsonlite)   ## for JSON
+library(matsbyname) ## Matt Huen's package for matrix operation
+library(matsindf)   ## Matt Huen's package for matrix operation
+library(Recca)      ## Matt Huen's package for matrix operation
+library(magrittr)   ## for pipe operation
+library(tibble)
+library(dplyr)      ## for data reshape
+library(googlesheets4) 
+
+require(Rcgmin)  ## pakcage for gradient based optimization
+require(numDeriv)## Allows calculation of numerical derivative of a function within an evaluation function
+require(optimr)  ## pakcage for gradient based optimization
 
 ## the inputs from the website website API URL GET (I have not idea) call will be:
 ## 1) Region considered (between 1 and 13, inclusive)
@@ -22,13 +34,6 @@ library(readr)
 ## 3) Percent electricity generation from primary fuels
 
 ## Use this to call the function after it is sourced as a function:
-# start_time <- Sys.time()  ## This is just to know how long it took to run the code
-# eiof_out <- master_EIoF(region_id = 6, coal_percent = 10, PV_percent = 10, CSP_percent = 0, wind_percent = 10, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 20, r_sh_e = 0, r_sh_ng = 100)
-# end_time <- Sys.time()
-# code_time=end_time - start_time
-# print(code_time)
-  
-
 master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_percent = 0, wind_percent = 15, biomass_percent = 0, hydro_percent = 0, petroleum_percent = 0, nuclear_percent = 10, geothermal_percent = 0, ng_percent = 0, ldv_e = 50, r_sh_e = 50, r_sh_ng = 50){
 
   print("Start of master_EIoF.R")
@@ -121,10 +126,6 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   #Notes:
   # code has been edited to add EV charging profile to Carey's code
-  
-  require(Rcgmin)  ## pakcage for gradient based optimization
-  require(numDeriv)## Allows calculation of numerical derivative of a function within an evaluation function
-  require(optimr)  ## pakcage for gradient based optimization
   
   source("solveGEN.R")
 
@@ -246,8 +247,6 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   }
   
   ## Call to solve sankey with the "NonStorage" results of "solveGEN" and "generate_FinalUVY_2050"
-  ## TEST INPUTS TO CALL SANKEY CODE:
-  ## sankey_json_out <- sankey_json(region_id = 1, p_solar = 5, p_nuclear = 5, p_hydro = 5, p_wind = 5, p_geo = 5, p_ng = 60, p_coal = 5, p_bio = 5, p_petrol = 5, r_sh_e = 50, r_sh_ng = 50, r_wh_e = 50, r_ck_e = 50, c_sh_e = 50, c_wh_e = 50, c_ck_e = 50, ldv_elec = 20, ldv_petrol = 70, ldv_ethanol = 10, trans_other_petrol = 90, trans_other_ng = 10, trans_other_other = 0)
   if (percent_ldv_elec_quads < 1) {
     percent_ldv_elec_quads = 0.01
     percent_ldv_petrol_quads = percent_ldv_petrol_quads
@@ -486,7 +485,6 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   PPdata_AnnualStorage <- rbind(PPdata_AnnualStorage,PPdata_newrow)
   PPdata_AnnualStorage$Pct_MWhActual <- 100*PPdata_AnnualStorage$Fraction_MWhActual
   rm(PPdata_newrow)
-  ## add a column to "PPdata_AnnualStorage" as a flag for whether the user's desired % of electricity was achieved or not: 1=achieved; 0 = not achieved
   PPdata_AnnualStorage$Pct_MWh_flag <- rep(1,dim(PPdata_AnnualStorage)[1])
   tol_pct = .5  ## The "+/-" tolerance on what is acceptable in terms of the alogorithm solving to achieve the user's desired electricity mix
   if (PPdata_AnnualStorage$Pct_MWhActual[which(PPdata_AnnualStorage$Technology=="Biomass")] < (inputs$web_inputs[which(row.names(inputs)=="biomass_percent")] - tol_pct) |  PPdata_AnnualStorage$Pct_MWhActual[which(PPdata_AnnualStorage$Technology=="Biomass")] > (inputs$web_inputs[which(row.names(inputs)=="biomass_percent")] + tol_pct) ) {
@@ -532,7 +530,6 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   PPdata_NoStorage <- rbind(PPdata_NoStorage,PPdata_newrow)
   PPdata_NoStorage$Pct_MWhActual <- 100*PPdata_NoStorage$Fraction_MWhActual
   rm(PPdata_newrow)
-  ## add a column to "PPdata_NoStorage" as a flag for whether the user's desired % of electricity was achieved or not: 1=achieved; 0 = not achieved
   PPdata_NoStorage$Pct_MWh_flag <- rep(1,dim(PPdata_NoStorage)[1])
   tol_pct = .5  ## The "+/-" tolerance on what is acceptable in terms of the alogorithm solving to achieve the user's desired electricity mix
   if (PPdata_NoStorage$Pct_MWhActual[which(PPdata_NoStorage$Technology=="Biomass")] < (inputs$web_inputs[which(row.names(inputs)=="biomass_percent")] - tol_pct) |  PPdata_NoStorage$Pct_MWhActual[which(PPdata_NoStorage$Technology=="Biomass")] > (inputs$web_inputs[which(row.names(inputs)=="biomass_percent")] + tol_pct) ) {
@@ -573,13 +570,9 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
   
   
   ########################### START ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
-  
 
-  #browser()
   all <- list(sankey_json_out$links, sankey_json_out$nodes, solveGEN_output$Hourly_MW_AnnualStorage, solveGEN_output$Hourly_MW_NoStorage, PPdata_NoStorage, PPdata_AnnualStorage, gg_out2, gg_out3,inputs,elec_cost_summary_2050,PrimaryEnergySummary,solveGEN_output$WindSolar_InputIntoStorage_AnnualTWh)
   names(all) <- c('sankey_links','sankey_nodes','Hourly_MW_AnnualStorage', 'Hourly_MW_NoStorage', 'PPdata_NoStorage', 'PPdata_AnnualStorage', 'ggsheets_output_AnnualStorage', 'ggsheets_output_NoStorage', 'website_inputs', 'elec_cost_summary_2050', 'PrimaryEnergySummary','WindSolar_InputIntoStorage_AnnualTWh')
-  
-
   
   ########################### END ARRANGE DATA FOR OUTPUT TO WEBSITE ###########################
   
