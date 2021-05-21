@@ -589,18 +589,18 @@ master_EIoF <- function(region_id = 1, coal_percent = 10, PV_percent = 15, CSP_p
 }
 
 # Inputs for testing function
-# test = master_EIoF(
-#   region_id = 6,
-#   coal_percent = 0,
-#   PV_percent = 10,
-#   CSP_percent = 10,
-#   wind_percent = 10,
-#   biomass_percent = 0,
-#   hydro_percent = 0,
-#   petroleum_percent = 0,
-#   nuclear_percent = 20,
-#   geothermal_percent = 0,
-#   ng_percent = 50,
-#   ldv_e = 70,
-#   r_sh_e = 45,
-#   r_sh_ng = 50)
+test = master_EIoF(
+  region_id = 6,
+  coal_percent = 0,
+  PV_percent = 50,
+  CSP_percent = 0,
+  wind_percent = 50,
+  biomass_percent = 0,
+  hydro_percent = 0,
+  petroleum_percent = 0,
+  nuclear_percent = 0,
+  geothermal_percent = 0,
+  ng_percent = 0,
+  ldv_e = 70,
+  r_sh_e = 45,
+  r_sh_ng = 50)
