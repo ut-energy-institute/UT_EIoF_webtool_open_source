@@ -12,26 +12,11 @@ UserFraction.NG = percent_ResidentialNG/100 ## This is ultimately the user input
 UserFraction.other = 1 - UserFraction.HeatPump - UserFraction.NG  ## This is technically the fraction of Residential Households using ANY OTHER FUEL (wood, petroleum, geothermal, etc.) and technology besides (1) NG furnaces and (2) electric heat pumps (with emergency resistance heating at very cold temperatures)
 
 ## +++++++++++
-## Load required input data
-## Eventually enable loading to come from a standard file location branching from the main directory for all codes
-## +++++++++++
-# Read the outputs from solveGEN.R
-#load("solveGEN_output.Rdata")
-
-# PPdata_NoStorage = read.csv("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/solveGEN/solveGEN_Output_PowerPlants_NoStorage.csv")
-# PPdata_AnnualStorage = read.csv("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/solveGEN/solveGEN_Output_PowerPlants_AnnualStorage.csv")
-
-## +++++++++++
 ## Read baseline data for 
 ## (1) types of heating in homes in the baseline (ResStock simulation "base" run) case
 ## (2) the baseline annual energy used for household heating as (i) electricity, (ii) natural gas, and (iii) "other"=propane + fuel oil, from ResStock "base" run
 ## +++++++++++
-#Baseline_Fraction_HeatingTypes_byEIoF <- read.csv("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/generate8760/Baseline_Fraction_HeatingTypes_byEIoF.csv")
 load("generate8760_data/Baseline_ResStock_Fraction_HeatingTypes_byEIoF.Rdata")
-
-#AnnualResidentialHeating_EIoF_2050 <- read.csv("AnnualResidentialHeating_EIoF_2050_Btu.csv")
-#AnnualResidentialHeating_EIoF_2016 <- read.csv("AnnualResidentialHeating_EIoF_2016_Btu.csv")
-#save(AnnualResidentialHeating_EIoF_2050,AnnualResidentialHeating_EIoF_2016,file="generate_FinalUVY_2050_data/AnnualResidentialHeating_EIoF.Rdata")
 load("generate_FinalUVY_2050_data/AnnualResidentialHeating_EIoF.Rdata")
 
 
@@ -44,7 +29,6 @@ Base.Fraction.petroleum = 1 - Base.Fraction.HeatPump - Base.Fraction.NG  ## Frac
 
 # Read existing "baseline" U, V, and Y matrices for 2050 (before user inputs)
 # These data are in units of "Btu" consumed in the year 2050.
-##region_names <- c("R1_NW","R2_CA", "R3_MN", "R4_SW", "R5_CE", "R6_TX", "R7_MW", "R8_AL", "R9_MA", "R10_SE", "R11_FL", "R12_NY", "R13_NE")  ## specify the region names as they appear as the column names of the "8760" input profiles
 regions <- c('NW','CA','MN','SW','CE','TX','MW','AL','MA','SE','FL','NY','NE')  ## EIoF regions
 Reg = regions[RegionNumber] 
 
@@ -72,18 +56,6 @@ U2050_PerUser <- U2050_PerUser[,-1]
 rownames(V2050_PerUser) <- V2050_PerUser[,1]
 V2050_PerUser <- V2050_PerUser[,-1]
 
-
-# # Read or state the conversion factor, using the U.S. Energy Information Administration (EIA)
-# # convention for converting renewable electricity to quads of primary energy.
-# btu_per_kwh.engineering = 3412.14  ## The pure engineering conversion from kWh to Btu
-# TWh.solar = U2050_PerUser$Electricity_Grid[which(U2050_PerUser$X=="Solar_Electricity")]/btu_per_kwh.engineering/1e9
-# Quad.solar = U2050_PerUser$Solar_Plant[which(U2050_PerUser$X=="Solar_Flow")]/1e15
-# btu_per_kwh.EIA_convention = Quad.solar*1e15/(TWh.solar*1e9)
-# BtuPrimaryEnergy_per_BtuInkWh.solar = U2050_PerUser$Solar_Plant[which(U2050_PerUser$X=="Solar_Flow")]/U2050_PerUser$Electricity_Grid[which(U2050_PerUser$X=="Solar_Electricity")]
-# BtuPrimaryEnergy_per_BtuInkWh.wind = U2050_PerUser$Wind_Plant[which(U2050_PerUser$X=="Wind_Flow")]/U2050_PerUser$Electricity_Grid[which(U2050_PerUser$X=="Wind_Electricity")]
-# BtuPrimaryEnergy_per_BtuInkWh.geo = U2050_PerUser$Geothermal_Plant[which(U2050_PerUser$X=="Geothermal_Flow")]/U2050_PerUser$Electricity_Grid[which(U2050_PerUser$X=="Geothermal_Electricity")]
-# BtuPrimaryEnergy_per_BtuInkWh.hydro = U2050_PerUser$Hydro_Plant[which(U2050_PerUser$X=="Hydro_Flow")]/U2050_PerUser$Electricity_Grid[which(U2050_PerUser$X=="Hydro_Electricity")]
-
 ## +++++++++++
 ## Read heat rate data to convert electricity generation desired (in TWh) into Btu
 ## These are the assumed heat rates in EIA's Annual Energy Outlook 2019 reference case.
@@ -91,8 +63,6 @@ V2050_PerUser <- V2050_PerUser[,-1]
 ## using data from the EIA reference case runs "set1.1116a", Datekey = "d111618a", in supplementary tables 2 and 3 that have:
 ## Census level "Energy Consumption by Sector and Source - Middle Atlantic" (for example).
 ## +++++++++++
-# heat_rate = read.csv("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/generate_FinalUVY_2050/HeatRates_2017_to_2050.csv")  ## Units of Btu (primary energy) per kWh generatedheat_rate_AvgFossil = read.csv("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/CareyKing/generate_FinalUVY_2050/HeatRates_2017_to_2050.csv")  ## Units of Btu (primary energy) per kWh generated
-# save(heat_rate,file="generate_FinalUVY_2050_data/heat_rates.Rdata")
 load("generate_FinalUVY_2050_data/heat_rates.Rdata")
 heat_rate_AvgFossil.2050 = heat_rate$X2050[which(heat_rate$HeatRates_btu_per_kwh=="average_fossilfuel_AEO2019reference")]  ## heat rate in units of "btu/kWh"
 heat_rate_biomass.2050 = heat_rate$X2050[which(heat_rate$HeatRates_btu_per_kwh=="biomass")] ## heat rate in units of "btu/kWh"
@@ -102,11 +72,6 @@ heat_rate_coal.2050 = heat_rate$X2050[which(heat_rate$HeatRates_btu_per_kwh=="co
 heat_rate_NG.2050 = heat_rate$X2050[which(heat_rate$HeatRates_btu_per_kwh=="naturalgas_linear_2017_to_2050")] ## heat rate in units of "btu/kWh"
 heat_rate_petroleum.2050 = heat_rate$X2050[which(heat_rate$HeatRates_btu_per_kwh=="petroleum_linear_2017_to_2050")] ## heat rate in units of "btu/kWh"
 Btu_per_kwh_engineering = 3412.14 #3412.14  This is the assumed pure engineering conversion from kWh to Btu
-
-## +++++++++++
-## Calculate Btu of electricity, and Btu primary equivalents, for each electricity technology,
-## and put these into the correct location in the U and V matrices.
-## +++++++++++
 
 ## ++++++++++++++++++
 ## No Storage case (U matrix)
@@ -155,60 +120,6 @@ weight.NG = UserFraction.NG - Base.Fraction.NG*weight.base ## The weighting give
 Btu_per_therm = 99976.1
 
 ## +++
-## Test plotting - BEGIN
-## Test plotting if using simulations from ResStock of the hourly use of 
-## energy for household heating, for each of the three types of energy 
-## (electricity, natural gas, and "other"=propane + fuel oil), if 
-## using 2016 weather data and NOT scaled to demand in 2050.
-## +++
-# load("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/PhilipWhite/ResStock/ResStock_2016_EIoF_base_8760.Rdata")
-# load("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/PhilipWhite/ResStock/ResStock_2016_EIoF_HeatPump_8760.Rdata")
-# load("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/PhilipWhite/ResStock/ResStock_2016_EIoF_NG_8760.Rdata")
-# ResStock_2016_EIoF_basenow <- ResStock_2016_EIoF_base[which(ResStock_2016_EIoF_base$region==paste0("reg_",(RegionNumber))),]
-# ResStock_2016_EIoF_NGnow <- ResStock_2016_EIoF_NG[which(ResStock_2016_EIoF_NG$region==paste0("reg_",(RegionNumber))),]
-# ResStock_2016_EIoF_HeatPumpnow <- ResStock_2016_EIoF_HeatPump[which(ResStock_2016_EIoF_HeatPump$region==paste0("reg_",(RegionNumber))),]
-# ## Determine total energy used for space heating with different fuels - base run
-# ResStock_2016_base_spaceheating_NG.test <- ResStock_2016_EIoF_basenow$natural_gas_heating_therm*Btu_per_therm  ## Units of Btu
-# ResStock_2016_base_spaceheating_petroleum.test <- ResStock_2016_EIoF_basenow$fuel_oil_heating_mbtu*1e6 + ResStock_2016_EIoF_basenow$propane_heating_mbtu*1e6  ## Raw data in "mbtu = 1000000 btu" converted to Units of Btu
-# ResStock_2016_base_spaceheating_elec.test <- (ResStock_2016_EIoF_basenow$electricity_heating_kwh+
-#                                                 ResStock_2016_EIoF_basenow$electricity_central_system_pumps_heating_kwh+
-#                                                 ResStock_2016_EIoF_basenow$electricity_pumps_heating_kwh+
-#                                                 ResStock_2016_EIoF_basenow$electricity_fans_heating_kwh)*Btu_per_kwh_engineering  ## Units of Btu
-# ## Determine total energy used for space heating with different fuels - NG run
-# ResStock_2016_NG_spaceheating_NG.test <- ResStock_2016_EIoF_NGnow$natural_gas_heating_therm*Btu_per_therm  ## Units of Btu
-# ResStock_2016_NG_spaceheating_petroleum.test <- ResStock_2016_EIoF_NGnow$fuel_oil_heating_mbtu*1e6 + ResStock_2016_EIoF_NGnow$propane_heating_mbtu*1e6  ## Raw data in "mbtu = 1000000 btu" converted to Units of Btu
-# ResStock_2016_NG_spaceheating_elec.test <- (ResStock_2016_EIoF_NGnow$electricity_heating_kwh+
-#                                               ResStock_2016_EIoF_NGnow$electricity_central_system_pumps_heating_kwh+
-#                                               ResStock_2016_EIoF_NGnow$electricity_pumps_heating_kwh+
-#                                               ResStock_2016_EIoF_NGnow$electricity_fans_heating_kwh)*Btu_per_kwh_engineering  ## Units of Btu
-# ## Determine total energy used for space heating with different fuels - HeatPump run
-# ResStock_2016_HeatPump_spaceheating_NG.test <- ResStock_2016_EIoF_HeatPumpnow$natural_gas_heating_therm*Btu_per_therm  ## Units of Btu
-# ResStock_2016_HeatPump_spaceheating_petroleum.test <- ResStock_2016_EIoF_HeatPumpnow$fuel_oil_heating_mbtu*1e6 + ResStock_2016_EIoF_HeatPumpnow$propane_heating_mbtu*1e6  ## Raw data in "mbtu = 1000000 btu" converted to Units of Btu
-# ResStock_2016_HeatPump_spaceheating_elec.test <- (ResStock_2016_EIoF_HeatPumpnow$electricity_heating_kwh+
-#                                                     ResStock_2016_EIoF_HeatPumpnow$electricity_central_system_pumps_heating_kwh+
-#                                                     ResStock_2016_EIoF_HeatPumpnow$electricity_pumps_heating_kwh+
-#                                                     ResStock_2016_EIoF_HeatPumpnow$electricity_fans_heating_kwh)*Btu_per_kwh_engineering  ## Units of Btu
-## 
-# Test.HH_heating_NG <- weight.base*ResStock_2016_base_spaceheating_NG.test + 
-#   weight.NG*ResStock_2016_NG_spaceheating_NG.test + 
-#   weight.HeatPump*ResStock_2016_HeatPump_spaceheating_NG.test
-# Test.HH_heating_petroleum <- weight.base*ResStock_2016_base_spaceheating_petroleum.test + 
-#   weight.NG*ResStock_2016_NG_spaceheating_petroleum.test + 
-#   weight.HeatPump*ResStock_2016_HeatPump_spaceheating_petroleum.test
-# Test.HH_heating_elec <- weight.base*ResStock_2016_base_spaceheating_elec.test + 
-#   weight.NG*ResStock_2016_NG_spaceheating_elec.test + 
-#   weight.HeatPump*ResStock_2016_HeatPump_spaceheating_elec.test
-# yrange = 1.1/1e15*c(0,max(max(Test.HH_heating_NG),max(Test.HH_heating_elec),max(Test.HH_heating_petroleum)))
-# plot(Test.HH_heating_NG/1e15,type = "l",col="red",ylim = yrange,ylab = "Quad of NG",xlab = "Hour")
-# par(new=TRUE)
-# plot(Test.HH_heating_petroleum/1e15,type = "l",col="blue",ylim = yrange,ylab = "Quad of Petrolum",xlab = "Hour")
-# par(new=TRUE)
-# plot(Test.HH_heating_elec/1e15,type = "l",col="green",ylim = yrange,ylab = "Quad of Elec",xlab = "Hour")
-## +++
-## Test plotting - END
-## ++++
-
-## +++
 ## Now calculate the changes to the U and V matrices for residential space heating, as 
 ## determined by the user, for (1) electricity, (2) natural gas, and (3) "other" = propane + fuel oil.
 ## NOTE: In the real world (and EIA SEDS data), "other" fuels include biomass, solar, geothermal but these other fuels are not included in the ResStock simulations.
@@ -225,40 +136,6 @@ HH_heating_elec <- weight.base*AnnualResidentialHeating_now$ResStock_baserun_ele
   weight.HeatPump*AnnualResidentialHeating_now$ResStock_HeatPumprun_elec_btu
 U_NoStorage['NaturalGas_Flow', 'Resident_SpaceHeating_NG']=HH_heating_NG
 U_NoStorage['Electricity_Flow', 'Resident_SpaceHeating_Elec']=HH_heating_elec
-
-## "Resident_Other" needs to be reduced based on how much of residential heating was reduced from "other" fuels (which are (1) propane, (2) fuel oil, and (3) other) per the user's choices and ResStock simulations
-## Load the amount of (1) fuel oil, (2) propane, and (3) "other" space heating fuels were used in ResStock simulations.
-
-## +++
-## +++
-## Go through this loop to solve for "HH_petroleum_fraction_for_heating_2016_baseline" 
-## during initial setup to save the fraction of "other" (=propane + fuel oil) energy
-## Used for household heating in the ResStock simulation versus the EIA SEDS data for 2016 (or 2017 if used).
-# HH_petroleum_fraction_for_heating_2016_baseline = rep(0,13)
-# for (i in 1:13) {
-#   Reg = regions[i]
-#   AnnualResidentialHeating_now <- AnnualResidentialHeating_EIoF_2050[which(AnnualResidentialHeating_EIoF_2050$Region==Reg),]
-#   U2016_baseline = read.csv(paste0("/Carey/Research/UT-Projects/EnergyInstitute/Reports/CostOfEnergy/Infrastructure/Contributors/DanielGreer/SankeyData/RegionInputFiles/",Reg,"_Sankey_Input_U_2016.csv"))
-#   rownames(U2016_baseline) <- U2016_baseline[,1]
-#   U2016_baseline <- U2016_baseline[,-1]
-#   HH_petroleum_fraction_for_heating_2016_baseline[i] = AnnualResidentialHeating_now$ResStock_baserun_other_btu/U2016_baseline['Petroleum_Flow', 'Resident_Other']
-#   if (HH_petroleum_fraction_for_heating_2016_baseline[i] > 1) {
-#     HH_petroleum_fraction_for_heating_2016_baseline[i] = 1
-#   }
-#   rm(U2016_baseline)
-# }
-## I previously saved "HH_petroleum_fraction_for_heating_2016_baseline" for loading, but don't use it so don't need to load it.
-# save(HH_petroleum_fraction_for_heating_2016_baseline, file = "generate_FinalUVY_2050_data/HH_petroleum_fraction_for_heating_2016_baseline.RData")
-#load("generate_FinalUVY_2050_data/HH_petroleum_fraction_for_heating_2016_baseline.Rdata")
-## +++
-## +++
-
-## +++
-## Random checking of numbers for debugging purposes
-## +++
-# fraction_HH_petroleum_for_heating = HH_petroleum_fraction_for_heating_2016_baseline[RegionNumber]
-# cat(paste0("The calculated 2016 fraction of HH petroleum used for heating is = ",fraction_HH_petroleum_for_heating),sep="\n")
-# cat(paste0("The baseline 2050 Resident Petroleum is ",sprintf("%.1f", 100*U2050_PerUser['Petroleum_Flow', 'Resident_Other']/HH_heating_petroleum),"% of HH petroleum used for heating from ResStock scale up."),sep="\n")
 
 ## +++
 ## Petroleum (and other) fuels are used for (1) household heating and (2) other uses (e.g., cooking) so we must only adjust the portion of ['Petroleum_Flow', 'Resident_Other'] that is associated with residential space heating
@@ -419,11 +296,6 @@ V_AnnualStorage['Import_Net', 'Import_Net_Electricity']=U_AnnualStorage['Import_
 ## ++++++++++++++++++
 ## Write new U, V, and Y Sankey matrices for year 2050 based on user's influence on 8760 electricity profile and heating choices
 ## ++++++++++++++++++
-# write.csv(U_NoStorage,paste0("RegionInputFiles_2050/U",RegionNumber,"_NoStorage.csv",sep=''))
-# write.csv(V_NoStorage,paste0("RegionInputFiles_2050/V",RegionNumber,"_NoStorage.csv",sep=''))
-# write.csv(U_AnnualStorage,paste0("RegionInputFiles_2050/U",RegionNumber,"_AnnualStorage.csv",sep=''))
-# write.csv(V_AnnualStorage,paste0("RegionInputFiles_2050/V",RegionNumber,"_AnnualStorage.csv",sep=''))
-# output_list <- list("U_NoStorage_2050_CurrentRegion"=U_NoStorage)
 output_list <- list("U_NoStorage_2050_CurrentRegion"=U_NoStorage,
                     "V_NoStorage_2050_CurrentRegion"=V_NoStorage,
                     "U_AnnualStorage_2050_CurrentRegion"=U_AnnualStorage,
