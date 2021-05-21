@@ -6,14 +6,6 @@
 # Initialization                                 #
 #------------------------------------------------#
 
-# load libraries
-library(jsonlite)   ## for JSON
-library(matsbyname) ## Matt Huen's package for matrix operation
-library(matsindf)   ## Matt Huen's package for matrix operation
-library(Recca)      ## Matt Huen's package for matrix operation
-library(magrittr)   ## for pipe operation
-library(tibble)
-library(dplyr)      ## for data reshape
 
 # load sub-functions
 source('Data.R')    ## for precalculation for U/V/Y matrices
