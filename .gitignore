@@ -9,11 +9,10 @@ R/
 .Rhistory
 UT_EIoF_webtool.Rproj
 
-rplumber-app-old_20200206
 
 UT_EIoF_Server_instructions.html
 Installed_R_packages_container.html
 Updating_container_codes.html
-rplumber-app/master_R_scripts/simulations/*
+master_R_scripts/simulations/*
 config.csv
-rplumber-app/master_R_scripts/EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.rdata
+master_R_scripts/EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.rdata
