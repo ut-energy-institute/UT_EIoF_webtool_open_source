@@ -44,7 +44,8 @@ for(file_name in g_sheets){
     media = paste0(getwd(),"/GoogleSheets/",file_name),
     name,
     type = "spreadsheet",
-    overwrite = TRUE)
+    overwrite = TRUE,
+    verbose=FALSE)
   
   drive_share(
     file = name,
@@ -65,6 +66,7 @@ for(file_name in g_sheets){
     EIoF_Region_NOstorage = append(EIoF_Region_NOstorage,region)
     
   }
+  print(paste0("Successfully uploaded ",name))
 }
 
 ###############################################################
