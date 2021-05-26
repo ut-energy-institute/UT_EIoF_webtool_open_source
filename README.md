@@ -61,6 +61,7 @@ In this example, test is the batch name which is indicated by the -b flag. Both 
 Figure 2. Every column is an input and every row represents a unique simulation
 
 <a name="Documentation"></a>
+# Documentation
 The full documentation for the EFD and its assumptions can be located on the [UT Energy Institute webstie](https://energy.utexas.edu/energy-futures-dashboard-documentation). 
 
 
