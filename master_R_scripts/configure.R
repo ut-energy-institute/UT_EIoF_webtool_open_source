@@ -4,6 +4,33 @@
 
 #Created by Danny Greer 05-19-2021
 
+
+
+###############################################################
+#             Installing R packages                           #
+###############################################################
+
+
+cat('Select how you would like to install packages: \n 1. Install previous versions from local tar.gz files (this will overwrite any installed packages with a previous version) \n 2. Install most recent verion from web (as of 5/26/2021 the current versions of these packages will work with the EFD, \n      newer versions of packages may not be compatible)')
+
+pkg_inst <- readline(prompt="Select: ")
+
+install.packages(c('../R_packages_static/Recca_0.1.18.tar.gz','../R_packages_static/matsbyname_0.4.14.tar.gz','../R_packages_static/matsindf_0.3.4.tar.gz'),repos=NULL,type='source')
+
+if(pkg_inst == "1"){
+
+install.packages(c('../R_packages_static/lubridate_1.7.8.tar.gz','../R_packages_static/jsonlite_1.6.1.tar.gz','../R_packages_static/readr_1.3.1.tar.gz','../R_packages_static/magrittr_1.5.tar.gz',
+                   '../R_packages_static/tibble_3.0.1.tar.gz','../R_packages_static/googledrive_1.0.1.tar.gz','../R_packages_static/googlesheets4_0.2.0.tar.gz','../R_packages_static/dplyr_0.8.5.tar.gz',
+                   '../R_packages_static/Rcgmin_2013-2.21.tar.gz','../R_packages_static/numDeriv_2016.8-1.1.tar.gz'),repos = NULL, type='source')
+}else{
+install.packages(c('lubridate','jsonlite','tibble','googledrive','Rcgmin','numDeriv','readr','googlesheets4','dplyr','magrittr'))
+}
+
+
+###############################################################
+#             Creating Google Sheets                          #
+###############################################################
+
 library(googledrive)
 
 print("****************************************************************************************************************************")
@@ -44,8 +71,9 @@ for(file_name in g_sheets){
     media = paste0(getwd(),"/GoogleSheets/",file_name),
     name,
     type = "spreadsheet",
-    overwrite = TRUE)
-  
+    overwrite = TRUE,
+    verbose=FALSE)
+
   drive_share(
     file = name,
     role = "writer",
@@ -65,18 +93,10 @@ for(file_name in g_sheets){
     EIoF_Region_NOstorage = append(EIoF_Region_NOstorage,region)
     
   }
+  print(paste0("Successfully uploaded ",name))
 }
 
-###############################################################
-#             Installing R packages                           #
-###############################################################
 
-install.packages(c('../R_packages_static/rlang_0.4.6.tar.gz','R_packages_static/glue_1.4.1.tar.gz','R_packages_static/lifecycle_0.2.0.tar.gz',
-'R_packages_static/mime_0.9.tar.gz','R_packages_static/magrittr_1.5.tar.gz','R_packages_static/swagger_3.33.0.tar.gz','R_packages_static/sodium_1.1.tar.gz',
-'R_packages_static/BH_1.72.0-3.tar.gz','R_packages_static/Rcpp_1.0.4.6.tar.gz','R_packages_static/later_1.1.0.1.tar.gz','R_packages_static/R6_2.4.1.tar.gz',
-'R_packages_static/promises_1.1.1.tar.gz','R_packages_static/crayon_1.3.4.tar.gz','R_packages_static/httpuv_1.5.3.1.tar.gz','R_packages_static/jsonlite_1.6.1.tar.gz',
-'R_packages_static/curl_4.3.tar.gz','R_packages_static/webutils_1.1.tar.gz','R_packages_static/stringi_1.4.6.tar.gz','R_packages_static/plumber_0.4.6.tar.gz'),
-repos = NULL, type='source')
 
 ###############################################################
 #   Outputs                                                   #

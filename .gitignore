@@ -15,4 +15,5 @@ Installed_R_packages_container.html
 Updating_container_codes.html
 master_R_scripts/simulations/*
 config.csv
-master_R_scripts/EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.Rdata
+EIoF_GoogleSheet_NamesAndIDs.Rdata
+

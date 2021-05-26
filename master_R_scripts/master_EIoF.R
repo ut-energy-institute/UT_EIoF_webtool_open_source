@@ -11,7 +11,6 @@
 
 ## load up any needed libraries
 library(lubridate)
-library(jsonlite)
 library(readr)
 library(jsonlite)   ## for JSON
 library(matsbyname) ## Matt Huen's package for matrix operation

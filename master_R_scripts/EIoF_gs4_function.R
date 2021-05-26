@@ -10,13 +10,14 @@ EIoF_gs4_function <- function(RegionNumber,GS_inputs_AnnualStorage,GS_inputs_NoS
   load("EIoF_gs4_function_data/EIoF_GoogleSheet_NamesAndIDs.Rdata")
   
   config = read.csv('config.csv')
-  g_email = config$g_email
+  g_email = as.character(config$g_email)
+
   
   ## +++++++++++++
   ## Array and selection of the correct two Google Sheets for the given input EIoF Region
   ## +++++++++++++
-  googlesheet_fileID_NoStorage = EIoF_GoogleSheet_Names$NoStorage_ID[RegionNumber]   ## This is ID for spreashseet to perform "NoStorage" calculations 
-  googlesheet_fileID_AnnualStorage = EIoF_GoogleSheet_Names$AnnualStorage_ID[RegionNumber]   ## This is ID for spreashseet to perform "NoStorage" calculations  
+  googlesheet_fileID_NoStorage = as.character(EIoF_GoogleSheet_Names$NoStorage_ID[RegionNumber])   ## This is ID for spreashseet to perform "NoStorage" calculations 
+  googlesheet_fileID_AnnualStorage = as.character(EIoF_GoogleSheet_Names$AnnualStorage_ID[RegionNumber])   ## This is ID for spreashseet to perform "NoStorage" calculations  
 
   # ## +++++++++++++
   # ## Authorization for EIoF Google Sheet (06-11-2020)

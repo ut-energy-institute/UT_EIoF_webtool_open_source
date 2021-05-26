@@ -2,15 +2,16 @@
 
 ![Image of UT Energy Institute Logo](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/7941cb97ccaf1fb48a02933b714a1b71381cd66c/images/RGB_formal_Energy_Institute.png)
 
-This GitHub repository contains the source code for the Energy Futures Dashboard, developed by researchers at The University of Texas Energy Institute. The EFD is a web-based tool with a user friendly interface that can be located [here](http://energyfuturesdashboard.energy.utexas.edu/).
+This GitHub repository contains the source code for the Energy Futures Dashboard (EFD), developed by researchers at The University of Texas Energy Institute. The EFD is a web-based tool with a user friendly interface that can be located [here](http://energyfuturesdashboard.energy.utexas.edu/).
 
 ## Contents
 
 * [Introduction](#Introduction)
-* [Downloading the code](#Download)
 * [Workflow](#Workflow)
+* [Downloading the code](#Download)
 * [Initial Setup](#Setup)
 * [Operating the EFD](#Operating)
+* [Documentation](#Documentation)
 * [Google Sheets](#GoogleSheets)
 * [Contact](#Contact)
 
@@ -28,22 +29,15 @@ Figure 1. Regional definitions used in the Energy Futures Dashboard. Northwest (
 Documentation for the EFD model and its assumptions can be located [here](https://energy.utexas.edu/energy-futures-dashboard-documentation).
 The file running_EFD_source_code.pptx, located in the repository, contains a step by step walkthrough for setting up and operating the EFD.
 
-<a name="Download"></a>
-# Downloading the code
-To download the code, simply enter the following command into a terminal window.
-
-    git clone https://github.com/ut-energy-institute/UT_EIoF_webtool_open_source.git
-
-
 <a name="Workflow"></a>
 # Workflow
 
 ![Image of workflow diagram](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/9a9da91fe97eb504fcac38e3701dc84f328d37fb/images/flow_diagram.png)
 
-Figure 2. Flow diagram showing the workflow from start to finish of the EFD source code
+Figure 3. Flow diagram showing the workflow from start to finish of the EFD source code
 
 <a name="Setup"></a>
-# Initial Setup
+# Initial Setup (_configure.R_)
 
 Before running the EFD for the first time, you need to run the file _config.R_ in RStudio. This executes a setup process that is needed in order to operate the EFD. This process does 4 things:
   1. Install all necessary R packages needed to operate the EFD
@@ -52,20 +46,25 @@ Before running the EFD for the first time, you need to run the file _config.R_ i
   4. Save a _config.csv_ file with any configuration settings that may be needed in the model.
 
 <a name="Operating"></a>
-# Operating the EFD
+# Operating the EFD (_run_simulations.R_)
 
-The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 3). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
+The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 2). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
     
-    
+    ```
     cd path/to/UT_EIoF_webtool
     rscript run simulations.R -b test
-    
+    ```
     
 In this example, test is the batch name which is indicated by the -b flag. Both must be included for the simulations to execute. Once a simulation has completed, the output data will be saved as an Rdata file in /master_r_scripts/simulations/batch name. 
 
 ![Image of example simulations file](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/8f2b11b6118319aec0d16d7081773b9dcb66086a/images/simulation_test.png)
 
-Figure 3. Every column is an input and every row represents a unique simulation
+Figure 2. Every column is an input and every row represents a unique simulation
+
+<a name="Documentation"></a>
+# Documentation
+The full documentation for the EFD and its assumptions can be located on the [UT Energy Institute webstie](https://energy.utexas.edu/energy-futures-dashboard-documentation). 
+
 
 <a name="GoogleSheets"></a>
 # Google Sheets
