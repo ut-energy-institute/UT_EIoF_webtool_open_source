@@ -8,6 +8,7 @@ This GitHub repository contains the source code for the Energy Futures Dashboard
 
 * [Introduction](#Introduction)
 * [Workflow](#Workflow)
+* [Downloading the code](#Download)
 * [Initial Setup](#Setup)
 * [Operating the EFD](#Operating)
 * [Documentation](#Documentation)
