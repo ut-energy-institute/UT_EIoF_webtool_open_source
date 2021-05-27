@@ -12,7 +12,6 @@ EIoF_gs4_function <- function(RegionNumber,GS_inputs_AnnualStorage,GS_inputs_NoS
   config = read.csv('config.csv')
   g_email = as.character(config$g_email)
 
-  
   ## +++++++++++++
   ## Array and selection of the correct two Google Sheets for the given input EIoF Region
   ## +++++++++++++
