@@ -1909,15 +1909,41 @@ PPdata_AnnualStorage <- PPdata_AnnualStorage[,!(names(PPdata_AnnualStorage) %in%
 
 
 ## specify the hours of data to write in the "solveGEN_output" list
-hour_winter_start = 500
-hour_winter_end = hour_winter_start+24*7-1
-hour_spring_start = hour_winter_start + 8760/4
-hour_spring_end = hour_spring_start+24*7-1
-hour_summer_start =  hour_spring_start + 8760/4
-hour_summer_end = hour_summer_start+24*7-1
-hour_fall_start =  hour_summer_start + 8760/4
-hour_fall_end = hour_fall_start+24*7-1
-hrs <- c(seq(hour_winter_start,hour_winter_end),seq(hour_spring_start,hour_spring_end),seq(hour_summer_start,hour_summer_end),seq(hour_fall_start,hour_fall_end))
+# hour_winter_start = 500
+# hour_winter_end = hour_winter_start+24*7-1
+# hour_spring_start = hour_winter_start + 8760/4
+# hour_spring_end = hour_spring_start+24*7-1
+# hour_summer_start =  hour_spring_start + 8760/4
+# hour_summer_end = hour_summer_start+24*7-1
+# hour_fall_start =  hour_summer_start + 8760/4
+# hour_fall_end = hour_fall_start+24*7-1
+# hrs <- c(seq(hour_winter_start,hour_winter_end),seq(hour_spring_start,hour_spring_end),seq(hour_summer_start,hour_summer_end),seq(hour_fall_start,hour_fall_end))
+
+## In the NREL ReEDS model, Winter (Nov/Dec/Jan/Feb) = 2880 hours, Spring (Mar/Apr/May) = 2208 hours, Summer (June/July/Aug) = 2208 hours, Fall (Sept/Oct) = 1464 hours
+hours_win = c(1:1416,7297:8760)
+hours_spri = c(1417:3624)
+hours_sum = c(3625:5832)
+hours_fall = c(5833:7296)
+hours_szn = list(hours_win,hours_spri,hours_sum,hours_fall)
+hrs = c()
+
+#function that pulls the hours for the week with the peak of a given metric
+#this function creates a temporary column with net_load
+get_peak_hours = function(szn_hrs,metric){
+  hours_temp = hourly_MWOutput_AnnualStorage[szn_hrs,]
+  hours_temp$net_load = hours_temp$Load-hours_temp$Wind_DirectToGrid-hours_temp$PV_DirectToGrid
+  peak = as.numeric(hours_temp$Hour_ending[hours_temp[metric] == max(hours_temp[metric])])
+  wk_start = peak - (3*24)-11
+  wk_end = peak + (3*24)+12
+  wk_hours = seq(wk_start,wk_end)
+  return(wk_hours)
+  
+}
+hrs = append(hrs,get_peak_hours(hours_win,'Load'))
+hrs = append(hrs,get_peak_hours(hours_spri,'net_load'))
+hrs = append(hrs,get_peak_hours(hours_sum,'Load'))
+hrs = append(hrs,get_peak_hours(hours_fall,'net_load'))
+
 
 ## Write new output data frames that are in a consistent format for creating JSON output from the R codes 
 ## on the server to the website and Google Sheet with the cash flow calculations.
