@@ -73,7 +73,7 @@ for(file_name in g_sheets){
     type = "spreadsheet",
     overwrite = TRUE,
     verbose=FALSE)
-  
+
   drive_share(
     file = name,
     role = "writer",
@@ -95,6 +95,7 @@ for(file_name in g_sheets){
   }
   print(paste0("Successfully uploaded ",name))
 }
+
 
 ###############################################################
 #   Outputs                                                   #

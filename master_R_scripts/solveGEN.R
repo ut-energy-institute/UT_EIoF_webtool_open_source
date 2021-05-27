@@ -1944,7 +1944,6 @@ hrs = append(hrs,get_peak_hours(hours_spri,'net_load'))
 hrs = append(hrs,get_peak_hours(hours_sum,'Load'))
 hrs = append(hrs,get_peak_hours(hours_fall,'net_load'))
 
-
 ## Write new output data frames that are in a consistent format for creating JSON output from the R codes 
 ## on the server to the website and Google Sheet with the cash flow calculations.
 ## FIRST: No Storage
