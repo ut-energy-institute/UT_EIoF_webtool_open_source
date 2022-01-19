@@ -61,7 +61,7 @@ Figure 2. Every column is an input and every row represents a unique simulation
 
 <a name="Documentation"></a>
 # Documentation
-The full documentation for the EFD and its assumptions can be located on the [UT Energy Institute webstie](https://energy.utexas.edu/energy-futures-dashboard-documentation). 
+The full documentation for the EFD and its assumptions can be located on the [UT Energy Institute website](https://energy.utexas.edu/energy-futures-dashboard-documentation). 
 
 
 <a name="GoogleSheets"></a>
