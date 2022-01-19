@@ -11,7 +11,7 @@
 ###############################################################
 
 
-cat('Select how you would like to install packages: \n 1. Install previous versions from local tar.gz files (this will overwrite any installed packages with a previous version) \n 2. Install most recent verion from web (as of 5/26/2021 the current versions of these packages will work with the EFD, \n      newer versions of packages may not be compatible)')
+cat('Select how you would like to install packages: \n 1. Install previous versions from local tar.gz files (this will overwrite any installed packages with a previous version) \n 2. Install most recent version from web (as of 5/26/2021 the current versions of these packages will work with the EFD, \n      newer versions of packages may not be compatible)')
 
 pkg_inst <- readline(prompt="Select: ")
 
