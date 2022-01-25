@@ -17,7 +17,7 @@ opt = parse_args(OptionParser(option_list=option_list))
 source('master_EIoF.R')
 
 
-#comment out this line and unccoment the next for testing in RStudio
+#comment out the line with "batch_name = opt$b" and unccoment the line with "batch_name = 'test'" for testing in RStudio
 batch_name = opt$b
 #batch_name = 'test'
 
