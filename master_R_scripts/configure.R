@@ -23,7 +23,43 @@ install.packages(c('../R_packages_static/lubridate_1.7.8.tar.gz','../R_packages_
                    '../R_packages_static/tibble_3.0.1.tar.gz','../R_packages_static/googledrive_1.0.1.tar.gz','../R_packages_static/googlesheets4_0.2.0.tar.gz','../R_packages_static/dplyr_0.8.5.tar.gz',
                    '../R_packages_static/Rcgmin_2013-2.21.tar.gz','../R_packages_static/numDeriv_2016.8-1.1.tar.gz'),repos = NULL, type='source')
 }else{
-install.packages(c('lubridate','jsonlite','tibble','googledrive','Rcgmin','numDeriv','readr','googlesheets4','dplyr','magrittr'))
+#install.packages(c('lubridate','jsonlite','tibble','googledrive','Rcgmin','numDeriv','readr','googlesheets4','dplyr','magrittr'))
+  
+  options(install.packages.compile.from.source = "never")  ## instructs "install.packages" command to not install packages from sources that require compilation
+  ## 1
+  ## You can likely answer "no" to the question "Do you want to install from sources the packages which need compilation?"
+  print("Installing (+ dependencies): 'lubridate','jsonlite','readr','Rcgmin','fuzzyjoin','lazyeval','networkD3'.")
+  install.packages(c('lubridate','jsonlite','readr','Rcgmin',
+                     'fuzzyjoin','lazyeval','networkD3'))
+  ## 2
+  ## You can likely answer "no" to the question "Do you want to install from sources the packages which need compilation?"
+  print("Installing (+ dependencies): 'matsbyname','matsindf'.")
+  install.packages(c('matsbyname','matsindf'))
+  ## 3
+  ## You can likely answer "no" to the question "Do you want to install from sources the packages which need compilation?"
+  ## The installation of "igraph" tends to fail generally when installing from source on January 19, 2022, so first try not installing from source that requires compilation.
+  print("Installing (+ dependencies): 'igraph','qgraph'.")
+  install.packages(c('igraph','qgraph'))
+  ## 4
+  print("Installing package 'Recca' from source .tar.gz file.")
+  install.packages(c('../R_packages_static/Recca_0.1.18.tar.gz'),repos = NULL, type='source')
+  
+  options(install.packages.compile.from.source = "always")  ## instructs "install.packages" command to install packages from sources that require compilation
+  ## 5
+  ## You likely need to answer "YES" to the question "Do you want to install from sources the packages which need compilation?"
+  print("Installing (+ dependencies) and compiling from source code if needed: 'htmlTable'.")
+  install.packages(c('htmlTable'))
+  ## 6
+  print("Installing (+ dependencies) and compiling from source code if needed: 'optimr'.")
+  install.packages(c('optimr'))
+  ## 7
+  ## You likely need to answer "YES" to the question "Do you want to install from sources the packages which need compilation?"
+  print("Installing (+ dependencies) and compiling from source code if needed: 'googlesheets4'.")
+  install.packages(c('googlesheets4'))
+  
+  options(install.packages.compile.from.source = "interactive")  ## instructs "install.packages" command (back to default condition) to ASK THE USER whether to install packages from sources that require compilation
+  print("All packages installed.")
+
 }
 
 
@@ -119,3 +155,14 @@ save(EIoF_GoogleSheet_Names,file=paste0("EIoF_gs4_function_data/EIoF_GoogleSheet
 #right now this is just the email for associated google drive account
 config = data.frame(g_email)
 write.csv(config,'config.csv',row.names = FALSE)
+
+print("****************************************************************************************************************************")
+print("*                                                                                                                          *")
+print("configure.R is complete.")
+print("If the code does not work after this configure.R file is complete, this is likely due to                                    ")
+print("a problem installing one of the packages.  Try to install each package, one-by-one as prompted,                             ")
+print("with dependencies and without 'compiling from source code' if prompted until the code runs.                                 ")
+print("Use the code 'master_EIoF_FOR_CODE_TESTING.R' to run 1 full simulation, and you can change the inputs                       ")
+print("in the early lines of the code: region_id = 6; coal_percent = 10; ... r_sh_ng = 58, to test different user inputs.          ")
+print("*                                                                                                                          *")
+print("****************************************************************************************************************************")
