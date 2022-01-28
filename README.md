@@ -46,7 +46,7 @@ Before running the EFD for the first time, you need to run the file _config.R_ i
   4. Save a _config.csv_ file with any configuration settings that may be needed in the model.
 
 <a name="Operating"></a>
-# Operating the EFD (_run_simulations.R_)
+# Operating the EFD (Option 1: batch runs via _run_simulations.R_)
 
 The EFD runs simulations in batches defined in simulations_{batch name}.csv. The batch name should be unique and is specified when executing simulations. This file is organized by one simulation per row where each row contains all the necessary user inputs to operate the EFD (see Figure 2). The open source code for the EFD is driven by the file _run_simulations.R_. This code reads in the specified simulations_{batch name}.csv and executes the simulations consecutively, row by row. The following lines are an example of how to execute a batch of simulations: 
     
@@ -63,6 +63,25 @@ In this example, test is the batch name which is indicated by the -b flag. Both 
 ![Image of example simulations file](https://github.com/ut-energy-institute/UT_EIoF_webtool/blob/8f2b11b6118319aec0d16d7081773b9dcb66086a/images/simulation_test.png)
 
 Figure 2. Every column is an input and every row represents a unique simulation
+
+# Operating the EFD (Option 2: single simulation vai _master_EIoF_FOR_CODE_TESTING.R_)
+
+The code master_EIoF_FOR_CODE_TESTING.R (a script code) is the same code as master_EIoF.R (a function) that calls all of the necessary subfunctions, but it runs as a script and not as a function. Thus, you can enter your EFD inputs at the beginning of this code in the lines as follows:
+
+region_id = 9  # 1:NW-Northwest, 2:CA-California, 3: MN-Mountain North, 4:SW-Southwest, 5:CE-Central; 6:TX-Texas; 7:MW-Midwest; 8:AL-Arkansas and Louisiana; 9:MA-Mid Atlantic; 10:SE-Southeast; 11:FL-Florida; 12:NY-New York; 13:NE-New England
+coal_percent = 10
+PV_percent = 30
+CSP_percent = 0
+wind_percent = 30
+biomass_percent = 0
+hydro_percent = 0
+petroleum_percent = 0
+nuclear_percent = 10
+geothermal_percent = 0
+ng_percent = 20
+ldv_e = 20  # percent of light duty vehicles that are electric
+r_sh_e = 20  # percent of residential space heating this is electric (heat pumps)
+r_sh_ng = 58  # percent of residential space heating that is natural gas furnaces
 
 <a name="Documentation"></a>
 # Documentation
